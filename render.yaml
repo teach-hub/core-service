@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: core-service
+    env: node
+    repo: https://github.com/teach-hub/core-service.git # optional
+    region: ohio
+    plan: free
+    branch: main
+    buildCommand: npm install && npx tsc
+    startCommand: node dist/index.js
+    numInstances: 1
+    healthCheckPath: /
