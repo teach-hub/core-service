@@ -10,10 +10,3 @@ services:
     startCommand: node dist/index.js
     numInstances: 1
     healthCheckPath: /
-
-databases:
-  - name: core-service-db
-    region: ohio
-    plan: free
-    databaseName: main_db_core_service
-    user: root
