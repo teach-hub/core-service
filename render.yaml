@@ -2,7 +2,7 @@ services:
   - type: web
     name: core-service
     env: node
-    repo: https://github.com/teach-hub/core-service.git # optional
+    repo: https://github.com/teach-hub/core-service.git
     region: ohio
     plan: free
     branch: main
