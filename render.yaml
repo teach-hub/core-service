@@ -8,12 +8,10 @@ databases:
 services:
   - type: web
     name: core-service
-    env: node
+    env: docker
     repo: https://github.com/teach-hub/core-service.git
     region: ohio
     plan: free
     branch: main
-    buildCommand: npm install && npx tsc
-    startCommand: node dist/index.js
     numInstances: 1
     healthCheckPath: /
