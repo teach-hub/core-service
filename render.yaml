@@ -1,3 +1,10 @@
+databases:
+  - name: main-db
+    region: ohio
+    plan: free
+    databaseName: teachhub_main_db
+    user: root
+
 services:
   - type: web
     name: core-service
