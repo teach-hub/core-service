@@ -16,5 +16,5 @@ RUN apt-get update && \
 
 RUN npm install && npx tsc
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]
 
