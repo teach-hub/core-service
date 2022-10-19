@@ -1,5 +1,6 @@
 set -euo pipefail
 
-sqitch deploy production && \
-    sqitch verify production && \
+cd src/db && \
+    sqitch deploy production && sqitch verify production && \
+    cd - &&
     node /teachhub/dist/index.js
