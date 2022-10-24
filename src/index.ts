@@ -6,7 +6,7 @@ import { graphqlHTTP } from 'express-graphql';
 import { writeSchema } from './utils';
 import schema from './schema';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 const app = express();
 
