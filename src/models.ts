@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 
 import db from './db';
 
-class Subject extends Sequelize.Model {
+export class Subject extends Sequelize.Model {
   readonly name!: String;
   readonly code!: String;
   readonly active!: Boolean
@@ -21,5 +21,3 @@ Subject.init(
     timestamps: false,
   }
 );
-
-export default Subject;

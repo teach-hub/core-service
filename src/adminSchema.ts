@@ -8,7 +8,7 @@ import {
 } from 'graphql';
 
 
-import Subject from './models';
+import { Subject } from './models';
 
 const SubjectType = new GraphQLObjectType({
   name: 'SubjectType',
@@ -58,8 +58,7 @@ const schema = new GraphQLSchema({
 
           console.log("Executing mutation createSubject");
 
-          const n = await Subject.create({ name, code });
-          return n;
+          return Subject.create({ name, code });
         }
       }
     }
