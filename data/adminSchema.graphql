@@ -1,0 +1,15 @@
+schema {
+  query: RootQueryType
+}
+
+"""An instance of current app"""
+type AppType {
+  """Version of current app"""
+  version: String
+}
+
+"""Root query"""
+type RootQueryType {
+  """App field on root query"""
+  app: AppType
+}

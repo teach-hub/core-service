@@ -8,6 +8,8 @@
   "version": "1.0.0",
   "main": "build/index.js",
   "scripts": {
+    "start": "npx tsc && node dist/index.js",
+    "db": "cd src/db && sqitch deploy development && cd -",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,6 +28,8 @@
     "express": "^4.18.1",
     "express-graphql": "^0.12.0",
     "graphql": "^15.8.0",
+    "pg": "^8.8.0",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.25.3"
   }
 }

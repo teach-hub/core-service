@@ -3,10 +3,10 @@
 BEGIN;
 
 CREATE TABLE teachhub.subjects (
-  id                    INT PRIMARY KEY,
+  id                    SERIAL PRIMARY KEY,
   name                  TEXT NOT NULL,
   code                  TEXT NOT NULL,
-  active                BOOLEAN
+  active                BOOLEAN DEFAULT false
 );
 
 COMMIT;

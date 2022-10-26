@@ -4,7 +4,9 @@ import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
 import { writeSchema } from './utils';
+
 import schema from './schema';
+import adminSchema from './adminSchema';
 
 const port = process.env.PORT || 4000;
 
@@ -17,6 +19,10 @@ app.use('/graphql', graphqlHTTP({
   schema,
 }));
 
+app.use('/admin/graphql', graphqlHTTP({
+  schema: adminSchema,
+}));
+
 app.get('/', (_, res) => {
   res.send('Welcome to TeachHub!');
 });
@@ -24,6 +30,11 @@ app.get('/', (_, res) => {
 writeSchema(
   schema,
   path.resolve(__dirname, '../data/schema.graphql'),
+);
+
+writeSchema(
+  schema,
+  path.resolve(__dirname, '../data/adminSchema.graphql'),
 );
 
 app.listen(port, () => {
