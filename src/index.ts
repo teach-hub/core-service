@@ -23,6 +23,11 @@ app.use('/admin/graphql', graphqlHTTP({
   schema: adminSchema,
 }));
 
+app.use('*', (req) => {
+  console.log("Processing request")
+  console.log(req)
+});
+
 app.get('/', (_, res) => {
   res.send('Welcome to TeachHub!');
 });
@@ -33,7 +38,7 @@ writeSchema(
 );
 
 writeSchema(
-  schema,
+  adminSchema,
   path.resolve(__dirname, '../data/adminSchema.graphql'),
 );
 

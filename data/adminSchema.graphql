@@ -1,15 +1,25 @@
-schema {
-  query: RootQueryType
+type ListMetadata {
+  count: Int
 }
 
-"""An instance of current app"""
-type AppType {
-  """Version of current app"""
-  version: String
+"""Admin schema root mutation"""
+type Mutation {
+  """Creates a new subject assigning name and department code"""
+  createSubject(code: String!, name: String!): Subject
 }
 
-"""Root query"""
-type RootQueryType {
-  """App field on root query"""
-  app: AppType
+"""Admin schema root query"""
+type Query {
+  Subject(id: ID): Subject
+  _allSubjectsMeta(page: Int, perPage: Int, sortField: String, sortOrder: String): ListMetadata
+
+  """List of subjects on the whole application"""
+  allSubjects(page: Int, perPage: Int, sortField: String, sortOrder: String): [Subject]
+}
+
+"""A subject within TeachHub"""
+type Subject {
+  code: String
+  id: ID
+  name: String
 }
