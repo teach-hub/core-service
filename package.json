@@ -8,7 +8,7 @@
   "version": "1.0.0",
   "main": "build/index.js",
   "scripts": {
-    "start": "npx tsc && node dist/index.js",
+    "start": "npx tsc && node dist/src/index.js",
     "db": "cd src/db && sqitch deploy development && cd -",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

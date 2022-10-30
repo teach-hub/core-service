@@ -3,14 +3,12 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLList,
-  GraphQLInputObjectType,
   GraphQLNonNull,
   GraphQLInt,
   GraphQLID,
 } from 'graphql';
 
-
-import { Subject } from './models';
+import { createSubject, findAllSubjects } from '../services/subject';
 
 const SubjectType = new GraphQLObjectType({
   name: 'Subject',
@@ -36,24 +34,24 @@ const schema = new GraphQLSchema({
     fields: {
       Subject: {
         type: SubjectType,
-        args: {
-          id: { type: GraphQLID }
-        }
+        args: { id: { type: GraphQLID }}
       },
       allSubjects: {
         type: new GraphQLList(SubjectType),
         description: "List of subjects on the whole application",
         args: ReactAdminArgs,
         resolve: async () => {
-          return Subject.findAll({ where: {} });
+          try {
+            return findAllSubjects();
+          } catch (e) {
+            return { errors: ['failed'] }
+          }
         }
       },
       _allSubjectsMeta: {
         type: new GraphQLObjectType({
           name: 'ListMetadata',
-          fields: {
-            count: { type: GraphQLInt }
-          }
+          fields: { count: { type: GraphQLInt }}
         }),
         args: ReactAdminArgs,
         resolve: () => ({ count: 1 })
@@ -72,14 +70,14 @@ const schema = new GraphQLSchema({
           name: { type: new GraphQLNonNull(GraphQLString) },
           code: { type: new GraphQLNonNull(GraphQLString) }
         },
-        resolve: async (source, { name, code }, context) => {
+        resolve: async (_, { name, code }) => {
 
           // XXX. Podriamos construir un wrapper para "generar" mutations.
           // Ahi podriamos poner cosas como el logger, etc.
 
           console.log("Executing mutation createSubject");
 
-          return Subject.create({ name, code });
+          return createSubject({ name, code });
         }
       }
     }

@@ -5,12 +5,17 @@ import { graphqlHTTP } from 'express-graphql';
 
 import { writeSchema } from './utils';
 
-import schema from './schema';
-import adminSchema from './adminSchema';
+import adminSchema from './schemas/adminSchema';
+import schema from './schemas/schema';
 
 const port = process.env.PORT || 4000;
 
 const app = express();
+
+writeSchema(
+  schema,
+  path.resolve(__dirname, '../../data/schema.graphql'),
+);
 
 app.use(cors());
 
@@ -24,23 +29,12 @@ app.use('/admin/graphql', graphqlHTTP({
 }));
 
 app.use('*', (req) => {
-  console.log("Processing request")
-  console.log(req)
-});
+  console.log(`Receiving request from ${req.url}`);
+})
 
 app.get('/', (_, res) => {
   res.send('Welcome to TeachHub!');
 });
-
-writeSchema(
-  schema,
-  path.resolve(__dirname, '../data/schema.graphql'),
-);
-
-writeSchema(
-  adminSchema,
-  path.resolve(__dirname, '../data/adminSchema.graphql'),
-);
 
 app.listen(port, () => {
   console.log(`Server listening on: ${port}`);

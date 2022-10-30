@@ -1,14 +1,14 @@
 import Sequelize from 'sequelize';
 
-import db from './db';
+import db from '../db';
 
-export class Subject extends Sequelize.Model {
+class SubjectModel extends Sequelize.Model {
   readonly name!: String;
   readonly code!: String;
   readonly active!: Boolean
 }
 
-Subject.init(
+SubjectModel.init(
   {
     name: Sequelize.TEXT,
     code: Sequelize.TEXT,
@@ -21,3 +21,5 @@ Subject.init(
     timestamps: false,
   }
 );
+
+export default SubjectModel;
