@@ -5,6 +5,8 @@ import {
   printSchema
 } from 'graphql';
 
+import db from './db';
+
 /**
   * Funcion util que nos sirve para
   * dumpear el schema actual a un archivo
@@ -24,4 +26,7 @@ export async function writeSchema(
   console.timeEnd(`Done writing SDL Schema to Disk`);
 }
 
+export const checkDB = async () => {
+  await db.query('SELECT 1 FROM sqitch.version;');
+}
 

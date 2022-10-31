@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
-import { writeSchema } from './utils';
+import { writeSchema, checkDB } from './utils';
 
 import adminSchema from './schemas/adminSchema';
 import schema from './schemas/schema';
@@ -19,18 +19,25 @@ writeSchema(
 
 app.use(cors());
 
+app.use('*', (req, _, next) => {
+  console.log(`Receiving request, endpoint: ${req.baseUrl}`);
+  next();
+})
+
 // Agregamos como middleware a GraphQL
 app.use('/graphql', graphqlHTTP({
   schema,
 }));
 
+app.get('/healthz', async (_, response) =>{
+  await checkDB();
+
+  response.status(200).send('OK');
+})
+
 app.use('/admin/graphql', graphqlHTTP({
   schema: adminSchema,
 }));
-
-app.use('*', (req) => {
-  console.log(`Receiving request from ${req.url}`);
-})
 
 app.get('/', (_, res) => {
   res.send('Welcome to TeachHub!');
