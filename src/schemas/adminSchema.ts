@@ -8,7 +8,7 @@ import {
   GraphQLID,
 } from 'graphql';
 
-import { createSubject, findAllSubjects } from '../services/subject';
+import { createSubject, findAllSubjects, findSubject, updateSubject } from '../services/subject';
 
 const SubjectType = new GraphQLObjectType({
   name: 'Subject',
@@ -34,17 +34,25 @@ const schema = new GraphQLSchema({
     fields: {
       Subject: {
         type: SubjectType,
-        args: { id: { type: GraphQLID }}
+        args: { id: { type: GraphQLID }},
+        resolve: async (_, { id }) => {
+          try {
+
+            console.log('Finding subject with id', { id });
+
+            return await findSubject({ subjectId: `${id}` });
+          } catch (e) {
+            return { errors: ['failed'] }
+          }
+        }
       },
       allSubjects: {
         type: new GraphQLList(SubjectType),
         description: "List of subjects on the whole application",
         args: ReactAdminArgs,
         resolve: async () => {
-          try {
-            return findAllSubjects();
-          } catch (e) {
-            return { errors: ['failed'] }
+          return {
+            errors: ['testing']
           }
         }
       },
@@ -62,7 +70,6 @@ const schema = new GraphQLSchema({
     name: 'Mutation',
     description: 'Admin schema root mutation',
     fields: {
-      // PoC: react-admin
       createSubject: {
         type: SubjectType, // Output type
         description: 'Creates a new subject assigning name and department code',
@@ -71,14 +78,20 @@ const schema = new GraphQLSchema({
           code: { type: new GraphQLNonNull(GraphQLString) }
         },
         resolve: async (_, { name, code }) => {
-
-          // XXX. Podriamos construir un wrapper para "generar" mutations.
-          // Ahi podriamos poner cosas como el logger, etc.
-
           console.log("Executing mutation createSubject");
 
-          return createSubject({ name, code });
+          return await createSubject({ name, code });
         }
+      },
+      updateSubject: {
+        type: SubjectType,
+        description: "Update subject record on TeachHub",
+        args: {
+          id: { type: new GraphQLNonNull(GraphQLID) },
+          name: { type: new GraphQLNonNull(GraphQLString) },
+          code: { type: new GraphQLNonNull(GraphQLString) }
+        },
+        resolve: async (_, { id, name, code }) => updateSubject(id, { name, code })
       }
     }
   })
