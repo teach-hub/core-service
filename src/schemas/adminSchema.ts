@@ -8,7 +8,13 @@ import {
   GraphQLID,
 } from 'graphql';
 
-import { createSubject, findAllSubjects, findSubject, updateSubject } from '../services/subject';
+import {
+  createSubject,
+  findAllSubjects,
+  findSubject,
+  updateSubject,
+  countSubjects
+} from '../services/subject';
 
 const SubjectType = new GraphQLObjectType({
   name: 'Subject',
@@ -24,6 +30,8 @@ const ReactAdminArgs = {
   page: { type: GraphQLInt },
   perPage: { type: GraphQLInt },
   sortField: { type: GraphQLString },
+
+  /* "ASC" | "DESC" */
   sortOrder: { type: GraphQLString },
 }
 
@@ -35,25 +43,14 @@ const schema = new GraphQLSchema({
       Subject: {
         type: SubjectType,
         args: { id: { type: GraphQLID }},
-        resolve: async (_, { id }) => {
-          try {
-
-            console.log('Finding subject with id', { id });
-
-            return await findSubject({ subjectId: `${id}` });
-          } catch (e) {
-            return { errors: ['failed'] }
-          }
-        }
+        resolve: async (_, { id }) => findSubject({ subjectId: id }),
       },
       allSubjects: {
         type: new GraphQLList(SubjectType),
         description: "List of subjects on the whole application",
         args: ReactAdminArgs,
-        resolve: async () => {
-          return {
-            errors: ['testing']
-          }
+        resolve: async (_, { page, perPage, sortField, sortOrder }) => {
+          return findAllSubjects({ page, perPage });
         }
       },
       _allSubjectsMeta: {
@@ -62,7 +59,9 @@ const schema = new GraphQLSchema({
           fields: { count: { type: GraphQLInt }}
         }),
         args: ReactAdminArgs,
-        resolve: () => ({ count: 1 })
+        resolve: async () => {
+          return { count: (await countSubjects()) };
+        }
       },
     },
   }),
@@ -85,13 +84,17 @@ const schema = new GraphQLSchema({
       },
       updateSubject: {
         type: SubjectType,
-        description: "Update subject record on TeachHub",
+        description: 'Update subject record on TeachHub',
         args: {
           id: { type: new GraphQLNonNull(GraphQLID) },
           name: { type: new GraphQLNonNull(GraphQLString) },
           code: { type: new GraphQLNonNull(GraphQLString) }
         },
-        resolve: async (_, { id, name, code }) => updateSubject(id, { name, code })
+        resolve: async (_, { id, name, code }) => {
+          console.log("Executing mutation updateSubject");
+
+          return updateSubject(id, { name, code })
+        },
       }
     }
   })

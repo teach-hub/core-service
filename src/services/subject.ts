@@ -1,12 +1,31 @@
 import Subject from '../models/subject';
 
+type Options = {
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortOrder?: string;
+}
+
+function isNumber (x: any): x is number {
+  return Number.isInteger(x);
+}
+
 export async function createSubject({ name, code }: { name: string, code: string }) {
   return Subject.create({ name, code });
 }
 
-export async function findAllSubjects() {
-  return Subject.findAll({});
+export async function findAllSubjects(options: Options) {
+
+  const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
+    { limit: options.perPage, offset: options.page * options.perPage }
+    : {};
+
+  return Subject.findAll(paginationOptions);
 }
+
+export async function countSubjects() { return Subject.count({}) };
+
 
 export async function findSubject({ subjectId }: { subjectId: string }) {
 
@@ -15,14 +34,12 @@ export async function findSubject({ subjectId }: { subjectId: string }) {
 
 export async function updateSubject(id: string, attrs: { name?: string, code?: string }) {
 
-  const target = await Subject.findOne({ where: { id: Number(id) }});
+  // https://sequelize.org/api/v6/class/src/model.js~model#static-method-update
+  // `update` devuelve un array con los valores updateados en el segundo lugar.
+  const [_, [updated]] = await Subject.update(
+    { name: attrs.name, code: attrs.code },
+    { where: { id: Number(id) }, returning: true }
+  );
 
-  if (target) {
-    await target.update(attrs)
-
-    await target.reload();
-    return target;
-  }
-
-  console.log('notfound with id', { id })
+  return updated;
 }
