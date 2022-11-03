@@ -13,7 +13,7 @@ import {
   findAllSubjects,
   findSubject,
   updateSubject,
-  countSubjects
+  countSubjects,
 } from '../services/subject';
 
 const SubjectType = new GraphQLObjectType({
@@ -50,7 +50,7 @@ const schema = new GraphQLSchema({
         description: "List of subjects on the whole application",
         args: ReactAdminArgs,
         resolve: async (_, { page, perPage, sortField, sortOrder }) => {
-          return findAllSubjects({ page, perPage });
+          return findAllSubjects({ page, perPage, sortField, sortOrder });
         }
       },
       _allSubjectsMeta: {
@@ -95,7 +95,7 @@ const schema = new GraphQLSchema({
 
           return updateSubject(id, { name, code })
         },
-      }
+      },
     }
   })
 });

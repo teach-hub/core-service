@@ -4,7 +4,7 @@ type Options = {
   page?: number;
   perPage?: number;
   sortField?: string;
-  sortOrder?: string;
+  sortOrder?: 'ASC' | 'DESC';
 }
 
 function isNumber (x: any): x is number {
@@ -21,7 +21,11 @@ export async function findAllSubjects(options: Options) {
     { limit: options.perPage, offset: options.page * options.perPage }
     : {};
 
-  return Subject.findAll(paginationOptions);
+  const orderingOptions = options.sortField ? [[ options.sortField, options.sortOrder?? 'DESC' ]] : [];
+
+  // @ts-expect-error XXX FIXME
+
+  return Subject.findAll({ ...paginationOptions, order: orderingOptions });
 }
 
 export async function countSubjects() { return Subject.count({}) };
