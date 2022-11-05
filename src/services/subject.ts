@@ -3,7 +3,7 @@ import Subject from '../models/subject';
 type Options = {
   page?: number;
   perPage?: number;
-  sortField?: string;
+  sortField?: 'id' | 'name' | 'code';
   sortOrder?: 'ASC' | 'DESC';
 }
 
@@ -23,7 +23,9 @@ export async function findAllSubjects(options: Options) {
 
   const orderingOptions = options.sortField ? [[ options.sortField, options.sortOrder?? 'DESC' ]] : [];
 
-  // @ts-expect-error XXX FIXME
+  // @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
+  // keyof Subject porque Sequelize (sus tipos para se exactos) no entiende
+  // que el primer elemento de la lista en realidad son las keys del modelo.
 
   return Subject.findAll({ ...paginationOptions, order: orderingOptions });
 }

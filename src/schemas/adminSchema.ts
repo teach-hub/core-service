@@ -29,9 +29,15 @@ const SubjectType = new GraphQLObjectType({
 const ReactAdminArgs = {
   page: { type: GraphQLInt },
   perPage: { type: GraphQLInt },
+
+  // En realidad no es un GraphQLString, solamente puede ser uno
+  // de los campos que exponemos en SubjectType. O sea, el tipo
+  // real seria: 'id' | 'name' | 'code'.
+
   sortField: { type: GraphQLString },
 
-  /* "ASC" | "DESC" */
+  // "ASC" | "DESC"
+
   sortOrder: { type: GraphQLString },
 }
 
