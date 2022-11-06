@@ -7,6 +7,7 @@ class CourseModel extends Sequelize.Model {
   readonly id!: Number;
   readonly name!: String;
   readonly githubOrganization!: String;
+  readonly subjectId!: Number;
   readonly period!: Number
   readonly year!: Number
   readonly active!: Boolean
@@ -14,9 +15,20 @@ class CourseModel extends Sequelize.Model {
 
 CourseModel.init(
   {
-    id: Sequelize.INTEGER,
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     name: Sequelize.TEXT,
-    githubOrganization: Sequelize.TEXT,
+    githubOrganization: {
+      type: Sequelize.TEXT,
+      field: 'github_organization'
+    },
+    subjectId: {
+      type: Sequelize.NUMBER,
+      field: 'subject_id',
+    },
     period: Sequelize.INTEGER,
     year: Sequelize.INTEGER,
     active: Sequelize.BOOLEAN
@@ -29,6 +41,6 @@ CourseModel.init(
   }
 );
 
-CourseModel.hasOne(SubjectModel, { foreignKey: 'subject_id' })
+CourseModel.belongsTo(SubjectModel, { foreignKey: 'subject_id' })
 
 export default CourseModel;

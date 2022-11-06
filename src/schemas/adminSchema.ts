@@ -16,6 +16,14 @@ import {
   countSubjects,
 } from '../services/subject';
 
+import {
+  createCourse,
+  findAllCourses,
+  findCourse,
+  countCourses,
+} from '../services/course';
+
+
 const SubjectType = new GraphQLObjectType({
   name: 'Subject',
   description: 'A subject within TeachHub',
@@ -34,7 +42,8 @@ const CourseType = new GraphQLObjectType({
     name: { type: GraphQLString },
     organization: { type: GraphQLString },
     period: { type: GraphQLInt },
-    year: { type: GraphQLInt }
+    year: { type: GraphQLInt },
+    subjectId: { type: GraphQLInt }
   }
 });
 
@@ -85,14 +94,14 @@ const schema = new GraphQLSchema({
       Course: {
         type: SubjectType,
         args: { id: { type: GraphQLID }},
-        resolve: async () => {},
+        resolve: async (_, { id }) => findCourse({ courseId: id }),
       },
       allCourses: {
         type: new GraphQLList(CourseType),
         description: "List of courses on the whole application",
         args: ReactAdminArgs,
         resolve: async (_, { page, perPage, sortField, sortOrder }) => {
-          return [];
+          return findAllCourses({ page, perPage, sortField, sortOrder });
         }
       },
       _allCoursesMeta: {
@@ -103,7 +112,7 @@ const schema = new GraphQLSchema({
         args: ReactAdminArgs,
         resolve: async () => {
           // TODO
-          return { count: 0 };
+          return { count: 5 };
         }
       }
     },
@@ -138,6 +147,22 @@ const schema = new GraphQLSchema({
 
           return updateSubject(id, { name, code })
         },
+      },
+      createCourse: {
+        type: CourseType, // Output type
+        description: 'Creates a new course assigning name and department code',
+        args: {
+          name: { type: GraphQLString },
+          organization: { type: GraphQLString },
+          period: { type: GraphQLInt },
+          year: { type: GraphQLInt },
+          subjectId: { type: GraphQLInt }
+        },
+        resolve: async (_, { name, year, period, githubOrganization, subjectId }) => {
+          console.log("Executing mutation createCourse");
+
+          return await createCourse({ name, year, period, githubOrganization, subjectId });
+        }
       },
     }
   })
