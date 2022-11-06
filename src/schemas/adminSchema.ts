@@ -26,6 +26,19 @@ const SubjectType = new GraphQLObjectType({
   }
 });
 
+const CourseType = new GraphQLObjectType({
+  name: 'Course',
+  description: 'A course within TeachHub',
+  fields: {
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    organization: { type: GraphQLString },
+    period: { type: GraphQLInt },
+    year: { type: GraphQLInt }
+  }
+});
+
+
 const ReactAdminArgs = {
   page: { type: GraphQLInt },
   perPage: { type: GraphQLInt },
@@ -61,7 +74,7 @@ const schema = new GraphQLSchema({
       },
       _allSubjectsMeta: {
         type: new GraphQLObjectType({
-          name: 'ListMetadata',
+          name: 'SubjectListMetadata',
           fields: { count: { type: GraphQLInt }}
         }),
         args: ReactAdminArgs,
@@ -69,6 +82,30 @@ const schema = new GraphQLSchema({
           return { count: (await countSubjects()) };
         }
       },
+      Course: {
+        type: SubjectType,
+        args: { id: { type: GraphQLID }},
+        resolve: async () => {},
+      },
+      allCourses: {
+        type: new GraphQLList(CourseType),
+        description: "List of courses on the whole application",
+        args: ReactAdminArgs,
+        resolve: async (_, { page, perPage, sortField, sortOrder }) => {
+          return [];
+        }
+      },
+      _allCoursesMeta: {
+        type: new GraphQLObjectType({
+          name: 'CourseListMetadata',
+          fields: { count: { type: GraphQLInt }}
+        }),
+        args: ReactAdminArgs,
+        resolve: async () => {
+          // TODO
+          return { count: 0 };
+        }
+      }
     },
   }),
   mutation: new GraphQLObjectType({
