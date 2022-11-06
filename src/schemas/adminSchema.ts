@@ -8,7 +8,13 @@ import {
   GraphQLID,
 } from 'graphql';
 
-import { createSubject, findAllSubjects } from '../services/subject';
+import {
+  createSubject,
+  findAllSubjects,
+  findSubject,
+  updateSubject,
+  countSubjects,
+} from '../services/subject';
 
 const SubjectType = new GraphQLObjectType({
   name: 'Subject',
@@ -23,7 +29,15 @@ const SubjectType = new GraphQLObjectType({
 const ReactAdminArgs = {
   page: { type: GraphQLInt },
   perPage: { type: GraphQLInt },
+
+  // En realidad no es un GraphQLString, solamente puede ser uno
+  // de los campos que exponemos en SubjectType. O sea, el tipo
+  // real seria: 'id' | 'name' | 'code'.
+
   sortField: { type: GraphQLString },
+
+  // "ASC" | "DESC"
+
   sortOrder: { type: GraphQLString },
 }
 
@@ -34,18 +48,15 @@ const schema = new GraphQLSchema({
     fields: {
       Subject: {
         type: SubjectType,
-        args: { id: { type: GraphQLID }}
+        args: { id: { type: GraphQLID }},
+        resolve: async (_, { id }) => findSubject({ subjectId: id }),
       },
       allSubjects: {
         type: new GraphQLList(SubjectType),
         description: "List of subjects on the whole application",
         args: ReactAdminArgs,
-        resolve: async () => {
-          try {
-            return findAllSubjects();
-          } catch (e) {
-            return { errors: ['failed'] }
-          }
+        resolve: async (_, { page, perPage, sortField, sortOrder }) => {
+          return findAllSubjects({ page, perPage, sortField, sortOrder });
         }
       },
       _allSubjectsMeta: {
@@ -54,7 +65,9 @@ const schema = new GraphQLSchema({
           fields: { count: { type: GraphQLInt }}
         }),
         args: ReactAdminArgs,
-        resolve: () => ({ count: 1 })
+        resolve: async () => {
+          return { count: (await countSubjects()) };
+        }
       },
     },
   }),
@@ -62,7 +75,6 @@ const schema = new GraphQLSchema({
     name: 'Mutation',
     description: 'Admin schema root mutation',
     fields: {
-      // PoC: react-admin
       createSubject: {
         type: SubjectType, // Output type
         description: 'Creates a new subject assigning name and department code',
@@ -71,15 +83,25 @@ const schema = new GraphQLSchema({
           code: { type: new GraphQLNonNull(GraphQLString) }
         },
         resolve: async (_, { name, code }) => {
-
-          // XXX. Podriamos construir un wrapper para "generar" mutations.
-          // Ahi podriamos poner cosas como el logger, etc.
-
           console.log("Executing mutation createSubject");
 
-          return createSubject({ name, code });
+          return await createSubject({ name, code });
         }
-      }
+      },
+      updateSubject: {
+        type: SubjectType,
+        description: 'Update subject record on TeachHub',
+        args: {
+          id: { type: new GraphQLNonNull(GraphQLID) },
+          name: { type: new GraphQLNonNull(GraphQLString) },
+          code: { type: new GraphQLNonNull(GraphQLString) }
+        },
+        resolve: async (_, { id, name, code }) => {
+          console.log("Executing mutation updateSubject");
+
+          return updateSubject(id, { name, code })
+        },
+      },
     }
   })
 });
