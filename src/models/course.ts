@@ -20,7 +20,10 @@ CourseModel.init(
       primaryKey: true,
       autoIncrement: true
     },
-    name: Sequelize.TEXT,
+    name: {
+      type: Sequelize.TEXT,
+      allowNull: false,
+    },
     githubOrganization: {
       type: Sequelize.TEXT,
       field: 'github_organization'
@@ -28,10 +31,20 @@ CourseModel.init(
     subjectId: {
       type: Sequelize.NUMBER,
       field: 'subject_id',
+      allowNull: false,
     },
-    period: Sequelize.INTEGER,
-    year: Sequelize.INTEGER,
-    active: Sequelize.BOOLEAN
+    period: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
+    year: {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    active: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false
+    }
   },
   {
     sequelize: db,

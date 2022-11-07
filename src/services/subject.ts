@@ -32,7 +32,6 @@ export async function findAllSubjects(options: Options) {
 
 export async function countSubjects() { return Subject.count({}) };
 
-
 export async function findSubject({ subjectId }: { subjectId: string }) {
 
   return Subject.findOne({ where: { id: Number(subjectId) }});

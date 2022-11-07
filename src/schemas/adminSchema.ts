@@ -6,6 +6,7 @@ import {
   GraphQLNonNull,
   GraphQLInt,
   GraphQLID,
+  GraphQLBoolean
 } from 'graphql';
 
 import {
@@ -20,7 +21,7 @@ import {
   createCourse,
   findAllCourses,
   findCourse,
-  countCourses,
+  updateCourse,
 } from '../services/course';
 
 
@@ -92,7 +93,7 @@ const schema = new GraphQLSchema({
         }
       },
       Course: {
-        type: SubjectType,
+        type: CourseType,
         args: { id: { type: GraphQLID }},
         resolve: async (_, { id }) => findCourse({ courseId: id }),
       },
@@ -163,6 +164,24 @@ const schema = new GraphQLSchema({
 
           return await createCourse({ name, year, period, githubOrganization, subjectId });
         }
+      },
+      updateCourse: {
+        type: CourseType,
+        description: 'Update course record on TeachHub',
+        args: {
+          id: { type: new GraphQLNonNull(GraphQLID) },
+          name: { type: new GraphQLNonNull(GraphQLString) },
+          organization: { type: GraphQLString },
+          period: { type: GraphQLInt },
+          year: { type: GraphQLInt },
+          subjectId: { type: GraphQLInt },
+          active: { type: GraphQLBoolean }
+        },
+        resolve: async (_, { id, ...rest }) => {
+          console.log("Executing mutation updateCourse");
+
+          return updateCourse(id, rest)
+        },
       },
     }
   })
