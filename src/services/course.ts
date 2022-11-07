@@ -12,11 +12,11 @@ function isNumber (x: any): x is number {
 }
 
 export async function createCourse(
-  { githubOrganization, name, year, period, subjectId }
-  : { githubOrganization: string, name: string, period: Number, year: Number, subjectId: Number }
+  { organization, name, year, period, subjectId }
+  : { organization: string, name: string, period: Number, year: Number, subjectId: Number }
 ) {
 
-  return Course.create({ active: true, githubOrganization, name, year, period, subject_id: subjectId });
+  return Course.create({ active: true, githubOrganization: organization, name, year, period, subjectId });
 }
 
 export async function findAllCourses(options: Options) {
@@ -45,7 +45,7 @@ export async function updateCourse(
   id: string,
   attrs: {
     name?: string,
-    githubOrganization?: string,
+    organization?: string,
     subjectId?: number,
     period?: number,
     year?: number,
@@ -58,7 +58,7 @@ export async function updateCourse(
   const [_, [updated]] = await Course.update(
     {
       name: attrs.name,
-      githubOrganization: attrs.githubOrganization,
+      githubOrganization: attrs.organization,
       subjectId: attrs.subjectId,
       period: attrs.period,
       year: attrs.year,

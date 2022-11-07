@@ -22,6 +22,7 @@ import {
   findAllCourses,
   findCourse,
   updateCourse,
+  countCourses
 } from '../services/course';
 
 
@@ -42,9 +43,10 @@ const CourseType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     organization: { type: GraphQLString },
-    period: { type: GraphQLInt },
+    period: { type: GraphQLString },
     year: { type: GraphQLInt },
-    subjectId: { type: GraphQLInt }
+    subjectId: { type: GraphQLInt },
+    active: { type: GraphQLBoolean }
   }
 });
 
@@ -112,8 +114,7 @@ const schema = new GraphQLSchema({
         }),
         args: ReactAdminArgs,
         resolve: async () => {
-          // TODO
-          return { count: 5 };
+          return { count: (await countCourses()) };
         }
       }
     },
@@ -143,10 +144,10 @@ const schema = new GraphQLSchema({
           name: { type: new GraphQLNonNull(GraphQLString) },
           code: { type: new GraphQLNonNull(GraphQLString) }
         },
-        resolve: async (_, { id, name, code }) => {
+        resolve: async (_, { id, ...rest }) => {
           console.log("Executing mutation updateSubject");
 
-          return updateSubject(id, { name, code })
+          return updateSubject(id, rest)
         },
       },
       createCourse: {
@@ -159,10 +160,10 @@ const schema = new GraphQLSchema({
           year: { type: GraphQLInt },
           subjectId: { type: GraphQLInt }
         },
-        resolve: async (_, { name, year, period, githubOrganization, subjectId }) => {
+        resolve: async (_, { name, year, period, organization, subjectId }) => {
           console.log("Executing mutation createCourse");
 
-          return await createCourse({ name, year, period, githubOrganization, subjectId });
+          return await createCourse({ name, year, period, organization, subjectId });
         }
       },
       updateCourse: {

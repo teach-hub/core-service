@@ -4,13 +4,13 @@ import db from '../db';
 import SubjectModel from './subject';
 
 class CourseModel extends Sequelize.Model {
-  readonly id!: Number;
-  readonly name!: String;
-  readonly githubOrganization!: String;
-  readonly subjectId!: Number;
-  readonly period!: Number
-  readonly year!: Number
-  readonly active!: Boolean
+  readonly id!: number;
+  readonly name!: string;
+  readonly githubOrganization!: string;
+  readonly subjectId!: number;
+  readonly period!: string;
+  readonly year!: number;
+  readonly active!: boolean;
 }
 
 CourseModel.init(
@@ -34,7 +34,7 @@ CourseModel.init(
       allowNull: false,
     },
     period: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.ENUM('1', '2'),
       allowNull: false,
     },
     year: {
