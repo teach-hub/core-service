@@ -38,6 +38,6 @@ export function isNumber (x: any): x is number {
 }
 
 export const checkDB = async () => {
-  await db.query('SELECT 1 FROM sqitch.version;');
+  await db.query('SELECT 1 FROM user;');
 }
 
