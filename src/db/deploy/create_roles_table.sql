@@ -2,6 +2,12 @@
 
 BEGIN;
 
--- XXX Add DDLs here.
+  CREATE TABLE teachhub.roles (
+    id                    SERIAL PRIMARY KEY,
+    name                  TEXT NOT NULL,
+    parent_role_id        INTEGER,
+    permissions           TEXT NOT NULL,
+    active                BOOLEAN DEFAULT false
+  );
 
 COMMIT;

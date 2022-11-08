@@ -2,6 +2,12 @@
 
 BEGIN;
 
--- XXX Add verifications here.
+  SELECT
+    id,
+    name,
+    parent_role_id,
+    permissions,
+    active
+  FROM teachhub.roles;
 
 ROLLBACK;
