@@ -4,3 +4,4 @@
 create_main_schema 2022-10-19T00:12:34Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # TeachHub schema
 create_subjects_table 2022-10-25T03:18:45Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # Agrega tabla materias
 create_course_table 2022-11-06T18:10:07Z Tomas Lopez Hidalgo <ttflopez@fi.uba.ar> # Tablas de catedra
+create_roles_table 2022-11-08T02:58:23Z Tomas Lopez Hidalgo <tlopez.contractor@lattice.com> # Agrega tabla de roles

@@ -1,0 +1,7 @@
+-- Verify teachhub:create_roles_table on pg
+
+BEGIN;
+
+-- XXX Add verifications here.
+
+ROLLBACK;
