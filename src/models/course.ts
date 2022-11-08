@@ -8,7 +8,7 @@ class CourseModel extends Sequelize.Model {
   readonly name!: string;
   readonly githubOrganization!: string;
   readonly subjectId!: number;
-  readonly period!: string;
+  readonly period!: '1' | '2';
   readonly year!: number;
   readonly active!: boolean;
 }

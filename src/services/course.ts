@@ -1,15 +1,5 @@
 import Course from '../models/course';
-
-type Options = {
-  page?: number;
-  perPage?: number;
-  sortField?: string;
-  sortOrder?: 'ASC' | 'DESC';
-}
-
-function isNumber (x: any): x is number {
-  return Number.isInteger(x);
-}
+import { isNumber, OrderingOptions } from '../utils';
 
 export async function createCourse(
   { organization, name, year, period, subjectId }
@@ -19,7 +9,7 @@ export async function createCourse(
   return Course.create({ active: true, githubOrganization: organization, name, year, period, subjectId });
 }
 
-export async function findAllCourses(options: Options) {
+export async function findAllCourses(options: OrderingOptions) {
 
   const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
     { limit: options.perPage, offset: options.page * options.perPage }

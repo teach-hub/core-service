@@ -7,6 +7,13 @@ import {
 
 import db from './db';
 
+export type OrderingOptions = {
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortOrder?: 'ASC' | 'DESC';
+};
+
 /**
   * Funcion util que nos sirve para
   * dumpear el schema actual a un archivo
@@ -24,6 +31,10 @@ export async function writeSchema(
 
   fs.writeFileSync(outputPath, printSchema(lexicographicSortSchema(schema)));
   console.timeEnd(`Done writing SDL Schema to Disk`);
+}
+
+export function isNumber (x: any): x is number {
+  return Number.isInteger(x);
 }
 
 export const checkDB = async () => {
