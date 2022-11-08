@@ -6,6 +6,7 @@ import {
   GraphQLNonNull,
   GraphQLInt,
   GraphQLID,
+  GraphQLBoolean
 } from 'graphql';
 
 import {
@@ -16,6 +17,15 @@ import {
   countSubjects,
 } from '../services/subject';
 
+import {
+  createCourse,
+  findAllCourses,
+  findCourse,
+  updateCourse,
+  countCourses
+} from '../services/course';
+
+
 const SubjectType = new GraphQLObjectType({
   name: 'Subject',
   description: 'A subject within TeachHub',
@@ -25,6 +35,21 @@ const SubjectType = new GraphQLObjectType({
     code: { type: GraphQLString }
   }
 });
+
+const CourseType = new GraphQLObjectType({
+  name: 'Course',
+  description: 'A course within TeachHub',
+  fields: {
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    organization: { type: GraphQLString },
+    period: { type: GraphQLString },
+    year: { type: GraphQLInt },
+    subjectId: { type: GraphQLInt },
+    active: { type: GraphQLBoolean }
+  }
+});
+
 
 const ReactAdminArgs = {
   page: { type: GraphQLInt },
@@ -61,7 +86,7 @@ const schema = new GraphQLSchema({
       },
       _allSubjectsMeta: {
         type: new GraphQLObjectType({
-          name: 'ListMetadata',
+          name: 'SubjectListMetadata',
           fields: { count: { type: GraphQLInt }}
         }),
         args: ReactAdminArgs,
@@ -69,6 +94,29 @@ const schema = new GraphQLSchema({
           return { count: (await countSubjects()) };
         }
       },
+      Course: {
+        type: CourseType,
+        args: { id: { type: GraphQLID }},
+        resolve: async (_, { id }) => findCourse({ courseId: id }),
+      },
+      allCourses: {
+        type: new GraphQLList(CourseType),
+        description: "List of courses on the whole application",
+        args: ReactAdminArgs,
+        resolve: async (_, { page, perPage, sortField, sortOrder }) => {
+          return findAllCourses({ page, perPage, sortField, sortOrder });
+        }
+      },
+      _allCoursesMeta: {
+        type: new GraphQLObjectType({
+          name: 'CourseListMetadata',
+          fields: { count: { type: GraphQLInt }}
+        }),
+        args: ReactAdminArgs,
+        resolve: async () => {
+          return { count: (await countCourses()) };
+        }
+      }
     },
   }),
   mutation: new GraphQLObjectType({
@@ -96,10 +144,44 @@ const schema = new GraphQLSchema({
           name: { type: new GraphQLNonNull(GraphQLString) },
           code: { type: new GraphQLNonNull(GraphQLString) }
         },
-        resolve: async (_, { id, name, code }) => {
+        resolve: async (_, { id, ...rest }) => {
           console.log("Executing mutation updateSubject");
 
-          return updateSubject(id, { name, code })
+          return updateSubject(id, rest)
+        },
+      },
+      createCourse: {
+        type: CourseType, // Output type
+        description: 'Creates a new course assigning name and department code',
+        args: {
+          name: { type: GraphQLString },
+          organization: { type: GraphQLString },
+          period: { type: GraphQLInt },
+          year: { type: GraphQLInt },
+          subjectId: { type: GraphQLInt }
+        },
+        resolve: async (_, { name, year, period, organization, subjectId }) => {
+          console.log("Executing mutation createCourse");
+
+          return await createCourse({ name, year, period, organization, subjectId });
+        }
+      },
+      updateCourse: {
+        type: CourseType,
+        description: 'Update course record on TeachHub',
+        args: {
+          id: { type: new GraphQLNonNull(GraphQLID) },
+          name: { type: new GraphQLNonNull(GraphQLString) },
+          organization: { type: GraphQLString },
+          period: { type: GraphQLInt },
+          year: { type: GraphQLInt },
+          subjectId: { type: GraphQLInt },
+          active: { type: GraphQLBoolean }
+        },
+        resolve: async (_, { id, ...rest }) => {
+          console.log("Executing mutation updateCourse");
+
+          return updateCourse(id, rest)
         },
       },
     }

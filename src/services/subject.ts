@@ -1,21 +1,11 @@
 import Subject from '../models/subject';
-
-type Options = {
-  page?: number;
-  perPage?: number;
-  sortField?: 'id' | 'name' | 'code';
-  sortOrder?: 'ASC' | 'DESC';
-}
-
-function isNumber (x: any): x is number {
-  return Number.isInteger(x);
-}
+import { isNumber, OrderingOptions } from '../utils';
 
 export async function createSubject({ name, code }: { name: string, code: string }) {
   return Subject.create({ name, code });
 }
 
-export async function findAllSubjects(options: Options) {
+export async function findAllSubjects(options: OrderingOptions) {
 
   const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
     { limit: options.perPage, offset: options.page * options.perPage }
@@ -31,7 +21,6 @@ export async function findAllSubjects(options: Options) {
 }
 
 export async function countSubjects() { return Subject.count({}) };
-
 
 export async function findSubject({ subjectId }: { subjectId: string }) {
 
