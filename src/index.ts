@@ -29,15 +29,15 @@ app.use('/graphql', graphqlHTTP({
   schema,
 }));
 
+app.use('/admin/graphql', graphqlHTTP({
+  schema: adminSchema,
+}));
+
 app.get('/healthz', async (_, response) =>{
   await checkDB();
 
   response.status(200).send('OK');
 })
-
-app.use('/admin/graphql', graphqlHTTP({
-  schema: adminSchema,
-}));
 
 app.get('/', (_, res) => {
   res.send('Welcome to TeachHub!');
