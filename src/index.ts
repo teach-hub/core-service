@@ -34,9 +34,13 @@ app.use('/admin/graphql', graphqlHTTP({
 }));
 
 app.get('/healthz', async (_, response) =>{
-  await checkDB();
-
-  response.status(200).send('OK');
+   try {
+     await checkDB();
+     response.status(200).send('OK');
+   } catch (e: Error | any) {
+     console.log(e)
+     response.status(500).send(e.message)
+   }
 })
 
 app.get('/', (_, res) => {
