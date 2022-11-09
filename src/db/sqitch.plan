@@ -5,3 +5,4 @@ create_main_schema 2022-10-19T00:12:34Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> 
 create_subjects_table 2022-10-25T03:18:45Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # Agrega tabla materias
 create_course_table 2022-11-06T18:10:07Z Tomas Lopez Hidalgo <ttflopez@fi.uba.ar> # Tablas de catedra
 create_admin_users_table 2022-11-08T00:38:27Z Sebastian Penna <spenna@fi.uba.ar> # Create admin users table
+create_users_table 2022-11-09T23:29:58Z Tomas Lopez Hidalgo <tlopez.contractor@lattice.com> # Agrega tabla usuarios
