@@ -12,8 +12,58 @@ class CourseModel extends Sequelize.Model {
   readonly period!: '1' | '2';
   readonly year!: number;
   readonly active!: boolean;
+
+  static initialize = (db: Sequelize.Sequelize) => {
+    return CourseModel.init(
+      {
+        id: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        },
+        name: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        githubOrganization: {
+          type: Sequelize.TEXT,
+          field: 'github_organization'
+        },
+        subjectId: {
+          type: Sequelize.NUMBER,
+          field: 'subject_id',
+          allowNull: false,
+        },
+        period: {
+          type: Sequelize.ENUM('1', '2'),
+          allowNull: false,
+        },
+        year: {
+          type: Sequelize.INTEGER,
+          allowNull: false
+        },
+        active: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false
+        }
+      },
+      {
+        sequelize: db,
+        schema: 'teachhub',
+        tableName: 'courses',
+        timestamps: false,
+      }
+    );
+  }
+
+  static associate = (models: any) => {
+    const { SubjectModel } = models;
+
+    CourseModel.belongsTo(SubjectModel, { foreignKey: 'subject_id' })
+  }
 }
 
+<<<<<<< HEAD
 CourseModel.init(
   {
     id: {
@@ -57,4 +107,6 @@ CourseModel.init(
 
 CourseModel.belongsTo(SubjectModel, { foreignKey: 'subject_id' })
 
+=======
+>>>>>>> 4de9d05 (Initialize models)
 export default CourseModel;

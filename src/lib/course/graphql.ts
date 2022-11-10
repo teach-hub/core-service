@@ -8,13 +8,8 @@ import {
   GraphQLBoolean
 } from 'graphql';
 
-import {
-  createCourse,
-  findAllCourses,
-  findCourse,
-  updateCourse,
-  countCourses
-} from './service';
+import { createCourse, findAllCourses, findCourse, updateCourse, countCourses } from './service';
+import { RAArgs } from '../../graphql/utils';
 
 const CourseType = new GraphQLObjectType({
   name: 'Course',
@@ -30,22 +25,7 @@ const CourseType = new GraphQLObjectType({
   }
 });
 
-const ReactAdminArgs = {
-  page: { type: GraphQLInt },
-  perPage: { type: GraphQLInt },
-
-  // En realidad no es un GraphQLString, solamente puede ser uno
-  // de los campos que exponemos en SubjectType. O sea, el tipo
-  // real seria: 'id' | 'name' | 'code'.
-
-  sortField: { type: GraphQLString },
-
-  // "ASC" | "DESC"
-
-  sortOrder: { type: GraphQLString },
-}
-
-export const courseFields = {
+const courseFields = {
   Course: {
     type: CourseType,
     args: { id: { type: GraphQLID }},
@@ -54,7 +34,7 @@ export const courseFields = {
   allCourses: {
     type: new GraphQLList(CourseType),
     description: "List of courses on the whole application",
-    args: ReactAdminArgs,
+    args: RAArgs,
     resolve: async (_: any, { page, perPage, sortField, sortOrder }: any) => {
       return findAllCourses({ page, perPage, sortField, sortOrder });
     }
@@ -64,7 +44,7 @@ export const courseFields = {
       name: 'CourseListMetadata',
       fields: { count: { type: GraphQLInt }}
     }),
-    args: ReactAdminArgs,
+    args: RAArgs,
     resolve: async () => {
       return { count: (await countCourses()) };
     }
@@ -72,7 +52,7 @@ export const courseFields = {
 }
 
 
-export const courseMutations = {
+const courseMutations = {
   createCourse: {
     type: CourseType, // Output type
     description: 'Creates a new course assigning name and department code',
@@ -108,3 +88,8 @@ export const courseMutations = {
     },
   }
 };
+
+export {
+  courseMutations,
+  courseFields
+}

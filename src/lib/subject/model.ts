@@ -8,8 +8,30 @@ class SubjectModel extends Sequelize.Model {
   readonly name!: string;
   readonly code!: string;
   readonly active!: boolean
+
+  static initialize = (db: Sequelize.Sequelize) => {
+    return SubjectModel.init(
+      {
+        id: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        },
+        name: Sequelize.TEXT,
+        code: Sequelize.TEXT,
+        active: Sequelize.BOOLEAN
+      },
+      {
+        sequelize: db,
+        schema: 'teachhub',
+        tableName: 'subjects',
+        timestamps: false,
+      }
+    );
+  }
 }
 
+<<<<<<< HEAD
 SubjectModel.init(
   {
     id: {
@@ -28,5 +50,7 @@ SubjectModel.init(
     timestamps: false,
   }
 );
+=======
+>>>>>>> 4de9d05 (Initialize models)
 
 export default SubjectModel;

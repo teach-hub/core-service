@@ -15,6 +15,8 @@ import {
   countSubjects,
 } from './service';
 
+import { RAArgs } from '../../graphql/utils';
+
 const SubjectType = new GraphQLObjectType({
   name: 'Subject',
   description: 'A subject within TeachHub',
@@ -25,13 +27,6 @@ const SubjectType = new GraphQLObjectType({
   }
 });
 
-const ReactAdminArgs = {
-  page: { type: GraphQLInt },
-  perPage: { type: GraphQLInt },
-  sortField: { type: GraphQLString },
-  sortOrder: { type: GraphQLString },
-};
-
 export const subjectFields = {
   Subject: {
     type: SubjectType,
@@ -41,7 +36,7 @@ export const subjectFields = {
   allSubjects: {
     type: new GraphQLList(SubjectType),
     description: "List of subjects on the whole application",
-    args: ReactAdminArgs,
+    args: RAArgs,
     resolve: async (_: any, { page, perPage, sortField, sortOrder }: any) => {
       return findAllSubjects({ page, perPage, sortField, sortOrder });
     }
@@ -51,7 +46,7 @@ export const subjectFields = {
       name: 'SubjectListMetadata',
       fields: { count: { type: GraphQLInt }}
     }),
-    args: ReactAdminArgs,
+    args: RAArgs,
     resolve: async () => {
       return { count: (await countSubjects()) };
     }

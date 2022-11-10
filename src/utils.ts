@@ -5,7 +5,7 @@ import {
   printSchema
 } from 'graphql';
 
-import db from './db';
+import { db } from './db';
 
 export type OrderingOptions = {
   page?: number;
@@ -41,3 +41,4 @@ export const checkDB = async () => {
   await db.query('SELECT 1 FROM user;');
 }
 
+export { initializeDB } from './db';
