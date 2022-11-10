@@ -2,6 +2,7 @@ import Sequelize from 'sequelize';
 
 import db from '../db';
 import SubjectModel from './subject';
+import {DatabaseConstants} from "./consts";
 
 class CourseModel extends Sequelize.Model {
   readonly id!: number;
@@ -48,8 +49,8 @@ CourseModel.init(
   },
   {
     sequelize: db,
-    schema: 'teachhub',
-    tableName: 'courses',
+    schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
+    tableName: DatabaseConstants.TABLES.COURSE,
     timestamps: false,
   }
 );

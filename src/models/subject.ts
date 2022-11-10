@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 
 import db from '../db';
+import {DatabaseConstants} from "./consts";
 
 class SubjectModel extends Sequelize.Model {
   readonly id!: Number;
@@ -22,8 +23,8 @@ SubjectModel.init(
   },
   {
     sequelize: db,
-    schema: 'teachhub',
-    tableName: 'subjects',
+    schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
+    tableName: DatabaseConstants.TABLES.SUBJECT,
     timestamps: false,
   }
 );
