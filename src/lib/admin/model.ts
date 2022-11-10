@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 
-import db from '../db';
-import {DatabaseConstants} from "./consts";
+import db from '../../db';
+import { DatabaseConstants } from "../../consts";
 
 class AdminUserModel extends Sequelize.Model {
   readonly email!: String;

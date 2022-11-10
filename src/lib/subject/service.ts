@@ -1,5 +1,5 @@
-import Subject from '../models/subject';
-import { isNumber, OrderingOptions } from '../utils';
+import Subject from './model';
+import { isNumber, OrderingOptions } from '../../utils';
 
 export async function createSubject({ name, code }: { name: string, code: string }) {
   return Subject.create({ name, code });

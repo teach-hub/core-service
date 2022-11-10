@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize';
 
-import db from '../db';
-import SubjectModel from './subject';
-import {DatabaseConstants} from "./consts";
+import db from '../../db';
+import { DatabaseConstants } from "../../consts";
+import SubjectModel from '../subject/model';
 
 class CourseModel extends Sequelize.Model {
   readonly id!: number;
