@@ -1,4 +1,4 @@
-import Course from './model';
+import Course from './adminCourse';
 import { isNumber, OrderingOptions } from '../../utils';
 
 export async function createCourse(

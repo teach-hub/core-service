@@ -1,4 +1,4 @@
-import AdminUser from './model';
+import AdminUser from './adminModel';
 import { isNumber, OrderingOptions } from "../../utils";
 
 export async function createAdminUser(
@@ -31,7 +31,6 @@ export async function findAllAdminUsers(options: OrderingOptions) {
 export async function countAdminUsers() { return AdminUser.count({}) }
 
 export async function findAdminUser({ adminUserId }: { adminUserId: string }) {
-
   return AdminUser.findOne({ where: { id: Number(adminUserId) }});
 }
 

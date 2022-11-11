@@ -1,4 +1,4 @@
-import Subject from './model';
+import Subject from './subjectModel';
 import { isNumber, OrderingOptions } from '../../utils';
 
 export async function createSubject({ name, code }: { name: string, code: string }) {

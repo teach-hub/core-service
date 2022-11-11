@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 
-import CourseModel from './lib/course/model';
-import SubjectModel from './lib/subject/model';
+import CourseModel from './lib/course/adminCourse';
+import SubjectModel from './lib/subject/subjectModel';
 
 const DB_URL = process.env.DB_URL || 'postgres://postgres@localhost:5432/teachhub';
 
