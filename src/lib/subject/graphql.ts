@@ -5,6 +5,7 @@
   GraphQLNonNull,
   GraphQLInt,
   GraphQLID,
+  Source,
 } from 'graphql';
 
 import {
@@ -31,13 +32,13 @@ export const subjectFields = {
   Subject: {
     type: SubjectType,
     args: { id: { type: GraphQLID }},
-    resolve: async (_: any, { id }: any) => findSubject({ subjectId: id }),
+    resolve: async (_: Source, { id }: any) => findSubject({ subjectId: id }),
   },
   allSubjects: {
     type: new GraphQLList(SubjectType),
     description: "List of subjects on the whole application",
     args: RAArgs,
-    resolve: async (_: any, { page, perPage, sortField, sortOrder }: any) => {
+    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: any) => {
       return findAllSubjects({ page, perPage, sortField, sortOrder });
     }
   },
@@ -61,7 +62,7 @@ export const subjectMutations = {
       name: { type: new GraphQLNonNull(GraphQLString) },
       code: { type: new GraphQLNonNull(GraphQLString) }
     },
-    resolve: async (_: any, { name, code }: any) => {
+    resolve: async (_: Source, { name, code }: any) => {
       console.log("Executing mutation createSubject");
 
       return await createSubject({ name, code });
@@ -75,7 +76,7 @@ export const subjectMutations = {
       name: { type: new GraphQLNonNull(GraphQLString) },
       code: { type: new GraphQLNonNull(GraphQLString) }
     },
-    resolve: async (_: any, { id, ...rest }: any) => {
+    resolve: async (_: Source, { id, ...rest }: any) => {
       console.log("Executing mutation updateSubject");
 
       return updateSubject(id, rest)

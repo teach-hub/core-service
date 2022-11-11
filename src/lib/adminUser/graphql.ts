@@ -5,6 +5,7 @@ import {
   GraphQLNonNull,
   GraphQLInt,
   GraphQLID,
+  Source,
 } from 'graphql';
 
 import { 
@@ -32,7 +33,7 @@ export const adminUserFields = {
     type: new GraphQLList(AdminUserType),
     description: "List of admin users on the whole application",
     args: RAArgs,
-    resolve: async (_: any, { page, perPage, sortField, sortOrder }: any) => {
+    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: any) => {
       return findAllAdminUsers({ page, perPage, sortField, sortOrder });
     }
   },
@@ -58,7 +59,7 @@ export const adminUserMutations = {
       name: { type: new GraphQLNonNull(GraphQLString) },
       lastName: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: async (_: any, { name, lastName, email, password }: any) => {
+    resolve: async (_: Source, { name, lastName, email, password }: any) => {
       console.log("Executing mutation createAdminUser");
 
       return await createAdminUser({ email, password, name, lastName  });
@@ -74,7 +75,7 @@ export const adminUserMutations = {
       name: { type: new GraphQLNonNull(GraphQLString) },
       lastName: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: async (_: any, { id, ...rest }: any) => {
+    resolve: async (_: Source, { id, ...rest }: any) => {
       console.log("Executing mutation updateAdminUser");
 
       return updateAdminUser(id, rest)

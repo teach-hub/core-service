@@ -5,7 +5,8 @@ import {
   GraphQLNonNull,
   GraphQLInt,
   GraphQLID,
-  GraphQLBoolean
+  GraphQLBoolean,
+  Source
 } from 'graphql';
 
 import { createCourse, findAllCourses, findCourse, updateCourse, countCourses } from './courseService';
@@ -29,13 +30,13 @@ const courseFields = {
   Course: {
     type: CourseType,
     args: { id: { type: GraphQLID }},
-    resolve: async (_: any, { id }: any) => findCourse({ courseId: id }),
+    resolve: async (_: Source, { id }: any) => findCourse({ courseId: id }),
   },
   allCourses: {
     type: new GraphQLList(CourseType),
     description: "List of courses on the whole application",
     args: RAArgs,
-    resolve: async (_: any, { page, perPage, sortField, sortOrder }: any) => {
+    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: any) => {
       return findAllCourses({ page, perPage, sortField, sortOrder });
     }
   },
@@ -51,7 +52,6 @@ const courseFields = {
   }
 }
 
-
 const courseMutations = {
   createCourse: {
     type: CourseType, // Output type
@@ -63,7 +63,7 @@ const courseMutations = {
       year: { type: GraphQLInt },
       subjectId: { type: GraphQLInt }
     },
-    resolve: async (_: any, { name, year, period, organization, subjectId }: any) => {
+    resolve: async (_: Source, { name, year, period, organization, subjectId }: any) => {
       console.log("Executing mutation createCourse");
 
       return await createCourse({ name, year, period, organization, subjectId });
@@ -81,7 +81,7 @@ const courseMutations = {
       subjectId: { type: GraphQLInt },
       active: { type: GraphQLBoolean }
     },
-    resolve: async (_: any, { id, ...rest }: any) => {
+    resolve: async (_: Source, { id, ...rest }: any) => {
       console.log("Executing mutation updateCourse");
 
       return updateCourse(id, rest)
