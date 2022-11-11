@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 
-import db from '../../db';
 import { DatabaseConstants } from "../../consts";
 
 class SubjectModel extends Sequelize.Model {
@@ -23,34 +22,12 @@ class SubjectModel extends Sequelize.Model {
       },
       {
         sequelize: db,
-        schema: 'teachhub',
-        tableName: 'subjects',
+        schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
+        tableName: DatabaseConstants.TABLES.SUBJECT,
         timestamps: false,
       }
     );
   }
 }
-
-<<<<<<< HEAD
-SubjectModel.init(
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    name: Sequelize.TEXT,
-    code: Sequelize.TEXT,
-    active: Sequelize.BOOLEAN
-  },
-  {
-    sequelize: db,
-    schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
-    tableName: DatabaseConstants.TABLES.SUBJECT,
-    timestamps: false,
-  }
-);
-=======
->>>>>>> 4de9d05 (Initialize models)
 
 export default SubjectModel;

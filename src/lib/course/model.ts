@@ -1,8 +1,6 @@
 import Sequelize from 'sequelize';
 
-import db from '../../db';
 import { DatabaseConstants } from "../../consts";
-import SubjectModel from '../subject/model';
 
 class CourseModel extends Sequelize.Model {
   readonly id!: number;
@@ -49,8 +47,8 @@ class CourseModel extends Sequelize.Model {
       },
       {
         sequelize: db,
-        schema: 'teachhub',
-        tableName: 'courses',
+        schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
+        tableName: DatabaseConstants.TABLES.COURSE,
         timestamps: false,
       }
     );
@@ -63,50 +61,4 @@ class CourseModel extends Sequelize.Model {
   }
 }
 
-<<<<<<< HEAD
-CourseModel.init(
-  {
-    id: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    name: {
-      type: Sequelize.TEXT,
-      allowNull: false,
-    },
-    githubOrganization: {
-      type: Sequelize.TEXT,
-      field: 'github_organization'
-    },
-    subjectId: {
-      type: Sequelize.NUMBER,
-      field: 'subject_id',
-      allowNull: false,
-    },
-    period: {
-      type: Sequelize.ENUM('1', '2'),
-      allowNull: false,
-    },
-    year: {
-      type: Sequelize.INTEGER,
-      allowNull: false
-    },
-    active: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false
-    }
-  },
-  {
-    sequelize: db,
-    schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
-    tableName: DatabaseConstants.TABLES.COURSE,
-    timestamps: false,
-  }
-);
-
-CourseModel.belongsTo(SubjectModel, { foreignKey: 'subject_id' })
-
-=======
->>>>>>> 4de9d05 (Initialize models)
 export default CourseModel;

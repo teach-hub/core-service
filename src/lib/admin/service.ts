@@ -1,5 +1,5 @@
-import AdminUser from '../models/adminUser';
-import {isNumber, OrderingOptions} from "../utils";
+import AdminUser from './model';
+import { isNumber, OrderingOptions } from "../../utils";
 
 export async function createAdminUser(
   { email, password, name, lastName }:
