@@ -1,5 +1,5 @@
-import Course from '../models/course';
-import { isNumber, OrderingOptions } from '../utils';
+import Course from './adminCourse';
+import { isNumber, OrderingOptions } from '../../utils';
 
 export async function createCourse(
   { organization, name, year, period, subjectId }

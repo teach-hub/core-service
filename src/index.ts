@@ -3,14 +3,16 @@ import express from 'express';
 import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
-import { writeSchema, checkDB } from './utils';
+import { writeSchema, checkDB, initializeDB } from './utils';
 
-import adminSchema from './schemas/adminSchema';
-import schema from './schemas/schema';
+import adminSchema from './graphql/adminSchema';
+import schema from './graphql/schema';
 
 const port = process.env.PORT || 4000;
 
 const app = express();
+
+initializeDB();
 
 writeSchema(
   schema,
