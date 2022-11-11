@@ -13,7 +13,7 @@ import {
   findSubject,
   updateSubject,
   countSubjects,
-} from './service';
+} from './subjectService';
 
 import { RAArgs } from '../../graphql/utils';
 

@@ -15,7 +15,13 @@ const initializeDB = () => {
     SubjectModel
   }
 
+  // Esta magia inicializa los modelos de la base de datos. Basicamente 
+  // importamos y los iteramos ejecutandoles el `initialize`. Hacemos lo 
+  // mismo con las asociaciones.
   Object.values(models).map(m => m.initialize(db));
+  
+  // Si tiene el metodo `associate()` definido es porque usa alguna asociacion.
+  // Entonces necesitamos pasarle los otros modelos.
   Object.values(models).map(m => 'associate' in m && m.associate(models));
 }
 

@@ -7,7 +7,12 @@ import {
   GraphQLID,
 } from 'graphql';
 
-import { createAdminUser, findAllAdminUsers, countAdminUsers, findAdminUser, updateAdminUser } from './service';
+import { 
+  createAdminUser, 
+  findAllAdminUsers, 
+  countAdminUsers, 
+  updateAdminUser 
+} from './adminService';
 import { RAArgs } from '../../graphql/utils';
 
 const AdminUserType = new GraphQLObjectType({
@@ -27,7 +32,7 @@ export const adminUserFields = {
     type: new GraphQLList(AdminUserType),
     description: "List of admin users on the whole application",
     args: RAArgs,
-    resolve: async (_, { page, perPage, sortField, sortOrder }) => {
+    resolve: async (_: any, { page, perPage, sortField, sortOrder }: any) => {
       return findAllAdminUsers({ page, perPage, sortField, sortOrder });
     }
   },
@@ -43,7 +48,6 @@ export const adminUserFields = {
   }
 }
 
-
 export const adminUserMutations = {
   createAdminUser: {
     type: AdminUserType, // Output type
@@ -54,7 +58,7 @@ export const adminUserMutations = {
       name: { type: new GraphQLNonNull(GraphQLString) },
       lastName: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: async (_, { name, lastName, email, password }) => {
+    resolve: async (_: any, { name, lastName, email, password }: any) => {
       console.log("Executing mutation createAdminUser");
 
       return await createAdminUser({ email, password, name, lastName  });
@@ -70,7 +74,7 @@ export const adminUserMutations = {
       name: { type: new GraphQLNonNull(GraphQLString) },
       lastName: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: async (_, { id, ...rest }) => {
+    resolve: async (_: any, { id, ...rest }: any) => {
       console.log("Executing mutation updateAdminUser");
 
       return updateAdminUser(id, rest)

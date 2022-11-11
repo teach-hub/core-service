@@ -8,7 +8,7 @@ import {
   GraphQLBoolean
 } from 'graphql';
 
-import { createCourse, findAllCourses, findCourse, updateCourse, countCourses } from './service';
+import { createCourse, findAllCourses, findCourse, updateCourse, countCourses } from './courseService';
 import { RAArgs } from '../../graphql/utils';
 
 const CourseType = new GraphQLObjectType({
