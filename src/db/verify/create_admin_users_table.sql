@@ -3,7 +3,7 @@
 BEGIN;
 
 SELECT
-  id, email, password, name, last_name,
+  id, email, password, name, last_name
 FROM teachhub.admin_users
 WHERE false;
 
