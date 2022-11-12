@@ -1,5 +1,7 @@
 import Sequelize from 'sequelize';
 
+import { DatabaseConstants } from "../../consts";
+
 class User extends Sequelize.Model {
   readonly id!: number;
   readonly name!: string;
@@ -7,7 +9,7 @@ class User extends Sequelize.Model {
   readonly active!: boolean
 
   static initialize = (db: Sequelize.Sequelize) => {
-    User.init(
+    return User.init(
       {
         id: {
           type: Sequelize.INTEGER,
@@ -45,8 +47,8 @@ class User extends Sequelize.Model {
       },
       {
         sequelize: db,
-        schema: 'teachhub',
-        tableName: 'users',
+        schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
+        tableName: DatabaseConstants.TABLES.USER,
         timestamps: false,
       }
     )
