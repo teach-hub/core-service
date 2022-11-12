@@ -70,10 +70,10 @@ export const userMutations = {
       notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
       file: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: async (_: Source, { name, code }: any) => {
+    resolve: async (_: Source, args: any) => {
       console.log("Executing mutation createUser");
 
-      return await createUser({ name, code });
+      return await createUser(args);
     }
   },
   updateUser: {

@@ -42,7 +42,7 @@ class User extends Sequelize.Model {
         },
         active: {
           type: Sequelize.BOOLEAN,
-          allowNull: false
+          allowNull: false,
         }
       },
       {

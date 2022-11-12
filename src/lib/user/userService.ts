@@ -2,8 +2,11 @@ import User from './userModel';
 
 import { isNumber, OrderingOptions } from '../../utils';
 
-export async function createUser({ name, code }: { name: string, code: string }) {
-  return User.create({ name, code });
+export async function createUser(
+  { name, lastName, file, githubId, notificationEmail }:
+  { name: string, lastName: string, file: string, githubId: string, notificationEmail: string }
+) {
+  return User.create({  name, lastName, file, githubId, notificationEmail, active: true });
 }
 
 export async function findAllUsers(options: OrderingOptions) {
@@ -35,6 +38,8 @@ export async function updateUser(
     lastName?: string,
     githubId?: string,
     notificationEmail?: string
+    active?: boolean,
+    file?: string
   }
 ) {
 
@@ -45,6 +50,8 @@ export async function updateUser(
       name: attrs.name,
       lastName: attrs.lastName,
       githubId: attrs.githubId,
+      active: attrs.active,
+      file: attrs.file,
       notificationEmai: attrs.notificationEmail
     },
     { where: { id: Number(id) }, returning: true }
