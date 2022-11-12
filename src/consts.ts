@@ -5,6 +5,7 @@ export const DatabaseConstants = {
   TABLES: {
     ADMIN_USER: 'admin_users',
     SUBJECT: 'subjects',
-    COURSE: 'courses'
+    COURSE: 'courses',
+    USER: 'users',
   },
 }

@@ -3,6 +3,7 @@ import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 import { subjectFields, subjectMutations } from '../lib/subject/graphql';
 import { courseFields, courseMutations } from '../lib/course/graphql';
 import { adminUserFields, adminUserMutations } from '../lib/adminUser/graphql';
+import { userFields, userMutations } from '../lib/user/graphql';
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -11,7 +12,8 @@ const schema = new GraphQLSchema({
     fields: {
       ...subjectFields,
       ...courseFields,
-      ...adminUserFields
+      ...adminUserFields,
+      ...userFields
     },
   }),
   mutation: new GraphQLObjectType({
@@ -20,7 +22,8 @@ const schema = new GraphQLSchema({
     fields: {
       ...subjectMutations,
       ...courseMutations,
-      ...adminUserMutations
+      ...adminUserMutations,
+      ...userMutations
     }
   })
 });

@@ -3,5 +3,6 @@
 BEGIN;
 
 DROP TABLE teachhub.courses;
+DROP TYPE PERIOD;
 
 COMMIT;

@@ -9,7 +9,7 @@
   "main": "build/index.js",
   "scripts": {
     "start": "npx tsc && node dist/src/index.js",
-    "db": "cd src/db && sqitch deploy development && cd -",
+    "db": "cd src/db && sqitch deploy development && sqitch verify development && cd -",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
