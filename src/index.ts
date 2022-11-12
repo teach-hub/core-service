@@ -22,7 +22,7 @@ writeSchema(
 app.use(cors());
 
 app.use('*', (req, _, next) => {
-  console.log(`Receiving request, endpoint: ${req.baseUrl}`);
+  console.log(`Receiving request, endpoint: ${req.baseUrl} from ${req.ip}`);
   next();
 })
 
