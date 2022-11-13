@@ -7,5 +7,6 @@ export const DatabaseConstants = {
     SUBJECT: 'subjects',
     COURSE: 'courses',
     USER: 'users',
+    ROLE: 'roles',
   },
 }
