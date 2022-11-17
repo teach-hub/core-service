@@ -2,12 +2,22 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLList,
-  GraphQLNonNull,
   GraphQLInt,
   GraphQLID,
   GraphQLBoolean,
   Source
 } from 'graphql';
+
+import {
+  createRole,
+  findAllRoles,
+  findRole,
+  updateRole,
+  countRoles,
+} from './roleService';
+
+import { ALL_ROLES } from '../../consts';
+import { RAArgs } from '../../graphql/utils';
 
 const RoleType = new GraphQLObjectType({
   name: 'Role',
@@ -15,11 +25,23 @@ const RoleType = new GraphQLObjectType({
   fields: {
     id: { type: GraphQLID },
     name: { type: GraphQLString },
-    organization: { type: GraphQLString },
-    period: { type: GraphQLString },
-    year: { type: GraphQLInt },
-    subjectId: { type: GraphQLInt },
-    active: { type: GraphQLBoolean }
+
+  /**
+    * (Tomas) Lista de permisos que podemos setear. Esto podria vivir
+    * en el/los front tambien. Queremos hacerlo de esta forma para
+    * despues poder asociar un permiso a una serie de acciones posibles.
+    * Si estos permisos fuesen dinamicos despues tendriamos que
+    * agregar algun flujo para asociar esos permisos a acciones posibles
+    * (en ese caso las acciones estarian fixeadas).
+    */
+    availablePermissions: { type: new GraphQLList(GraphQLString) },
+
+  /**
+    * Permisos seteados actualmente para este rol
+    */
+    permissions: { type: GraphQLString },
+    parentRoleId: { type: GraphQLString },
+    active: { type: GraphQLBoolean },
   }
 });
 
@@ -51,32 +73,30 @@ const roleFields = {
 
 const roleMutations = {
   createRole: {
-    type: RoleType, // Output type
-    description: 'Creates a new role assigning name and department code',
+    type: RoleType,
+    description: 'Creates a new role',
     args: {
       name: { type: GraphQLString },
-      organization: { type: GraphQLString },
-      period: { type: GraphQLInt },
-      year: { type: GraphQLInt },
-      subjectId: { type: GraphQLInt }
+      permissions: { type: new GraphQLList(GraphQLString) },
+      parentRoleId: { type: GraphQLID },
     },
-    resolve: async (_: Source, { name, year, period, organization, subjectId }: any) => {
+    resolve: async (_: Source, { name, permissions, parentRoleId }: any) => {
       console.log("Executing mutation createRole");
 
-      return await createRole({ name, year, period, organization, subjectId });
+      const newRole = await createRole({ name, permissions, parentRoleId });
+
+      return ;
     }
   },
   updateRole: {
     type: RoleType,
     description: 'Update role record on TeachHub',
     args: {
-      id: { type: new GraphQLNonNull(GraphQLID) },
-      name: { type: new GraphQLNonNull(GraphQLString) },
-      organization: { type: GraphQLString },
-      period: { type: GraphQLInt },
-      year: { type: GraphQLInt },
-      subjectId: { type: GraphQLInt },
-      active: { type: GraphQLBoolean }
+      id: { type: GraphQLID },
+      name: { type: GraphQLString },
+      permissions: { type: GraphQLString },
+      parentRoleId: { type: GraphQLID },
+      active: { type: GraphQLBoolean },
     },
     resolve: async (_: Source, { id, ...rest }: any) => {
       console.log("Executing mutation updateRole");

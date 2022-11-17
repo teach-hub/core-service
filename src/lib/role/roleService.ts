@@ -1,12 +1,20 @@
-import Role from './adminRole';
+import RoleModel from './roleModel';
 import { isNumber, OrderingOptions } from '../../utils';
 
+const encodePermissions = (permissions: string[]) => permissions.join('.');
+const decodePermissions = (encoded: string) => encoded.split('.');
+
 export async function createRole(
-  { organization, name, year, period, subjectId }
-  : { organization: string, name: string, period: Number, year: Number, subjectId: Number }
+  { name, permissions, parentRoleId }
+  : { name: string, permissions: string[], parentRoleId: string }
 ) {
 
-  return Role.create({ active: true, githubOrganization: organization, name, year, period, subjectId });
+  return RoleModel.create({
+    name,
+    active: true,
+    permissions: encodePermissions(permissions),
+    parentRoleId
+  });
 }
 
 export async function findAllRoles(options: OrderingOptions) {
@@ -21,14 +29,13 @@ export async function findAllRoles(options: OrderingOptions) {
   // keyof Role porque Sequelize (sus tipos para se exactos) no entiende
   // que el primer elemento de la lista en realidad son las keys del modelo.
 
-  return Role.findAll({ ...paginationOptions, order: orderingOptions });
+  return RoleModel.findAll({ ...paginationOptions, order: orderingOptions });
 }
 
-export async function countRoles() { return Role.count({}) };
+export async function countRoles() { return RoleModel.count({}) };
 
 export async function findRole({ roleId }: { roleId: string }) {
-
-  return Role.findOne({ where: { id: Number(roleId) }});
+  return RoleModel.findOne({ where: { id: Number(roleId) }});
 }
 
 export async function updateRole(
@@ -45,14 +52,12 @@ export async function updateRole(
 
   // https://sequelize.org/api/v6/class/src/model.js~model#static-method-update
   // `update` devuelve un array con los valores updateados en el segundo lugar.
-  const [_, [updated]] = await Role.update(
+  const [_, [updated]] = await RoleModel.update(
     {
       name: attrs.name,
-      githubOrganization: attrs.organization,
-      subjectId: attrs.subjectId,
-      period: attrs.period,
-      year: attrs.year,
-      active: attrs.active
+      permissions: decodePermissions(attrs.permissions),
+      parentRoleId: attrs.parentRoleId,
+      active: attrs.active,
     },
     {
       where: { id: Number(id) },

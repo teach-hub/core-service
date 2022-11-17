@@ -10,3 +10,10 @@ export const DatabaseConstants = {
     ROLE: 'roles',
   },
 }
+
+export const ALL_ROLES = [
+  'view_home',
+  'view_user',
+  'edit_user',
+  'edit_subject'
+];
