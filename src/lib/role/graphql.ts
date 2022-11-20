@@ -5,6 +5,7 @@ import {
   GraphQLInt,
   GraphQLID,
   GraphQLBoolean,
+  GraphQLNonNull,
   Source
 } from 'graphql';
 
@@ -16,8 +17,9 @@ import {
   countRoles,
 } from './roleService';
 
-import { ALL_ROLES } from '../../consts';
+import { ALL_PERMISSIONS } from '../../consts';
 import { RAArgs } from '../../graphql/utils';
+import { OrderingOptions } from '../../utils';
 
 const RoleType = new GraphQLObjectType({
   name: 'Role',
@@ -48,15 +50,37 @@ const RoleType = new GraphQLObjectType({
 const roleFields = {
   Role: {
     type: RoleType,
-    args: { id: { type: GraphQLID }},
-    resolve: async (_: Source, { id }: any) => findRole({ roleId: id }),
+    args: { id: { type: new GraphQLNonNull(GraphQLID) }},
+    resolve: async (_: Source, { id }: any) => {
+      const found = await findRole({ roleId: id });
+
+      return {
+        id: found?.id,
+        name: found?.name,
+        permissions: found?.permissions,
+        parentRoleId: found?.parentRoleId,
+        active: found?.active,
+        availablePermissions: ALL_PERMISSIONS,
+      }
+    },
   },
   allRoles: {
     type: new GraphQLList(RoleType),
     description: "List of roles on the whole application",
     args: RAArgs,
-    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: any) => {
-      return findAllRoles({ page, perPage, sortField, sortOrder });
+    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: OrderingOptions) => {
+      const allRoles = await findAllRoles({ page, perPage, sortField, sortOrder });
+
+      return allRoles.map(role => {
+        return {
+          id: role?.id,
+          name: role?.name,
+          permissions: role?.permissions,
+          parentRoleId: role?.parentRoleId,
+          active: role?.active,
+          availablePermissions: ALL_PERMISSIONS,
+        }
+      });
     }
   },
   _allRolesMeta: {
@@ -85,7 +109,14 @@ const roleMutations = {
 
       const newRole = await createRole({ name, permissions, parentRoleId });
 
-      return ;
+      return {
+        id: newRole?.id,
+        name: newRole?.name,
+        permissions: newRole?.permissions,
+        parentRoleId: newRole?.parentRoleId,
+        active: newRole?.active,
+        availablePermissions: ALL_PERMISSIONS,
+      };
     }
   },
   updateRole: {
@@ -101,7 +132,16 @@ const roleMutations = {
     resolve: async (_: Source, { id, ...rest }: any) => {
       console.log("Executing mutation updateRole");
 
-      return updateRole(id, rest)
+      const updated = await updateRole(id, rest)
+
+      return {
+        id: updated?.id,
+        name: updated?.name,
+        permissions: updated?.permissions,
+        parentRoleId: updated?.parentRoleId,
+        active: updated?.active,
+        availablePermissions: ALL_PERMISSIONS,
+      };
     },
   }
 };

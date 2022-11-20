@@ -24,7 +24,6 @@ class Role extends Sequelize.Model {
         parentRoleId: {
           type: Sequelize.NUMBER,
           field: 'parent_role_id',
-          allowNull: false,
         },
         permissions: {
           type: Sequelize.STRING
@@ -44,7 +43,6 @@ class Role extends Sequelize.Model {
   }
 
   static associate = () => {
-    Role.hasOne(Role, { foreignKey: 'parent_role_id' })
   }
 }
 

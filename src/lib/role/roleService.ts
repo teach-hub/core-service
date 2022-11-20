@@ -1,19 +1,24 @@
 import RoleModel from './roleModel';
 import { isNumber, OrderingOptions } from '../../utils';
+import { ALL_PERMISSIONS } from '../../consts';
 
 const encodePermissions = (permissions: string[]) => permissions.join('.');
 const decodePermissions = (encoded: string) => encoded.split('.');
 
 export async function createRole(
   { name, permissions, parentRoleId }
-  : { name: string, permissions: string[], parentRoleId: string }
+  : { name: string, permissions: string, parentRoleId?: string }
 ) {
+
+  if (!ALL_PERMISSIONS.includes(permissions?? '')) {
+    throw new Error('Invalid permission')
+  }
 
   return RoleModel.create({
     name,
     active: true,
-    permissions: encodePermissions(permissions),
-    parentRoleId
+    permissions: permissions,
+    parentRoleId: parentRoleId? Number(parentRoleId): null,
   });
 }
 
@@ -42,21 +47,28 @@ export async function updateRole(
   id: string,
   attrs: {
     name?: string,
-    organization?: string,
-    subjectId?: number,
-    period?: number,
-    year?: number,
+    permissions?: string,
+    parentRoleId?: string,
     active?: boolean,
   }
 ) {
 
-  // https://sequelize.org/api/v6/class/src/model.js~model#static-method-update
-  // `update` devuelve un array con los valores updateados en el segundo lugar.
+  if (id === attrs.parentRoleId) {
+    throw new Error('Role cannot be parent of itself')
+  }
+
+  if (!ALL_PERMISSIONS.includes(attrs.permissions?? '')) {
+    throw new Error('Invalid permission')
+  }
+
+  // TODO.
+  // Validar que no haya ciclos.
+
   const [_, [updated]] = await RoleModel.update(
     {
       name: attrs.name,
-      permissions: decodePermissions(attrs.permissions),
-      parentRoleId: attrs.parentRoleId,
+      permissions: attrs.permissions,
+      parentRoleId: attrs.parentRoleId? attrs.parentRoleId: null,
       active: attrs.active,
     },
     {

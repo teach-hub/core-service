@@ -11,7 +11,7 @@ export const DatabaseConstants = {
   },
 }
 
-export const ALL_ROLES = [
+export const ALL_PERMISSIONS = [
   'view_home',
   'view_user',
   'edit_user',
