@@ -2,6 +2,7 @@ FROM node:16.17-slim
 
 ARG PORT
 ARG DB_URL
+ARG NODE_ENV
 
 ADD ./src /teachhub/src/
 ADD ./data /teachhub/data/
@@ -14,6 +15,7 @@ WORKDIR /teachhub/
 
 ENV PORT=$PORT
 ENV DB_URL=$DB_URL
+ENV NODE_ENV=$NODE_ENV
 
 RUN apt-get update && \
     apt-get -y install sqitch
