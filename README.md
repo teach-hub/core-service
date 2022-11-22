@@ -21,3 +21,8 @@ Para crear una migración nos paramos en la carpeta `db` en `src`. Una vez allí
  - `revert`: cambio que se correrá para revertir nuestra migración
  - `deploy`: cambio principal que contiene la migración que queremos realizar sobre la base de datos.
 
+## Instalar hooks pre-commit
+
+
+Los hooks pre-commit deberian instalarse solos junto con la instalacion de dependencias. Si no es asi siempres se puede correr `npm run prepare`.
+
