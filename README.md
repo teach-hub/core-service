@@ -24,5 +24,5 @@ Para crear una migración nos paramos en la carpeta `db` en `src`. Una vez allí
 ## Instalar hooks pre-commit
 
 
-Los hooks pre-commit deberian instalarse solos junto con la instalacion de dependencias. Si no es asi siempres se puede correr `npm run prepare`.
+Los hooks pre-commit deberian instalarse con `npx husky install`
 
