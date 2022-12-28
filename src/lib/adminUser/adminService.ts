@@ -1,16 +1,18 @@
 import AdminUser from './adminModel';
 import { isNumber, OrderingOptions } from "../../utils";
+import crypto from "crypto";
 
 export async function createAdminUser(
   { email, password, name, lastName }:
     {
       email: string,
-      password: string,
+      password?: string,
       name: string,
       lastName: string
     }
 ) {
-  return AdminUser.create({ email, password, name, lastName });
+  const pass = password ? password : crypto.randomBytes(20).toString('hex');
+  return AdminUser.create({ email, password: pass, name, lastName });
 }
 
 export async function findAllAdminUsers(options: OrderingOptions) {
