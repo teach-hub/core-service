@@ -2,25 +2,36 @@ import RoleModel from './roleModel';
 import { isNumber, OrderingOptions } from '../../utils';
 import { ALL_PERMISSIONS } from '../../consts';
 
-const encodePermissions = (permissions: string[]) => permissions.join('.');
-const decodePermissions = (encoded: string) => encoded.split('.');
+const encodePermissions = (permissions: string[]): string => permissions.join('.');
+const decodePermissions = (encoded: string): string[] => encoded.split('.');
+
+const isInvalidPermission = (p: string) => !ALL_PERMISSIONS.includes(p)
 
 export async function createRole(
   { name, permissions, parentRoleId }
-  : { name: string, permissions: string, parentRoleId?: string }
+  : { name: string, permissions: string[], parentRoleId?: string }
 ) {
 
-  if (!ALL_PERMISSIONS.includes(permissions?? '')) {
-    throw new Error('Invalid permission')
+  if (permissions.some(isInvalidPermission)) {
+    throw new Error('Invalid permission');
   }
 
-  return RoleModel.create({
+  const created = await RoleModel.create({
     name,
     active: true,
-    permissions: permissions,
+    permissions: encodePermissions(permissions),
     parentRoleId: parentRoleId? Number(parentRoleId): null,
   });
+
+  return {
+    id: created?.id,
+    name: created?.name,
+    permissions: decodePermissions(created?.permissions),
+    parentRoleId: created?.parentRoleId,
+    active: created?.active,
+  }
 }
+
 
 export async function findAllRoles(options: OrderingOptions) {
 
@@ -34,20 +45,38 @@ export async function findAllRoles(options: OrderingOptions) {
   // keyof Role porque Sequelize (sus tipos para se exactos) no entiende
   // que el primer elemento de la lista en realidad son las keys del modelo.
 
-  return RoleModel.findAll({ ...paginationOptions, order: orderingOptions });
+  const roles = await RoleModel.findAll({ ...paginationOptions, order: orderingOptions });
+
+  return roles.map(role => {
+    return {
+      id: role?.id,
+      name: role?.name,
+      permissions: decodePermissions(role?.permissions ?? ''),
+      parentRoleId: role?.parentRoleId,
+      active: role?.active,
+    }
+  })
 }
 
 export async function countRoles() { return RoleModel.count({}) };
 
 export async function findRole({ roleId }: { roleId: string }) {
-  return RoleModel.findOne({ where: { id: Number(roleId) }});
+  const role =  await RoleModel.findOne({ where: { id: Number(roleId) }});
+
+  return {
+    id: role?.id,
+    name: role?.name,
+    permissions: decodePermissions(role?.permissions ?? ''),
+    parentRoleId: role?.parentRoleId,
+    active: role?.active,
+  }
 }
 
 export async function updateRole(
   id: string,
   attrs: {
     name?: string,
-    permissions?: string,
+    permissions: string[],
     parentRoleId?: string,
     active?: boolean,
   }
@@ -57,7 +86,7 @@ export async function updateRole(
     throw new Error('Role cannot be parent of itself')
   }
 
-  if (!ALL_PERMISSIONS.includes(attrs.permissions?? '')) {
+  if (attrs.permissions.some(isInvalidPermission)) {
     throw new Error('Invalid permission')
   }
 
@@ -67,7 +96,7 @@ export async function updateRole(
   const [_, [updated]] = await RoleModel.update(
     {
       name: attrs.name,
-      permissions: attrs.permissions,
+      permissions: encodePermissions(attrs.permissions),
       parentRoleId: attrs.parentRoleId? attrs.parentRoleId: null,
       active: attrs.active,
     },
@@ -77,5 +106,12 @@ export async function updateRole(
     }
   );
 
-  return updated;
+  return {
+    id: updated?.id,
+    name: updated?.name,
+    permissions: decodePermissions(updated?.permissions ?? ''),
+    parentRoleId: updated?.parentRoleId,
+    active: updated?.active,
+  }
+
 }

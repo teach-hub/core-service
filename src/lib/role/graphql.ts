@@ -30,7 +30,7 @@ const RoleType = new GraphQLObjectType({
   /**
     * Permisos seteados actualmente para este rol
     */
-    permissions: { type: GraphQLString },
+    permissions: { type: new GraphQLList(GraphQLString) },
     parentRoleId: { type: GraphQLString },
     active: { type: GraphQLBoolean },
   }
@@ -111,7 +111,7 @@ const roleMutations = {
     args: {
       id: { type: GraphQLID },
       name: { type: GraphQLString },
-      permissions: { type: GraphQLString },
+      permissions: { type: new GraphQLList(GraphQLString) },
       parentRoleId: { type: GraphQLID },
       active: { type: GraphQLBoolean },
     },
