@@ -41,15 +41,7 @@ const roleFields = {
     type: RoleType,
     args: { id: { type: new GraphQLNonNull(GraphQLID) }},
     resolve: async (_: Source, { id }: any) => {
-      const found = await findRole({ roleId: id });
-
-      return {
-        id: found?.id,
-        name: found?.name,
-        permissions: found?.permissions,
-        parentRoleId: found?.parentRoleId,
-        active: found?.active,
-      }
+      return findRole({ roleId: id });
     },
   },
   allRoles: {
@@ -57,17 +49,7 @@ const roleFields = {
     description: "List of roles on the whole application",
     args: RAArgs,
     resolve: async (_: Source, { page, perPage, sortField, sortOrder }: OrderingOptions) => {
-      const allRoles = await findAllRoles({ page, perPage, sortField, sortOrder });
-
-      return allRoles.map(role => {
-        return {
-          id: role?.id,
-          name: role?.name,
-          permissions: role?.permissions,
-          parentRoleId: role?.parentRoleId,
-          active: role?.active,
-        }
-      });
+      return findAllRoles({ page, perPage, sortField, sortOrder });
     }
   },
   _allRolesMeta: {
@@ -77,7 +59,7 @@ const roleFields = {
     }),
     args: RAArgs,
     resolve: async () => {
-      return { count: (await countRoles()) };
+      return countRoles().then(count => ({ count }));
     }
   }
 };
@@ -94,15 +76,7 @@ const roleMutations = {
     resolve: async (_: Source, { name, permissions, parentRoleId }: any) => {
       console.log("Executing mutation createRole");
 
-      const newRole = await createRole({ name, permissions, parentRoleId });
-
-      return {
-        id: newRole?.id,
-        name: newRole?.name,
-        permissions: newRole?.permissions,
-        parentRoleId: newRole?.parentRoleId,
-        active: newRole?.active,
-      };
+      return createRole({ name, permissions, parentRoleId });
     }
   },
   updateRole: {
@@ -118,16 +92,22 @@ const roleMutations = {
     resolve: async (_: Source, { id, ...rest }: any) => {
       console.log("Executing mutation updateRole");
 
-      const updated = await updateRole(id, rest)
-
-      return {
-        id: updated?.id,
-        name: updated?.name,
-        permissions: updated?.permissions,
-        parentRoleId: updated?.parentRoleId,
-        active: updated?.active,
-      };
+      return updateRole(id, rest)
     },
+  },
+  deleteRole: {
+    type: RoleType,
+    args: { id: { type: new GraphQLNonNull(GraphQLID) }},
+    resolve: async (_: Source, { id }: any) => {
+
+      console.log("Would delete role: ", { id })
+
+    /**
+      * (Tomas): No borramos entidades por el momento.
+      */
+
+      return findRole({ roleId: id });
+    }
   }
 };
 

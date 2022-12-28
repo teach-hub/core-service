@@ -2,8 +2,8 @@ import RoleModel from './roleModel';
 import { isNumber, OrderingOptions } from '../../utils';
 import { ALL_PERMISSIONS } from '../../consts';
 
-const encodePermissions = (permissions: string[]): string => permissions.join('.');
-const decodePermissions = (encoded: string): string[] => encoded.split('.');
+const encodePermissions = (permissions: string[]): string => permissions.join(',');
+const decodePermissions = (encoded: string): string[] => encoded.split(',');
 
 const isInvalidPermission = (p: string) => !ALL_PERMISSIONS.includes(p)
 
@@ -13,22 +13,22 @@ export async function createRole(
 ) {
 
   if (permissions.some(isInvalidPermission)) {
-    throw new Error('Invalid permission');
+    throw new Error('Role has invalid permission(s)');
   }
 
   const created = await RoleModel.create({
     name,
     active: true,
     permissions: encodePermissions(permissions),
-    parentRoleId: parentRoleId? Number(parentRoleId): null,
+    parentRoleId: parentRoleId ? Number(parentRoleId): null,
   });
 
   return {
-    id: created?.id,
-    name: created?.name,
-    permissions: decodePermissions(created?.permissions),
-    parentRoleId: created?.parentRoleId,
-    active: created?.active,
+    id: created.id,
+    name: created.name,
+    permissions: decodePermissions(created.permissions),
+    parentRoleId: created.parentRoleId,
+    active: created.active,
   }
 }
 
@@ -87,17 +87,16 @@ export async function updateRole(
   }
 
   if (attrs.permissions.some(isInvalidPermission)) {
-    throw new Error('Invalid permission')
+    throw new Error('Role has invalid permission(s)')
   }
 
-  // TODO.
-  // Validar que no haya ciclos.
+  // TODO. Validar que no haya ciclos.
 
   const [_, [updated]] = await RoleModel.update(
     {
       name: attrs.name,
       permissions: encodePermissions(attrs.permissions),
-      parentRoleId: attrs.parentRoleId? attrs.parentRoleId: null,
+      parentRoleId: attrs.parentRoleId ? attrs.parentRoleId: null,
       active: attrs.active,
     },
     {
@@ -107,11 +106,10 @@ export async function updateRole(
   );
 
   return {
-    id: updated?.id,
-    name: updated?.name,
-    permissions: decodePermissions(updated?.permissions ?? ''),
-    parentRoleId: updated?.parentRoleId,
-    active: updated?.active,
+    id: updated.id,
+    name: updated.name,
+    permissions: decodePermissions(updated.permissions ?? ''),
+    parentRoleId: updated.parentRoleId,
+    active: updated.active,
   }
-
 }
