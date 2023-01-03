@@ -8,13 +8,14 @@ import {
   Source,
 } from 'graphql';
 
-import { 
-  createAdminUser, 
-  findAllAdminUsers, 
-  countAdminUsers, 
-  updateAdminUser 
+import {
+  createAdminUser,
+  findAllAdminUsers,
+  countAdminUsers,
+  updateAdminUser, findAdminUser
 } from './adminService';
 import { RAArgs } from '../../graphql/utils';
+import {findUser} from "../user/userService";
 
 const AdminUserType = new GraphQLObjectType({
   name: 'AdminUser',
@@ -29,6 +30,11 @@ const AdminUserType = new GraphQLObjectType({
 });
 
 export const adminUserFields = {
+  AdminUser: {
+    type: AdminUserType,
+    args: { id: { type: GraphQLID }},
+    resolve: async (_: Source, { id }: any) => findAdminUser({ adminUserId: id }),
+  },
   allAdminUsers: {
     type: new GraphQLList(AdminUserType),
     description: "List of admin users on the whole application",
@@ -55,14 +61,14 @@ export const adminUserMutations = {
     description: 'Creates a new admin user',
     args: {
       email: { type: new GraphQLNonNull(GraphQLString) },
-      password: { type: new GraphQLNonNull(GraphQLString) },
+      password: { type: GraphQLString },
       name: { type: new GraphQLNonNull(GraphQLString) },
       lastName: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: async (_: Source, { name, lastName, email, password }: any) => {
+    resolve: async (_: Source, args: any) => {
       console.log("Executing mutation createAdminUser");
 
-      return await createAdminUser({ email, password, name, lastName  });
+      return await createAdminUser(args);
     }
   },
   updateAdminUser: {
