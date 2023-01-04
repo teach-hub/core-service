@@ -5,6 +5,7 @@ import { courseFields, courseMutations } from '../lib/course/graphql';
 import { adminUserFields, adminUserMutations } from '../lib/adminUser/graphql';
 import { userFields, userMutations } from '../lib/user/graphql';
 import { roleFields, roleMutations } from '../lib/role/graphql';
+import {userRoleFields, userRoleMutations} from "../lib/userRole/graphql";
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -15,7 +16,8 @@ const schema = new GraphQLSchema({
       ...courseFields,
       ...adminUserFields,
       ...userFields,
-      ...roleFields
+      ...roleFields,
+      ...userRoleFields
     },
   }),
   mutation: new GraphQLObjectType({
@@ -26,7 +28,8 @@ const schema = new GraphQLSchema({
       ...courseMutations,
       ...adminUserMutations,
       ...userMutations,
-      ...roleMutations
+      ...roleMutations,
+      ...userRoleMutations
     }
   })
 });
