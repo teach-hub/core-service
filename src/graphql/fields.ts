@@ -77,12 +77,12 @@ export const getGraphqlTypeFields = (
       type,
       findCallback,
     ),
-    ["all" + keyName]: findAllTypeObject(
+    [`all${keyName}s`]: findAllTypeObject(
       type,
       typeName,
       findAllCallback
     ),
-    ["_all" + keyName + "Meta"]: metaTypeObject(
+    [`_all${keyName}sMeta`]: metaTypeObject(
       keyName,
       countCallback
     )

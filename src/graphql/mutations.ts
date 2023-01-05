@@ -16,7 +16,7 @@ const createTypeMutation = (
     type: type,
     description: 'Creates a new ' + typeName,
     args: fields,
-    resolve: async (_: Source, ...rest: any) => {
+    resolve: async (_: Source, { ...rest }: any) => {
       console.log("Executing mutation create from " + typeName);
 
       return createCallback(rest)

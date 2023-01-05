@@ -32,6 +32,7 @@ const readFields = (attrs: ModelAttrs) => {
 export async function createUserRole(
   attrs : ModelAttrs
 ) {
+  attrs.active = true // Always create active
   return createModel(
     UserRoleModel,
     readFields(attrs),
