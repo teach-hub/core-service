@@ -29,7 +29,7 @@ const buildQuery = (
 
 export async function createUserRole(
   data : UserRoleFields
-) {
+): Promise<UserRoleFields> {
   data.active = true // Always create active
   return createModel(
     UserRoleModel,
@@ -41,7 +41,7 @@ export async function createUserRole(
 export async function updateUserRole(
   id: string,
   data: UserRoleFields
-) {
+): Promise<UserRoleFields> {
   return updateModel(
     UserRoleModel,
     data,
@@ -50,11 +50,11 @@ export async function updateUserRole(
   )
 }
 
-export async function countUserRoles() {
+export async function countUserRoles(): Promise<number> {
   return countModels<UserRoleModel>(UserRoleModel)
 }
 
-export async function findUserRole({ roleId }: { roleId: string }) {
+export async function findUserRole({ roleId }: { roleId: string }): Promise<UserRoleFields> {
   return findModel(
     UserRoleModel,
     buildModelFields,
@@ -62,8 +62,8 @@ export async function findUserRole({ roleId }: { roleId: string }) {
   )
 }
 
-export async function findAllUserRoles(options: OrderingOptions) {
-  return findAllModels<UserRoleModel>(
+export async function findAllUserRoles(options: OrderingOptions): Promise<UserRoleFields[]> {
+  return findAllModels(
     UserRoleModel,
     options,
     buildModelFields

@@ -8,10 +8,11 @@ import {
   GraphQLObjectType,
   Source
 } from "graphql";
+import {IModelFields} from "../sequelize/types";
 
-const findTypeObject = (
+const buildFindTypeObject = (
   type: GraphQLObjectType,
-  findCallback: (id: string) => Promise<any>
+  findCallback: (id: string) => Promise<IModelFields>
 ) => {
   return {
     type: type,
@@ -22,10 +23,10 @@ const findTypeObject = (
   }
 }
 
-const findAllTypeObject = (
+const buildFindAllTypeObject = (
   type: GraphQLObjectType,
   typeName: string,
-  findAllCallback: (args: object) => Promise<any>
+  findAllCallback: (args: OrderingOptions) => Promise<IModelFields[]>
 ) => {
   return {
     type: new GraphQLList(type),
@@ -37,7 +38,7 @@ const findAllTypeObject = (
   }
 }
 
-const metaTypeObject = (
+const buildMetaTypeObject = (
   keyName: string,
   countCallback: () => Promise<number>
 ) => {
@@ -58,11 +59,11 @@ interface FieldParams {
   keyName: string;
   typeName: string;
   countCallback: () => Promise<number>;
-  findCallback: (id: string) => Promise<any>;
-  findAllCallback: (args: object) => Promise<any>;
+  findCallback: (id: string) => Promise<IModelFields>;
+  findAllCallback: (args: OrderingOptions) => Promise<IModelFields[]>;
 }
 
-export const getGraphqlTypeFields = (
+export const buildEntityFields = (
   {
     type,
     keyName,
@@ -73,16 +74,16 @@ export const getGraphqlTypeFields = (
   }: FieldParams
 ) => {
   return {
-    [keyName]: findTypeObject(
+    [keyName]: buildFindTypeObject(
       type,
       findCallback,
     ),
-    [`all${keyName}s`]: findAllTypeObject(
+    [`all${keyName}s`]: buildFindAllTypeObject(
       type,
       typeName,
       findAllCallback
     ),
-    [`_all${keyName}sMeta`]: metaTypeObject(
+    [`_all${keyName}sMeta`]: buildMetaTypeObject(
       keyName,
       countCallback
     )

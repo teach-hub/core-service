@@ -3,11 +3,11 @@ import {Model, ModelStatic} from "sequelize";
 import {IModelFields, ModelAttributes, ModelWhereQuery} from "./types";
 import {Nullable} from "../types";
 
-export const findAllModels = async <T extends Model>(
+export const findAllModels = async <T extends Model, U extends IModelFields>(
   sequelizeModel: ModelStatic<T>,
   options: OrderingOptions,
-  buildModelObject: (model: T) => IModelFields
-) => {
+  buildModelObject: (model: T) => U
+): Promise<U[]> => {
   const paginationOptions = isNumber(options.perPage) && isNumber(options.page)
     ?
     {
@@ -32,16 +32,16 @@ export const findAllModels = async <T extends Model>(
 
 export const countModels = async <T extends Model>(
   sequelizeModel: ModelStatic<T>
-) => {
+): Promise<number> => {
   return sequelizeModel.count({})
 };
 
 
-export const findModel = async <T extends Model>(
+export const findModel = async <T extends Model, U extends IModelFields>(
   sequelizeModel: ModelStatic<T>,
-  buildModelObject: (model: Nullable<T>) => IModelFields,
+  buildModelObject: (model: Nullable<T>) => U,
   whereQuery: ModelWhereQuery<T>
-) => {
+): Promise<U> => {
   const model = await sequelizeModel.findOne(
     {
       where: whereQuery
@@ -51,22 +51,22 @@ export const findModel = async <T extends Model>(
   return buildModelObject(model)
 }
 
-export const createModel = async <T extends Model>(
+export const createModel = async <T extends Model, U extends IModelFields>(
   sequelizeModel: ModelStatic<T>,
   values: ModelAttributes<T>,
-  buildModelObject: (model: T) => IModelFields,
-) => {
+  buildModelObject: (model: T) => U,
+): Promise<U> => {
   const created = await sequelizeModel.create(values);
 
   return buildModelObject(created)
 }
 
-export const updateModel = async <T extends Model>(
+export const updateModel = async <T extends Model, U extends IModelFields>(
   sequelizeModel: ModelStatic<T>,
   values: ModelAttributes<T>,
-  buildModelObject: (model: T) => IModelFields,
+  buildModelObject: (model: T) => U,
   whereQuery: ModelWhereQuery<T>
-) => {
+): Promise<U> => {
 
   const [_, [updated]] = await sequelizeModel.update(
     values,

@@ -5,12 +5,13 @@ import {
   Source
 } from "graphql";
 import {GraphqlObjectTypeFields} from "./utils";
+import {IModelFields} from "../sequelize/types";
 
-const createTypeMutation = (
+const buildCreateTypeMutation = (
   type: GraphQLObjectType,
   typeName: string,
   fields: GraphqlObjectTypeFields,
-  createCallback: (args: any) => Promise<any>
+  createCallback: (args: any) => Promise<IModelFields>
 ) => {
   return {
     type: type,
@@ -24,11 +25,11 @@ const createTypeMutation = (
   }
 }
 
-const updateTypeMutation = (
+const buildUpdateTypeMutation = (
   type: GraphQLObjectType,
   typeName: string,
   fields: GraphqlObjectTypeFields,
-  updateCallback: (id: string, args: any) => Promise<any>
+  updateCallback: (id: string, args: any) => Promise<IModelFields>
 ) => {
   return {
     type: type,
@@ -42,10 +43,10 @@ const updateTypeMutation = (
   }
 }
 
-const deleteTypeMutation = (
+const buildDeleteTypeMutation = (
   type: GraphQLObjectType,
   typeName: string,
-  findCallback: (id: string) => Promise<any>
+  findCallback: (id: string) => Promise<IModelFields>
 ) => {
   return {
     type: type,
@@ -59,18 +60,18 @@ const deleteTypeMutation = (
   }
 }
 
-interface MutationsParams {
+interface MutationsParams<T extends IModelFields> {
   type: GraphQLObjectType;
   keyName: string;
   typeName: string;
   createFields: GraphqlObjectTypeFields;
   updateFields: GraphqlObjectTypeFields;
-  createCallback: (args: any) => Promise<any>;
-  updateCallback: (id: string, args: any) => Promise<any>;
-  findCallback: (id: string) => Promise<any>;
+  createCallback: (args: T) => Promise<T>;
+  updateCallback: (id: string, args: T) => Promise<T>;
+  findCallback: (id: string) => Promise<T>;
 }
 
-export const getMutations = (
+export const buildEntityMutations = <T extends IModelFields>(
   {
     type,
     keyName,
@@ -80,22 +81,22 @@ export const getMutations = (
     createCallback,
     updateCallback,
     findCallback,
-  }: MutationsParams
+  }: MutationsParams<T>
 ) => {
   return {
-    ["create" + keyName]: createTypeMutation(
+    ["create" + keyName]: buildCreateTypeMutation(
       type,
       typeName,
       createFields,
       createCallback
     ),
-    ["update" + keyName]: updateTypeMutation(
+    ["update" + keyName]: buildUpdateTypeMutation(
       type,
       typeName,
       updateFields,
       updateCallback
     ),
-    ["delete" + keyName]: deleteTypeMutation(
+    ["delete" + keyName]: buildDeleteTypeMutation(
       type,
       typeName,
       findCallback

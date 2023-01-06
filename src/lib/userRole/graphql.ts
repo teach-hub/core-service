@@ -18,8 +18,8 @@ import {
 } from './userRoleService';
 
 import {GraphqlObjectTypeFields} from '../../graphql/utils';
-import {getGraphqlTypeFields} from "../../graphql/fields";
-import {getMutations} from "../../graphql/mutations";
+import {buildEntityFields} from "../../graphql/fields";
+import {buildEntityMutations} from "../../graphql/mutations";
 
 const getFields = (addIdd: boolean) => {
   const fields: GraphqlObjectTypeFields = {
@@ -44,7 +44,7 @@ const findUserRoleCallback = (id: string) => {
   return findUserRole({ roleId: id });
 }
 
-const userRoleFields = getGraphqlTypeFields(
+const userRoleFields = buildEntityFields(
   {
     type: UserRoleType,
     keyName: "UserRole",
@@ -54,7 +54,7 @@ const userRoleFields = getGraphqlTypeFields(
     countCallback: countUserRoles
   }
 )
-const userRoleMutations = getMutations(
+const userRoleMutations = buildEntityMutations(
   {
     type: UserRoleType,
     keyName: "UserRole",
