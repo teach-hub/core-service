@@ -1,10 +1,12 @@
 import {isNumber, OrderingOptions} from "../utils";
 import {Model, ModelStatic} from "sequelize";
+import {IModelFields, ModelAttributes, ModelWhereQuery} from "./types";
+import {Nullable} from "../types";
 
 export const findAllModels = async <T extends Model>(
-  options: OrderingOptions,
   sequelizeModel: ModelStatic<T>,
-  buildModelObject: (model: T) => any
+  options: OrderingOptions,
+  buildModelObject: (model: T) => IModelFields
 ) => {
   const paginationOptions = isNumber(options.perPage) && isNumber(options.page)
     ?
@@ -36,14 +38,13 @@ export const countModels = async <T extends Model>(
 
 
 export const findModel = async <T extends Model>(
-  id: string,
   sequelizeModel: ModelStatic<T>,
-  buildModelObject: (model: T | null) => any,
-  buildQuery: (id: number) => any
+  buildModelObject: (model: Nullable<T>) => IModelFields,
+  whereQuery: ModelWhereQuery<T>
 ) => {
   const model = await sequelizeModel.findOne(
     {
-      where: buildQuery(Number(id))
+      where: whereQuery
     }
   );
 
@@ -52,8 +53,8 @@ export const findModel = async <T extends Model>(
 
 export const createModel = async <T extends Model>(
   sequelizeModel: ModelStatic<T>,
-  values: any,
-  buildModelObject: (model: T) => any,
+  values: ModelAttributes<T>,
+  buildModelObject: (model: T) => IModelFields,
 ) => {
   const created = await sequelizeModel.create(values);
 
@@ -62,16 +63,15 @@ export const createModel = async <T extends Model>(
 
 export const updateModel = async <T extends Model>(
   sequelizeModel: ModelStatic<T>,
-  id: string,
-  values: any,
-  buildModelObject: (model: T) => any,
-  buildQuery: (id: number) => any
+  values: ModelAttributes<T>,
+  buildModelObject: (model: T) => IModelFields,
+  whereQuery: ModelWhereQuery<T>
 ) => {
 
   const [_, [updated]] = await sequelizeModel.update(
     values,
     {
-      where: buildQuery(Number(id)),
+      where: whereQuery,
       returning: true
     }
   );

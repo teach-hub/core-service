@@ -1,9 +1,17 @@
 import UserRoleModel from './userRoleModel';
 import { OrderingOptions } from '../../utils';
-import {countModels, createModel, findAllModels, findModel, updateModel} from "../serviceUtils";
+import {countModels, createModel, findAllModels, findModel, updateModel} from "../../sequelize/serviceUtils";
+import {IModelFields, ModelAttributes, ModelWhereQuery} from "../../sequelize/types";
+import {Nullable, Optional} from "../../types";
 
+interface UserRoleFields extends IModelFields, ModelAttributes<UserRoleModel> {
+  roleId: Optional<number>;
+  userId: Optional<number>;
+  courseId: Optional<number>;
+  active: Optional<boolean>;
+}
 
-const buildObject = (userRole: UserRoleModel | null) => {
+const buildModelFields = (userRole: Nullable<UserRoleModel>): UserRoleFields => {
   return {
     id: userRole?.id,
     roleId: userRole?.roleId,
@@ -13,45 +21,32 @@ const buildObject = (userRole: UserRoleModel | null) => {
   }
 }
 
-interface ModelAttrs {
-  roleId?: string;
-  userId?: string;
-  courseId?: string;
-  active?: boolean;
-}
-
-const readFields = (attrs: ModelAttrs) => {
-  return {
-    roleId: attrs.roleId ? Number(attrs.roleId) : null,
-    userId: attrs.userId ? Number(attrs.userId) : null,
-    courseId: attrs.courseId ? Number(attrs.courseId) : null,
-    active: attrs.active,
-  }
+const buildQuery = (
+  id: string
+): ModelWhereQuery<UserRoleModel> => {
+  return { id: Number(id) }
 }
 
 export async function createUserRole(
-  attrs : ModelAttrs
+  data : UserRoleFields
 ) {
-  attrs.active = true // Always create active
+  data.active = true // Always create active
   return createModel(
     UserRoleModel,
-    readFields(attrs),
-    buildObject
+    data,
+    buildModelFields
   )
 }
 
 export async function updateUserRole(
   id: string,
-  attrs: ModelAttrs
+  data: UserRoleFields
 ) {
   return updateModel(
     UserRoleModel,
-    id,
-    readFields(attrs),
-    buildObject,
-    (id) => {
-      return { id: id }
-    }
+    data,
+    buildModelFields,
+    buildQuery(id)
   )
 }
 
@@ -61,19 +56,16 @@ export async function countUserRoles() {
 
 export async function findUserRole({ roleId }: { roleId: string }) {
   return findModel(
-    roleId,
     UserRoleModel,
-    buildObject,
-    (id) => {
-      return { id: id }
-    }
+    buildModelFields,
+    buildQuery(roleId)
   )
 }
 
 export async function findAllUserRoles(options: OrderingOptions) {
   return findAllModels<UserRoleModel>(
-    options,
     UserRoleModel,
-    buildObject
+    options,
+    buildModelFields
   )
 }
