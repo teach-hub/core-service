@@ -7,6 +7,9 @@ const RAArgs = {
   sortOrder: { type: GraphQLString },
 }
 
+type GraphqlObjectTypeFields = Record<any, any>
+
 export {
-  RAArgs
+  RAArgs,
+  GraphqlObjectTypeFields
 }

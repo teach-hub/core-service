@@ -8,6 +8,7 @@ export const DatabaseConstants = {
     COURSE: 'courses',
     USER: 'users',
     ROLE: 'roles',
+    USER_ROLE: 'user_roles',
   },
 }
 
