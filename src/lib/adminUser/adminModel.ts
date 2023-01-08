@@ -3,14 +3,20 @@ import Sequelize from 'sequelize';
 import { DatabaseConstants } from "../../consts";
 
 class AdminUserModel extends Sequelize.Model {
-  readonly email!: String;
-  readonly password!: String;
-  readonly name!: String;
-  readonly lastName?: String;
+  readonly id!: number;
+  readonly email!: string;
+  readonly password!: string;
+  readonly name!: string;
+  readonly lastName?: string;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return AdminUserModel.init(
       {
+        id: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        },
         email: Sequelize.TEXT,
         password: Sequelize.TEXT,
         name: Sequelize.TEXT,
