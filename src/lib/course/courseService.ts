@@ -1,64 +1,75 @@
-import Course from './adminCourse';
-import { isNumber, OrderingOptions } from '../../utils';
+import Course, { CoursePeriod } from "./courseModel";
+import { OrderingOptions } from "../../utils";
+import {
+  IModelFields,
+  ModelAttributes,
+  ModelWhereQuery,
+} from "../../sequelize/types";
+import { Nullable, Optional } from "../../types";
+import {
+  countModels,
+  createModel,
+  findAllModels,
+  findModel,
+  updateModel,
+} from "../../sequelize/serviceUtils";
 
-export async function createCourse(
-  { organization, name, year, period, subjectId }
-  : { organization: string, name: string, period: Number, year: Number, subjectId: Number }
-) {
-
-  return Course.create({ active: true, githubOrganization: organization, name, year, period, subjectId });
+interface CourseFields extends IModelFields, ModelAttributes<Course> {
+  name: Optional<string>;
+  organization: Optional<string>;
+  subjectId: Optional<number>;
+  period: Optional<CoursePeriod>;
+  year: Optional<number>;
+  active: Optional<boolean>;
 }
 
-export async function findAllCourses(options: OrderingOptions) {
+const buildModelFields = (course: Nullable<Course>): CourseFields => {
+  return {
+    id: course?.id,
+    name: course?.name,
+    organization: course?.githubOrganization,
+    subjectId: course?.subjectId,
+    period: course?.period,
+    year: course?.year,
+    active: course?.active,
+  };
+};
 
-  const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
-    { limit: options.perPage, offset: options.page * options.perPage }
-    : {};
+const buildQuery = (id: string): ModelWhereQuery<Course> => {
+  return { id: Number(id) };
+};
 
-  const orderingOptions = options.sortField ? [[ options.sortField, options.sortOrder?? 'DESC' ]] : [];
+const fixData = (data: CourseFields) => {
+  data.githubOrganization = data.organization;
+  return data;
+};
 
-  // @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-  // keyof Course porque Sequelize (sus tipos para se exactos) no entiende
-  // que el primer elemento de la lista en realidad son las keys del modelo.
-
-  return Course.findAll({ ...paginationOptions, order: orderingOptions });
-}
-
-export async function countCourses() { return Course.count({}) };
-
-export async function findCourse({ courseId }: { courseId: string }) {
-
-  return Course.findOne({ where: { id: Number(courseId) }});
+export async function createCourse(data: CourseFields): Promise<CourseFields> {
+  data.active = true; // Always create active
+  return createModel(Course, fixData(data), buildModelFields);
 }
 
 export async function updateCourse(
   id: string,
-  attrs: {
-    name?: string,
-    organization?: string,
-    subjectId?: number,
-    period?: number,
-    year?: number,
-    active?: boolean,
-  }
-) {
+  data: CourseFields
+): Promise<CourseFields> {
+  return updateModel(Course, fixData(data), buildModelFields, buildQuery(id));
+}
 
-  // https://sequelize.org/api/v6/class/src/model.js~model#static-method-update
-  // `update` devuelve un array con los valores updateados en el segundo lugar.
-  const [_, [updated]] = await Course.update(
-    {
-      name: attrs.name,
-      githubOrganization: attrs.organization,
-      subjectId: attrs.subjectId,
-      period: attrs.period,
-      year: attrs.year,
-      active: attrs.active
-    },
-    {
-      where: { id: Number(id) },
-      returning: true
-    }
-  );
+export async function countCourses(): Promise<number> {
+  return countModels<Course>(Course);
+}
 
-  return updated;
+export async function findCourse({
+  courseId,
+}: {
+  courseId: string;
+}): Promise<CourseFields> {
+  return findModel(Course, buildModelFields, buildQuery(courseId));
+}
+
+export async function findAllCourses(
+  options: OrderingOptions
+): Promise<CourseFields[]> {
+  return findAllModels(Course, options, buildModelFields);
 }
