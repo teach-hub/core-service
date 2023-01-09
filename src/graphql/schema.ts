@@ -1,22 +1,11 @@
-import {
-  GraphQLID,
-  GraphQLString,
-  GraphQLSchema,
-  GraphQLNonNull,
-  GraphQLObjectType,
-} from "graphql";
+import { GraphQLSchema, GraphQLObjectType } from "graphql";
 
-const UserType = new GraphQLObjectType({
-  name: "UserType",
-  fields: {
-    name: {
-      type: GraphQLString,
-    },
-    lastName: {
-      type: GraphQLString,
-    },
-  },
-});
+import {
+  userMutations,
+  userFields,
+  UserType,
+} from "../lib/user/internalGraphql";
+import { findAllUsers } from "../lib/user/userService";
 
 /**
  * Funcion totalmente dummy hasta que implementemos la autenticacion.
@@ -24,8 +13,20 @@ const UserType = new GraphQLObjectType({
  * usuario logeado. Hasta entonces devolvemos simplemente el primer
  * usuario de la base.
  */
+const getViewer = async () => {
+  const [viewer] = await findAllUsers({});
 
-const getViewer = async () => {};
+  console.log("Found viewer", viewer);
+
+  return {
+    userId: viewer.id,
+    githubId: viewer.githubId,
+    name: viewer.name,
+    lastName: viewer.lastName,
+    notificationEmail: viewer.notificationEmail,
+    file: viewer.file,
+  };
+};
 
 const Query = new GraphQLObjectType({
   name: "RootQueryType",
@@ -34,13 +35,9 @@ const Query = new GraphQLObjectType({
     viewer: {
       description: "Logged in user",
       type: UserType,
-      resolve: () => ({ name: "Tomas", lastName: "Lopez Hidalgo" }),
+      resolve: getViewer,
     },
-    findUser: {
-      type: UserType,
-      args: { userId: { type: GraphQLID } },
-      resolve: () => ({ name: null, lastName: null }),
-    },
+    ...userFields,
   },
 });
 
@@ -48,19 +45,7 @@ const Mutation = new GraphQLObjectType({
   name: "RootMutationType",
   description: "Root mutation",
   fields: {
-    updateUser: {
-      type: UserType,
-      description: "Updates a user",
-      args: {
-        userId: { type: new GraphQLNonNull(GraphQLID) },
-        name: { type: GraphQLString },
-        lastName: { type: GraphQLString },
-        file: { type: GraphQLString },
-        githubId: { type: GraphQLString },
-        notificationsEmail: { type: GraphQLString },
-      },
-      resolve: async () => {},
-    },
+    ...userMutations,
   },
 });
 
