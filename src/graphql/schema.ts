@@ -5,6 +5,7 @@ import {
   userFields,
   UserType,
 } from "../lib/user/internalGraphql";
+
 import { findAllUsers } from "../lib/user/userService";
 
 /**
@@ -16,7 +17,7 @@ import { findAllUsers } from "../lib/user/userService";
 const getViewer = async () => {
   const [viewer] = await findAllUsers({});
 
-  console.log("Found viewer", viewer);
+  console.log("Using viewer", viewer);
 
   return {
     userId: viewer.id,

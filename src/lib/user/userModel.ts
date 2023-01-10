@@ -1,14 +1,14 @@
-import Sequelize from 'sequelize';
+import Sequelize from "sequelize";
 
 import { DatabaseConstants } from '../../consts';
 
 class User extends Sequelize.Model {
   readonly id!: number;
+  readonly githubId!: string;
   readonly name!: string;
   readonly lastName!: string;
   readonly notificationEmail!: string;
   readonly file!: string;
-  readonly githubId!: string;
   readonly active!: boolean;
 
   static initialize = (db: Sequelize.Sequelize) => {
@@ -21,7 +21,7 @@ class User extends Sequelize.Model {
         },
         githubId: {
           type: Sequelize.TEXT,
-          field: 'github_id',
+          field: "github_id",
           allowNull: false,
         },
         name: {
@@ -30,12 +30,12 @@ class User extends Sequelize.Model {
         },
         lastName: {
           type: Sequelize.TEXT,
-          field: 'last_name',
+          field: "last_name",
           allowNull: false,
         },
         notificationEmail: {
           type: Sequelize.TEXT,
-          field: 'notification_email',
+          field: "notification_email",
           allowNull: false,
         },
         /* Padron */
