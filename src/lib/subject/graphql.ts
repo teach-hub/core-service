@@ -1,4 +1,6 @@
-;import {
+import { buildEntityFields } from "../../graphql/fields";
+
+import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLList,
@@ -6,7 +8,8 @@
   GraphQLInt,
   GraphQLID,
   Source,
-} from 'graphql';
+  GraphQLBoolean,
+} from "graphql";
 
 import {
   createSubject,
@@ -14,72 +17,52 @@ import {
   findSubject,
   updateSubject,
   countSubjects,
-} from './subjectService';
+} from "./subjectService";
 
-import { RAArgs } from '../../graphql/utils';
+import { GraphqlObjectTypeFields } from "../../graphql/utils";
+import { buildEntityMutations } from "../../graphql/mutations";
+
+const getFields = (addIdd: boolean) => {
+  const fields: GraphqlObjectTypeFields = {
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    code: { type: new GraphQLNonNull(GraphQLString) },
+    active: { type: GraphQLBoolean },
+  };
+  if (addIdd) {
+    fields.id = { type: GraphQLID };
+  }
+
+  return fields;
+};
 
 const SubjectType = new GraphQLObjectType({
-  name: 'Subject',
-  description: 'A subject within TeachHub',
-  fields: {
-    id: { type: GraphQLID },
-    name: { type: GraphQLString },
-    code: { type: GraphQLString }
-  }
+  name: "Subject",
+  description: "A subject within TeachHub",
+  fields: getFields(true),
 });
 
-export const subjectFields = {
-  Subject: {
-    type: SubjectType,
-    args: { id: { type: GraphQLID }},
-    resolve: async (_: Source, { id }: any) => findSubject({ subjectId: id }),
-  },
-  allSubjects: {
-    type: new GraphQLList(SubjectType),
-    description: "List of subjects on the whole application",
-    args: RAArgs,
-    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: any) => {
-      return findAllSubjects({ page, perPage, sortField, sortOrder });
-    }
-  },
-  _allSubjectsMeta: {
-    type: new GraphQLObjectType({
-      name: 'SubjectListMetadata',
-      fields: { count: { type: GraphQLInt }}
-    }),
-    args: RAArgs,
-    resolve: async () => {
-      return { count: (await countSubjects()) };
-    }
-  }
-}
+const findSubjectCallback = (id: string) => {
+  return findSubject({ subjectId: id });
+};
 
-export const subjectMutations = {
-  createSubject: {
-    type: SubjectType, // Output type
-    description: 'Creates a new subject assigning name and department code',
-    args: {
-      name: { type: new GraphQLNonNull(GraphQLString) },
-      code: { type: new GraphQLNonNull(GraphQLString) }
-    },
-    resolve: async (_: Source, { name, code }: any) => {
-      console.log("Executing mutation createSubject");
+const subjectFields = buildEntityFields({
+  type: SubjectType,
+  keyName: "Subject",
+  typeName: "subject",
+  findCallback: findSubjectCallback,
+  findAllCallback: findAllSubjects,
+  countCallback: countSubjects,
+});
 
-      return await createSubject({ name, code });
-    }
-  },
-  updateSubject: {
-    type: SubjectType,
-    description: 'Update subject record on TeachHub',
-    args: {
-      id: { type: new GraphQLNonNull(GraphQLID) },
-      name: { type: new GraphQLNonNull(GraphQLString) },
-      code: { type: new GraphQLNonNull(GraphQLString) }
-    },
-    resolve: async (_: Source, { id, ...rest }: any) => {
-      console.log("Executing mutation updateSubject");
+const subjectMutations = buildEntityMutations({
+  type: SubjectType,
+  keyName: "Subject",
+  typeName: "subject",
+  createFields: getFields(false),
+  updateFields: getFields(true),
+  createCallback: createSubject,
+  updateCallback: updateSubject,
+  findCallback: findSubjectCallback,
+});
 
-      return updateSubject(id, rest)
-    }
-  }
-}
+export { subjectMutations, subjectFields };

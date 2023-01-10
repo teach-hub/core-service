@@ -1,40 +1,71 @@
-import Subject from './subjectModel';
-import { isNumber, OrderingOptions } from '../../utils';
+import Subject from "./subjectModel";
+import { OrderingOptions } from "../../utils";
+import {
+  IModelFields,
+  ModelAttributes,
+  ModelWhereQuery,
+} from "../../sequelize/types";
+import { Nullable, Optional } from "../../types";
+import {
+  countModels,
+  createModel,
+  findAllModels,
+  findModel,
+  updateModel,
+} from "../../sequelize/serviceUtils";
 
-export async function createSubject({ name, code }: { name: string, code: string }) {
-  return Subject.create({ name, code });
+interface SubjectFields extends IModelFields, ModelAttributes<Subject> {
+  name: Optional<string>;
+  code: Optional<string>;
+  active: Optional<boolean>;
 }
 
-export async function findAllSubjects(options: OrderingOptions) {
+const buildModelFields = (subject: Nullable<Subject>): SubjectFields => {
+  return {
+    id: subject?.id,
+    name: subject?.name,
+    code: subject?.code,
+    active: subject?.active,
+  };
+};
 
-  const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
-    { limit: options.perPage, offset: options.page * options.perPage }
-    : {};
+const buildQuery = (id: string): ModelWhereQuery<Subject> => {
+  return { id: Number(id) };
+};
 
-  const orderingOptions = options.sortField ? [[ options.sortField, options.sortOrder?? 'DESC' ]] : [];
+const fixData = (data: SubjectFields) => {
+  data.githubOrganization = data.organization;
+  return data;
+};
 
-  // @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-  // keyof Subject porque Sequelize (sus tipos para se exactos) no entiende
-  // que el primer elemento de la lista en realidad son las keys del modelo.
-
-  return Subject.findAll({ ...paginationOptions, order: orderingOptions });
+export async function createSubject(
+  data: SubjectFields
+): Promise<SubjectFields> {
+  data.active = true; // Always create active
+  return createModel(Subject, fixData(data), buildModelFields);
 }
 
-export async function countSubjects() { return Subject.count({}) };
-
-export async function findSubject({ subjectId }: { subjectId: string }) {
-
-  return Subject.findOne({ where: { id: Number(subjectId) }});
+export async function updateSubject(
+  id: string,
+  data: SubjectFields
+): Promise<SubjectFields> {
+  return updateModel(Subject, fixData(data), buildModelFields, buildQuery(id));
 }
 
-export async function updateSubject(id: string, attrs: { name?: string, code?: string }) {
+export async function countSubjects(): Promise<number> {
+  return countModels<Subject>(Subject);
+}
 
-  // https://sequelize.org/api/v6/class/src/model.js~model#static-method-update
-  // `update` devuelve un array con los valores updateados en el segundo lugar.
-  const [_, [updated]] = await Subject.update(
-    { name: attrs.name, code: attrs.code },
-    { where: { id: Number(id) }, returning: true }
-  );
+export async function findSubject({
+  subjectId,
+}: {
+  subjectId: string;
+}): Promise<SubjectFields> {
+  return findModel(Subject, buildModelFields, buildQuery(subjectId));
+}
 
-  return updated;
+export async function findAllSubjects(
+  options: OrderingOptions
+): Promise<SubjectFields[]> {
+  return findAllModels(Subject, options, buildModelFields);
 }
