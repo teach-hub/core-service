@@ -46,7 +46,7 @@ const validate = async (data: UserFields) => {
     githubId: data.githubId,
   });
 
-  if (githubIdAlreadyUsed) throw new Error("Github id already used");
+  if (githubIdAlreadyUsed) throw new Error("Github is already used");
 };
 
 export async function createUser(data: UserFields): Promise<UserFields> {

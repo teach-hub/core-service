@@ -9,6 +9,7 @@ import { Nullable, Optional } from "../../types";
 import {
   countModels,
   createModel,
+  existsModel,
   findAllModels,
   findModel,
   updateModel,
@@ -38,10 +39,24 @@ const fixData = (data: SubjectFields) => {
   return data;
 };
 
+const validate = async (data: SubjectFields) => {
+  const codeAlreadyUsed = await existsModel(Subject, {
+    code: data.code,
+  });
+
+  if (codeAlreadyUsed) throw new Error("Code is already used");
+  const nameAlreadyUsed = await existsModel(Subject, {
+    name: data.name,
+  });
+
+  if (nameAlreadyUsed) throw new Error("Name is already used");
+};
+
 export async function createSubject(
   data: SubjectFields
 ): Promise<SubjectFields> {
   data.active = true; // Always create active
+  await validate(data);
   return createModel(Subject, fixData(data), buildModelFields);
 }
 
@@ -49,6 +64,7 @@ export async function updateSubject(
   id: string,
   data: SubjectFields
 ): Promise<SubjectFields> {
+  await validate(data);
   return updateModel(Subject, fixData(data), buildModelFields, buildQuery(id));
 }
 
