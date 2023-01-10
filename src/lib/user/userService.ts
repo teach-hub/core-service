@@ -1,65 +1,71 @@
-import UserModel from './userModel';
+import UserModel from "./userModel";
 
-import { isNumber, OrderingOptions } from '../../utils';
+import { OrderingOptions } from "../../utils";
+import {
+  IModelFields,
+  ModelAttributes,
+  ModelWhereQuery,
+} from "../../sequelize/types";
+import { Nullable, Optional } from "../../types";
+import {
+  countModels,
+  createModel,
+  findAllModels,
+  findModel,
+  updateModel,
+} from "../../sequelize/serviceUtils";
 
-type User = {
-  id?: number;
-  name?: string;
-  lastName?: string;
-  file?: string;
-  githubId?: string;
-  notificationEmail?: string;
-  active?: boolean;
+interface UserFields extends IModelFields, ModelAttributes<UserModel> {
+  name: Optional<string>;
+  lastName: Optional<string>;
+  githubId: Optional<string>;
+  file: Optional<string>;
+  notificationEmail: Optional<string>;
+  active: Optional<boolean>;
 }
 
-export async function createUser (
-  { name, lastName, file, githubId, notificationEmail }: User
-): Promise<UserModel> {
-  return UserModel.create({  name, lastName, file, githubId, notificationEmail, active: true });
-}
+const buildModelFields = (user: Nullable<UserModel>): UserFields => {
+  return {
+    id: user?.id,
+    name: user?.name,
+    lastName: user?.lastName,
+    githubId: user?.githubId,
+    active: user?.active,
+    file: user?.file,
+    notificationEmail: user?.notificationEmail,
+  };
+};
 
-export async function findAllUsers(options: OrderingOptions): Promise<UserModel[]> {
+const buildQuery = (id: string): ModelWhereQuery<UserModel> => {
+  return { id: Number(id) };
+};
 
-  const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
-    { limit: options.perPage, offset: options.page * options.perPage }
-    : {};
-
-  const orderingOptions = options.sortField ? [[ options.sortField, options.sortOrder?? 'DESC' ]] : [];
-
-  // @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-  // keyof User porque Sequelize (sus tipos para se exactos) no entiende
-  // que el primer elemento de la lista en realidad son las keys del modelo.
-
-  return UserModel.findAll({ ...paginationOptions, order: orderingOptions });
-}
-
-export async function countUsers(): Promise<number> { return UserModel.count({}) };
-
-export async function findUser({ userId }: { userId: string }): Promise<UserModel | null> {
-
-  const id = Number(userId);
-
-  return UserModel.findOne({ where: { id }});
+export async function createUser(data: UserFields): Promise<UserFields> {
+  data.active = true; // Always create active
+  return createModel(UserModel, data, buildModelFields);
 }
 
 export async function updateUser(
   id: string,
-  attrs: User
-): Promise<UserModel> {
+  data: UserFields
+): Promise<UserFields> {
+  return updateModel(UserModel, data, buildModelFields, buildQuery(id));
+}
 
-  // https://sequelize.org/api/v6/class/src/model.js~model#static-method-update
-  // `update` devuelve un array con los valores updateados en el segundo lugar.
-  const [_, [updated]] = await UserModel.update(
-    {
-      name: attrs.name,
-      lastName: attrs.lastName,
-      githubId: attrs.githubId,
-      active: attrs.active,
-      file: attrs.file,
-      notificationEmai: attrs.notificationEmail
-    },
-    { where: { id: Number(id) }, returning: true }
-  );
+export async function countUsers(): Promise<number> {
+  return countModels<UserModel>(UserModel);
+}
 
-  return updated;
+export async function findUser({
+  userId,
+}: {
+  userId: string;
+}): Promise<UserFields> {
+  return findModel(UserModel, buildModelFields, buildQuery(userId));
+}
+
+export async function findAllUsers(
+  options: OrderingOptions
+): Promise<UserFields[]> {
+  return findAllModels(UserModel, options, buildModelFields);
 }

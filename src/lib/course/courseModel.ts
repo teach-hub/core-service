@@ -1,13 +1,15 @@
-import Sequelize from 'sequelize';
+import Sequelize from "sequelize";
 
 import { DatabaseConstants } from "../../consts";
+
+export type CoursePeriod = "1" | "2";
 
 class CourseModel extends Sequelize.Model {
   readonly id!: number;
   readonly name!: string;
   readonly githubOrganization!: string;
   readonly subjectId!: number;
-  readonly period!: '1' | '2';
+  readonly period!: CoursePeriod;
   readonly year!: number;
   readonly active!: boolean;
 
@@ -17,7 +19,7 @@ class CourseModel extends Sequelize.Model {
         id: {
           type: Sequelize.INTEGER,
           primaryKey: true,
-          autoIncrement: true
+          autoIncrement: true,
         },
         name: {
           type: Sequelize.TEXT,
@@ -25,25 +27,25 @@ class CourseModel extends Sequelize.Model {
         },
         githubOrganization: {
           type: Sequelize.TEXT,
-          field: 'github_organization'
+          field: "github_organization",
         },
         subjectId: {
           type: Sequelize.NUMBER,
-          field: 'subject_id',
+          field: "subject_id",
           allowNull: false,
         },
         period: {
-          type: Sequelize.ENUM('1', '2'),
+          type: Sequelize.ENUM("1", "2"),
           allowNull: false,
         },
         year: {
           type: Sequelize.INTEGER,
-          allowNull: false
+          allowNull: false,
         },
         active: {
           type: Sequelize.BOOLEAN,
-          allowNull: false
-        }
+          allowNull: false,
+        },
       },
       {
         sequelize: db,
@@ -52,13 +54,13 @@ class CourseModel extends Sequelize.Model {
         timestamps: false,
       }
     );
-  }
+  };
 
   static associate = (models: any) => {
     const { SubjectModel } = models;
 
-    CourseModel.belongsTo(SubjectModel, { foreignKey: 'subject_id' })
-  }
+    CourseModel.belongsTo(SubjectModel, { foreignKey: "subject_id" });
+  };
 }
 
 export default CourseModel;

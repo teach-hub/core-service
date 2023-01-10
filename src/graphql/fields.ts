@@ -1,14 +1,13 @@
-import {RAArgs} from "./utils";
-import {OrderingOptions} from "../utils";
+import { RAArgs } from "./utils";
+import { OrderingOptions } from "../utils";
 import {
   GraphQLID,
   GraphQLInt,
   GraphQLList,
-  GraphQLNonNull,
   GraphQLObjectType,
-  Source
+  Source,
 } from "graphql";
-import {IModelFields} from "../sequelize/types";
+import { IModelFields } from "../sequelize/types";
 
 const buildFindTypeObject = (
   type: GraphQLObjectType,
@@ -16,12 +15,12 @@ const buildFindTypeObject = (
 ) => {
   return {
     type: type,
-    args: { id: { type: new GraphQLNonNull(GraphQLID) }},
+    args: { id: { type: GraphQLID } },
     resolve: async (_: Source, { id }: any) => {
       return findCallback(id);
     },
-  }
-}
+  };
+};
 
 const buildFindAllTypeObject = (
   type: GraphQLObjectType,
@@ -32,11 +31,14 @@ const buildFindAllTypeObject = (
     type: new GraphQLList(type),
     description: "List of " + typeName + " on the whole application",
     args: RAArgs,
-    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: OrderingOptions) => {
+    resolve: async (
+      _: Source,
+      { page, perPage, sortField, sortOrder }: OrderingOptions
+    ) => {
       return findAllCallback({ page, perPage, sortField, sortOrder });
-    }
-  }
-}
+    },
+  };
+};
 
 const buildMetaTypeObject = (
   keyName: string,
@@ -44,14 +46,14 @@ const buildMetaTypeObject = (
 ) => {
   return {
     type: new GraphQLObjectType({
-      name: keyName + 'ListMetadata',
-      fields: { count: { type: GraphQLInt }}
+      name: keyName + "ListMetadata",
+      fields: { count: { type: GraphQLInt } },
     }),
     args: RAArgs,
     resolve: async () => {
-      return countCallback().then(count => ({ count }));
-    }
-  }
+      return countCallback().then((count) => ({ count }));
+    },
+  };
 };
 
 interface FieldParams {
@@ -63,29 +65,17 @@ interface FieldParams {
   findAllCallback: (args: OrderingOptions) => Promise<IModelFields[]>;
 }
 
-export const buildEntityFields = (
-  {
-    type,
-    keyName,
-    typeName,
-    countCallback,
-    findCallback,
-    findAllCallback,
-  }: FieldParams
-) => {
+export const buildEntityFields = ({
+  type,
+  keyName,
+  typeName,
+  countCallback,
+  findCallback,
+  findAllCallback,
+}: FieldParams) => {
   return {
-    [keyName]: buildFindTypeObject(
-      type,
-      findCallback,
-    ),
-    [`all${keyName}s`]: buildFindAllTypeObject(
-      type,
-      typeName,
-      findAllCallback
-    ),
-    [`_all${keyName}sMeta`]: buildMetaTypeObject(
-      keyName,
-      countCallback
-    )
-  }
-}
+    [keyName]: buildFindTypeObject(type, findCallback),
+    [`all${keyName}s`]: buildFindAllTypeObject(type, typeName, findAllCallback),
+    [`_all${keyName}sMeta`]: buildMetaTypeObject(keyName, countCallback),
+  };
+};

@@ -6,8 +6,8 @@ import {
   GraphQLID,
   GraphQLBoolean,
   GraphQLNonNull,
-  Source
-} from 'graphql';
+  Source,
+} from "graphql";
 
 import {
   createRole,
@@ -15,103 +15,51 @@ import {
   findRole,
   updateRole,
   countRoles,
-} from './roleService';
+} from "./roleService";
 
-import { RAArgs } from '../../graphql/utils';
-import { OrderingOptions } from '../../utils';
+import { GraphqlObjectTypeFields } from "../../graphql/utils";
+import { buildEntityFields } from "../../graphql/fields";
+import { buildEntityMutations } from "../../graphql/mutations";
+
+const getFields = (addIdd: boolean) => {
+  const fields: GraphqlObjectTypeFields = {
+    name: { type: GraphQLString },
+    permissions: { type: new GraphQLList(GraphQLString) },
+    parentRoleId: { type: GraphQLID },
+    active: { type: GraphQLBoolean },
+  };
+  if (addIdd) fields.id = { type: GraphQLID };
+
+  return fields;
+};
 
 const RoleType = new GraphQLObjectType({
-  name: 'Role',
-  description: 'A role within TeachHub',
-  fields: {
-    id: { type: GraphQLID },
-    name: { type: GraphQLString },
-
-  /**
-    * Permisos seteados actualmente para este rol
-    */
-    permissions: { type: new GraphQLList(GraphQLString) },
-    parentRoleId: { type: GraphQLString },
-    active: { type: GraphQLBoolean },
-  }
+  name: "Role",
+  description: "A role within TeachHub",
+  fields: getFields(true),
 });
 
-const roleFields = {
-  Role: {
-    type: RoleType,
-    args: { id: { type: new GraphQLNonNull(GraphQLID) }},
-    resolve: async (_: Source, { id }: any) => {
-      return findRole({ roleId: id });
-    },
-  },
-  allRoles: {
-    type: new GraphQLList(RoleType),
-    description: "List of roles on the whole application",
-    args: RAArgs,
-    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: OrderingOptions) => {
-      return findAllRoles({ page, perPage, sortField, sortOrder });
-    }
-  },
-  _allRolesMeta: {
-    type: new GraphQLObjectType({
-      name: 'RoleListMetadata',
-      fields: { count: { type: GraphQLInt }}
-    }),
-    args: RAArgs,
-    resolve: async () => {
-      return countRoles().then(count => ({ count }));
-    }
-  }
+const findRoleCallback = (id: string) => {
+  return findRole({ roleId: id });
 };
 
-const roleMutations = {
-  createRole: {
-    type: RoleType,
-    description: 'Creates a new role',
-    args: {
-      name: { type: GraphQLString },
-      permissions: { type: new GraphQLList(GraphQLString) },
-      parentRoleId: { type: GraphQLID },
-    },
-    resolve: async (_: Source, { name, permissions, parentRoleId }: any) => {
-      console.log("Executing mutation createRole");
+const roleFields = buildEntityFields({
+  type: RoleType,
+  keyName: "Role",
+  typeName: "role",
+  findCallback: findRoleCallback,
+  findAllCallback: findAllRoles,
+  countCallback: countRoles,
+});
+const roleMutations = buildEntityMutations({
+  type: RoleType,
+  keyName: "Role",
+  typeName: "role",
+  createFields: getFields(false),
+  updateFields: getFields(true),
+  createCallback: createRole,
+  updateCallback: updateRole,
+  findCallback: findRoleCallback,
+});
 
-      return createRole({ name, permissions, parentRoleId });
-    }
-  },
-  updateRole: {
-    type: RoleType,
-    description: 'Update role record on TeachHub',
-    args: {
-      id: { type: GraphQLID },
-      name: { type: GraphQLString },
-      permissions: { type: new GraphQLList(GraphQLString) },
-      parentRoleId: { type: GraphQLID },
-      active: { type: GraphQLBoolean },
-    },
-    resolve: async (_: Source, { id, ...rest }: any) => {
-      console.log("Executing mutation updateRole");
-
-      return updateRole(id, rest)
-    },
-  },
-  deleteRole: {
-    type: RoleType,
-    args: { id: { type: new GraphQLNonNull(GraphQLID) }},
-    resolve: async (_: Source, { id }: any) => {
-
-      console.log("Would delete role: ", { id })
-
-    /**
-      * (Tomas): No borramos entidades por el momento.
-      */
-
-      return findRole({ roleId: id });
-    }
-  }
-};
-
-export {
-  roleMutations,
-  roleFields
-}
+export { roleMutations, roleFields };

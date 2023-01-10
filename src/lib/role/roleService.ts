@@ -1,115 +1,110 @@
-import RoleModel from './roleModel';
-import { isNumber, OrderingOptions } from '../../utils';
-import { ALL_PERMISSIONS } from '../../consts';
+import RoleModel from "./roleModel";
+import { OrderingOptions } from "../../utils";
+import { ALL_PERMISSIONS } from "../../consts";
+import {
+  IModelFields,
+  ModelAttributes,
+  ModelWhereQuery,
+} from "../../sequelize/types";
+import { Nullable, Optional } from "../../types";
+import AdminUserModel from "../adminUser/adminModel";
+import {
+  countModels,
+  createModel,
+  findAllModels,
+  findModel,
+  updateModel,
+} from "../../sequelize/serviceUtils";
 
-const encodePermissions = (permissions: string[]): string => permissions.join(',');
-const decodePermissions = (encoded: string): string[] => encoded.split(',');
+const encodePermissions = (permissions: string[]): string =>
+  permissions.join(",");
+const decodePermissions = (encoded: string): string[] => encoded.split(",");
 
-const isInvalidPermission = (p: string) => !ALL_PERMISSIONS.includes(p)
+const isInvalidPermission = (p: string) => !ALL_PERMISSIONS.includes(p);
 
-export async function createRole(
-  { name, permissions, parentRoleId }
-  : { name: string, permissions: string[], parentRoleId?: string }
-) {
-
-  if (permissions.some(isInvalidPermission)) {
-    throw new Error('Role has invalid permission(s)');
-  }
-
-  const created = await RoleModel.create({
-    name,
-    active: true,
-    permissions: encodePermissions(permissions),
-    parentRoleId: parentRoleId ? Number(parentRoleId): null,
-  });
-
-  return {
-    id: created.id,
-    name: created.name,
-    permissions: decodePermissions(created.permissions),
-    parentRoleId: created.parentRoleId,
-    active: created.active,
-  }
+interface RoleCommonFields extends IModelFields {
+  name: Optional<string>;
+  parentRoleId: Optional<number>;
+  active: Optional<boolean>;
 }
 
-
-export async function findAllRoles(options: OrderingOptions) {
-
-  const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
-    { limit: options.perPage, offset: options.page * options.perPage }
-    : {};
-
-  const orderingOptions = options.sortField ? [[ options.sortField, options.sortOrder?? 'DESC' ]] : [];
-
-  // @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-  // keyof Role porque Sequelize (sus tipos para se exactos) no entiende
-  // que el primer elemento de la lista en realidad son las keys del modelo.
-
-  const roles = await RoleModel.findAll({ ...paginationOptions, order: orderingOptions });
-
-  return roles.map(role => {
-    return {
-      id: role?.id,
-      name: role?.name,
-      permissions: decodePermissions(role?.permissions ?? ''),
-      parentRoleId: role?.parentRoleId,
-      active: role?.active,
-    }
-  })
+interface RoleFields extends RoleCommonFields {
+  permissions: Optional<string[]>;
 }
 
-export async function countRoles() { return RoleModel.count({}) };
+interface RoleAttrs extends IModelFields, ModelAttributes<RoleModel> {
+  permissions: Optional<string>;
+}
 
-export async function findRole({ roleId }: { roleId: string }) {
-  const role =  await RoleModel.findOne({ where: { id: Number(roleId) }});
-
+const buildModelFields = (role: Nullable<RoleModel>): RoleFields => {
   return {
     id: role?.id,
     name: role?.name,
-    permissions: decodePermissions(role?.permissions ?? ''),
+    permissions: decodePermissions(role?.permissions ?? ""),
     parentRoleId: role?.parentRoleId,
     active: role?.active,
+  };
+};
+
+const fixData = (data: RoleFields): RoleAttrs => {
+  return {
+    id: data.id,
+    name: data.name,
+    permissions: encodePermissions(data.permissions ?? []),
+    parentRoleId: data.parentRoleId,
+    active: data.active,
+  };
+};
+
+const buildQuery = (id: string): ModelWhereQuery<AdminUserModel> => {
+  return { id: Number(id) };
+};
+
+export async function createRole(data: RoleFields): Promise<RoleFields> {
+  if (data.permissions && data.permissions.some(isInvalidPermission)) {
+    throw new Error("Role has invalid permission(s)");
   }
+
+  data.active = true;
+  return createModel(RoleModel, fixData(data), buildModelFields);
 }
 
 export async function updateRole(
   id: string,
-  attrs: {
-    name?: string,
-    permissions: string[],
-    parentRoleId?: string,
-    active?: boolean,
-  }
-) {
-
-  if (id === attrs.parentRoleId) {
-    throw new Error('Role cannot be parent of itself')
+  data: RoleFields
+): Promise<RoleFields> {
+  if (data.parentRoleId && id === String(data.parentRoleId)) {
+    throw new Error("Role cannot be parent of itself");
   }
 
-  if (attrs.permissions.some(isInvalidPermission)) {
-    throw new Error('Role has invalid permission(s)')
+  if (data.permissions && data.permissions.some(isInvalidPermission)) {
+    throw new Error("Role has invalid permission(s)");
   }
 
   // TODO. Validar que no haya ciclos.
 
-  const [_, [updated]] = await RoleModel.update(
-    {
-      name: attrs.name,
-      permissions: encodePermissions(attrs.permissions),
-      parentRoleId: attrs.parentRoleId ? attrs.parentRoleId: null,
-      active: attrs.active,
-    },
-    {
-      where: { id: Number(id) },
-      returning: true
-    }
+  return updateModel(
+    RoleModel,
+    fixData(data),
+    buildModelFields,
+    buildQuery(id)
   );
+}
 
-  return {
-    id: updated.id,
-    name: updated.name,
-    permissions: decodePermissions(updated.permissions ?? ''),
-    parentRoleId: updated.parentRoleId,
-    active: updated.active,
-  }
+export async function countRoles(): Promise<number> {
+  return countModels<RoleModel>(RoleModel);
+}
+
+export async function findRole({
+  roleId,
+}: {
+  roleId: string;
+}): Promise<RoleFields> {
+  return findModel(RoleModel, buildModelFields, buildQuery(roleId));
+}
+
+export async function findAllRoles(
+  options: OrderingOptions
+): Promise<RoleFields[]> {
+  return findAllModels(RoleModel, options, buildModelFields);
 }

@@ -1,52 +1,73 @@
-import AdminUser from './adminModel';
-import { isNumber, OrderingOptions } from "../../utils";
+import AdminUserModel from './adminModel';
+import { OrderingOptions } from "../../utils";
 import crypto from "crypto";
+import { IModelFields, ModelAttributes, ModelWhereQuery } from "../../sequelize/types";
+import {Nullable, Optional} from "../../types";
+import {countModels, createModel, findAllModels, findModel, updateModel} from "../../sequelize/serviceUtils";
+
+
+interface AdminUserFields extends IModelFields, ModelAttributes<AdminUserModel> {
+  email: Optional<string>;
+  password: Optional<string>;
+  name: Optional<string>;
+  lastName: Optional<string>;
+}
+
+const buildModelFields = (adminUser: Nullable<AdminUserModel>): AdminUserFields => {
+  return {
+    id: adminUser?.id,
+    email: adminUser?.email,
+    password: adminUser?.password,
+    name: adminUser?.name,
+    lastName: adminUser?.lastName,
+  }
+}
+
+const buildQuery = (
+  id: string
+): ModelWhereQuery<AdminUserModel> => {
+  return { id: Number(id) }
+}
 
 export async function createAdminUser(
-  { email, password, name, lastName }:
-    {
-      email: string,
-      password?: string,
-      name: string,
-      lastName: string
-    }
-) {
-  const pass = password ? password : crypto.randomBytes(20).toString('hex');
-  return AdminUser.create({ email, password: pass, name, lastName });
-}
-
-export async function findAllAdminUsers(options: OrderingOptions) {
-
-  const paginationOptions = isNumber(options.perPage) && isNumber(options.page) ?
-    { limit: options.perPage, offset: options.page * options.perPage }
-    : {};
-
-  const orderingOptions = options.sortField ? [[ options.sortField, options.sortOrder?? 'DESC' ]] : [];
-
-  // @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-  // keyof AdminUser porque Sequelize (sus tipos para se exactos) no entiende
-  // que el primer elemento de la lista en realidad son las keys del modelo.
-
-  return AdminUser.findAll({ ...paginationOptions, order: orderingOptions });
-}
-
-export async function countAdminUsers() { return AdminUser.count({}) }
-
-export async function findAdminUser({ adminUserId }: { adminUserId: string }) {
-  return AdminUser.findOne({ where: { id: Number(adminUserId) }});
+  data : AdminUserFields
+): Promise<AdminUserFields> {
+  data.password = data.password ? data.password : crypto.randomBytes(20).toString('hex');
+  return createModel(
+    AdminUserModel,
+    data,
+    buildModelFields
+  )
 }
 
 export async function updateAdminUser(
   id: string,
-  attrs: { name?: string, lastName?: string, email?: string, password?: string }
-) {
+  data: AdminUserFields
+): Promise<AdminUserFields> {
+  return updateModel(
+    AdminUserModel,
+    data,
+    buildModelFields,
+    buildQuery(id)
+  )
+}
 
-  // https://sequelize.org/api/v6/class/src/model.js~model#static-method-update
-  // `update` devuelve un array con los valores updateados en el segundo lugar.
-  const [_, [updated]] = await AdminUser.update(
-    { name: attrs.name, lastName: attrs.lastName, email: attrs.email, password: attrs.password },
-    { where: { id: Number(id) }, returning: true }
-  );
+export async function countAdminUsers(): Promise<number> {
+  return countModels<AdminUserModel>(AdminUserModel)
+}
 
-  return updated;
+export async function findAdminUser({ adminUserId }: { adminUserId: string }): Promise<AdminUserFields> {
+  return findModel(
+    AdminUserModel,
+    buildModelFields,
+    buildQuery(adminUserId)
+  )
+}
+
+export async function findAllAdminUsers(options: OrderingOptions): Promise<AdminUserFields[]> {
+  return findAllModels(
+    AdminUserModel,
+    options,
+    buildModelFields
+  )
 }

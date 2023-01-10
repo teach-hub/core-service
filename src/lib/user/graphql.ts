@@ -7,91 +7,60 @@ import {
   GraphQLInt,
   GraphQLID,
   Source,
-} from 'graphql';
+} from "graphql";
 
+import { GraphqlObjectTypeFields } from "../../graphql/utils";
 import {
+  countUsers,
   createUser,
   findAllUsers,
   findUser,
   updateUser,
-  countUsers,
-} from './userService';
+} from "./userService";
+import { buildEntityFields } from "../../graphql/fields";
+import { buildEntityMutations } from "../../graphql/mutations";
 
-import { RAArgs } from '../../graphql/utils';
+const getFields = (addIdd: boolean) => {
+  const fields: GraphqlObjectTypeFields = {
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    lastName: { type: new GraphQLNonNull(GraphQLString) },
+    githubId: { type: new GraphQLNonNull(GraphQLString) },
+    notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
+    file: { type: new GraphQLNonNull(GraphQLString) },
+    active: { type: GraphQLBoolean },
+  };
+  if (addIdd) fields.id = { type: GraphQLID };
+
+  return fields;
+};
 
 const UserType = new GraphQLObjectType({
-  name: 'User',
-  description: 'A non-admin user within TeachHub',
-  fields: {
-    id: { type: GraphQLID },
-    githubId: { type: GraphQLString },
-    name: { type: GraphQLString },
-    lastName: { type: GraphQLString },
-    notificationEmail: { type: GraphQLString },
-    file: { type: GraphQLString },
-    active: { type: GraphQLBoolean },
-  }
+  name: "User",
+  description: "A user within TeachHub",
+  fields: getFields(true),
 });
 
-export const userFields = {
-  User: {
-    type: UserType,
-    args: { id: { type: GraphQLID }},
-    resolve: async (_: Source, { id }: any) => findUser({ userId: id }),
-  },
-  allUsers: {
-    type: new GraphQLList(UserType),
-    description: "List of users on the whole application",
-    args: RAArgs,
-    resolve: async (_: Source, { page, perPage, sortField, sortOrder }: any) => {
-      return findAllUsers({ page, perPage, sortField, sortOrder });
-    }
-  },
-  _allUsersMeta: {
-    type: new GraphQLObjectType({
-      name: 'UserListMetadata',
-      fields: { count: { type: GraphQLInt }}
-    }),
-    args: RAArgs,
-    resolve: async () => {
-      return { count: (await countUsers()) };
-    }
-  }
-}
+const findUserCallback = (id: string) => {
+  return findUser({ userId: id });
+};
 
-export const userMutations = {
-  createUser: {
-    type: UserType, // Output type
-    description: 'Creates a new non-admin user assigning',
-    args: {
-      name: { type: new GraphQLNonNull(GraphQLString) },
-      lastName: { type: new GraphQLNonNull(GraphQLString) },
-      githubId: { type: new GraphQLNonNull(GraphQLString) },
-      notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
-      file: { type: new GraphQLNonNull(GraphQLString) },
-    },
-    resolve: async (_: Source, args: any) => {
-      console.log("Executing mutation createUser");
+const userFields = buildEntityFields({
+  type: UserType,
+  keyName: "User",
+  typeName: "user",
+  findCallback: findUserCallback,
+  findAllCallback: findAllUsers,
+  countCallback: countUsers,
+});
+const userMutations = buildEntityMutations({
+  type: UserType,
+  keyName: "User",
+  typeName: "user",
+  createFields: getFields(false),
+  updateFields: getFields(true),
+  createCallback: createUser,
+  updateCallback: updateUser,
+  findCallback: findUserCallback,
+});
 
-      return await createUser(args);
-    }
-  },
-  updateUser: {
-    type: UserType,
-    description: 'Update non-admin user record on TeachHub',
-    args: {
-      id: { type: new GraphQLNonNull(GraphQLID) },
-      name: { type: new GraphQLNonNull(GraphQLString) },
-      lastName: { type: new GraphQLNonNull(GraphQLString) },
-      githubId: { type: new GraphQLNonNull(GraphQLString) },
-      notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
-      file: { type: new GraphQLNonNull(GraphQLString) },
-      active: { type: new GraphQLNonNull(GraphQLBoolean) },
-    },
-    resolve: async (_: Source, { id, ...rest }: any) => {
-      console.log("Executing mutation updateUser");
-
-      return updateUser(id, rest)
-    }
-  }
-}
+export { userMutations, userFields };
