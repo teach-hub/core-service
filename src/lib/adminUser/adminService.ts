@@ -1,10 +1,15 @@
 import AdminUserModel from './adminModel';
-import { OrderingOptions } from "../../utils";
-import crypto from "crypto";
-import { IModelFields, ModelAttributes, ModelWhereQuery } from "../../sequelize/types";
-import {Nullable, Optional} from "../../types";
-import {countModels, createModel, findAllModels, findModel, updateModel} from "../../sequelize/serviceUtils";
-
+import { OrderingOptions } from '../../utils';
+import crypto from 'crypto';
+import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
+import { Nullable, Optional } from '../../types';
+import {
+  countModels,
+  createModel,
+  findAllModels,
+  findModel,
+  updateModel,
+} from '../../sequelize/serviceUtils';
 
 interface AdminUserFields extends IModelFields, ModelAttributes<AdminUserModel> {
   email: Optional<string>;
@@ -20,54 +25,39 @@ const buildModelFields = (adminUser: Nullable<AdminUserModel>): AdminUserFields 
     password: adminUser?.password,
     name: adminUser?.name,
     lastName: adminUser?.lastName,
-  }
-}
+  };
+};
 
-const buildQuery = (
-  id: string
-): ModelWhereQuery<AdminUserModel> => {
-  return { id: Number(id) }
-}
+const buildQuery = (id: string): ModelWhereQuery<AdminUserModel> => {
+  return { id: Number(id) };
+};
 
-export async function createAdminUser(
-  data : AdminUserFields
-): Promise<AdminUserFields> {
+export async function createAdminUser(data: AdminUserFields): Promise<AdminUserFields> {
   data.password = data.password ? data.password : crypto.randomBytes(20).toString('hex');
-  return createModel(
-    AdminUserModel,
-    data,
-    buildModelFields
-  )
+  return createModel(AdminUserModel, data, buildModelFields);
 }
 
 export async function updateAdminUser(
   id: string,
   data: AdminUserFields
 ): Promise<AdminUserFields> {
-  return updateModel(
-    AdminUserModel,
-    data,
-    buildModelFields,
-    buildQuery(id)
-  )
+  return updateModel(AdminUserModel, data, buildModelFields, buildQuery(id));
 }
 
 export async function countAdminUsers(): Promise<number> {
-  return countModels<AdminUserModel>(AdminUserModel)
+  return countModels<AdminUserModel>(AdminUserModel);
 }
 
-export async function findAdminUser({ adminUserId }: { adminUserId: string }): Promise<AdminUserFields> {
-  return findModel(
-    AdminUserModel,
-    buildModelFields,
-    buildQuery(adminUserId)
-  )
+export async function findAdminUser({
+  adminUserId,
+}: {
+  adminUserId: string;
+}): Promise<AdminUserFields> {
+  return findModel(AdminUserModel, buildModelFields, buildQuery(adminUserId));
 }
 
-export async function findAllAdminUsers(options: OrderingOptions): Promise<AdminUserFields[]> {
-  return findAllModels(
-    AdminUserModel,
-    options,
-    buildModelFields
-  )
+export async function findAllAdminUsers(
+  options: OrderingOptions
+): Promise<AdminUserFields[]> {
+  return findAllModels(AdminUserModel, options, buildModelFields);
 }

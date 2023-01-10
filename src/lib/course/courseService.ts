@@ -1,18 +1,14 @@
-import Course, { CoursePeriod } from "./courseModel";
-import { OrderingOptions } from "../../utils";
-import {
-  IModelFields,
-  ModelAttributes,
-  ModelWhereQuery,
-} from "../../sequelize/types";
-import { Nullable, Optional } from "../../types";
+import Course, { CoursePeriod } from './courseModel';
+import { OrderingOptions } from '../../utils';
+import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
+import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
   findAllModels,
   findModel,
   updateModel,
-} from "../../sequelize/serviceUtils";
+} from '../../sequelize/serviceUtils';
 
 interface CourseFields extends IModelFields, ModelAttributes<Course> {
   name: Optional<string>;
@@ -68,8 +64,6 @@ export async function findCourse({
   return findModel(Course, buildModelFields, buildQuery(courseId));
 }
 
-export async function findAllCourses(
-  options: OrderingOptions
-): Promise<CourseFields[]> {
+export async function findAllCourses(options: OrderingOptions): Promise<CourseFields[]> {
   return findAllModels(Course, options, buildModelFields);
 }

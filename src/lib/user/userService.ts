@@ -1,19 +1,15 @@
-import UserModel from "./userModel";
+import UserModel from './userModel';
 
-import { OrderingOptions } from "../../utils";
-import {
-  IModelFields,
-  ModelAttributes,
-  ModelWhereQuery,
-} from "../../sequelize/types";
-import { Nullable, Optional } from "../../types";
+import { OrderingOptions } from '../../utils';
+import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
+import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
   findAllModels,
   findModel,
   updateModel,
-} from "../../sequelize/serviceUtils";
+} from '../../sequelize/serviceUtils';
 
 interface UserFields extends IModelFields, ModelAttributes<UserModel> {
   name: Optional<string>;
@@ -45,10 +41,7 @@ export async function createUser(data: UserFields): Promise<UserFields> {
   return createModel(UserModel, data, buildModelFields);
 }
 
-export async function updateUser(
-  id: string,
-  data: UserFields
-): Promise<UserFields> {
+export async function updateUser(id: string, data: UserFields): Promise<UserFields> {
   return updateModel(UserModel, data, buildModelFields, buildQuery(id));
 }
 
@@ -56,16 +49,10 @@ export async function countUsers(): Promise<number> {
   return countModels<UserModel>(UserModel);
 }
 
-export async function findUser({
-  userId,
-}: {
-  userId: string;
-}): Promise<UserFields> {
+export async function findUser({ userId }: { userId: string }): Promise<UserFields> {
   return findModel(UserModel, buildModelFields, buildQuery(userId));
 }
 
-export async function findAllUsers(
-  options: OrderingOptions
-): Promise<UserFields[]> {
+export async function findAllUsers(options: OrderingOptions): Promise<UserFields[]> {
   return findAllModels(UserModel, options, buildModelFields);
 }

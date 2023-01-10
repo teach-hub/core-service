@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 
-import { DatabaseConstants } from "../../consts";
+import { DatabaseConstants } from '../../consts';
 
 class AdminUserModel extends Sequelize.Model {
   readonly id!: number;
@@ -15,15 +15,15 @@ class AdminUserModel extends Sequelize.Model {
         id: {
           type: Sequelize.INTEGER,
           primaryKey: true,
-          autoIncrement: true
+          autoIncrement: true,
         },
         email: Sequelize.TEXT,
         password: Sequelize.TEXT,
         name: Sequelize.TEXT,
         lastName: {
           type: Sequelize.TEXT,
-          field: 'last_name'
-        }
+          field: 'last_name',
+        },
       },
       {
         sequelize: db,
@@ -32,8 +32,7 @@ class AdminUserModel extends Sequelize.Model {
         timestamps: false,
       }
     );
-  }
-
+  };
 }
 
 export default AdminUserModel;

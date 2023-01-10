@@ -7,7 +7,7 @@ import {
   GraphQLBoolean,
   GraphQLNonNull,
   Source,
-} from "graphql";
+} from 'graphql';
 
 import {
   createRole,
@@ -15,11 +15,11 @@ import {
   findRole,
   updateRole,
   countRoles,
-} from "./roleService";
+} from './roleService';
 
-import { GraphqlObjectTypeFields } from "../../graphql/utils";
-import { buildEntityFields } from "../../graphql/fields";
-import { buildEntityMutations } from "../../graphql/mutations";
+import { GraphqlObjectTypeFields } from '../../graphql/utils';
+import { buildEntityFields } from '../../graphql/fields';
+import { buildEntityMutations } from '../../graphql/mutations';
 
 const getFields = (addIdd: boolean) => {
   const fields: GraphqlObjectTypeFields = {
@@ -34,8 +34,8 @@ const getFields = (addIdd: boolean) => {
 };
 
 const RoleType = new GraphQLObjectType({
-  name: "Role",
-  description: "A role within TeachHub",
+  name: 'Role',
+  description: 'A role within TeachHub',
   fields: getFields(true),
 });
 
@@ -45,16 +45,16 @@ const findRoleCallback = (id: string) => {
 
 const roleFields = buildEntityFields({
   type: RoleType,
-  keyName: "Role",
-  typeName: "role",
+  keyName: 'Role',
+  typeName: 'role',
   findCallback: findRoleCallback,
   findAllCallback: findAllRoles,
   countCallback: countRoles,
 });
 const roleMutations = buildEntityMutations({
   type: RoleType,
-  keyName: "Role",
-  typeName: "role",
+  keyName: 'Role',
+  typeName: 'role',
   createFields: getFields(false),
   updateFields: getFields(true),
   createCallback: createRole,

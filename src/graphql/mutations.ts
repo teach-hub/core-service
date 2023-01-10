@@ -1,11 +1,6 @@
-import {
-  GraphQLID,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  Source
-} from "graphql";
-import {GraphqlObjectTypeFields} from "./utils";
-import {IModelFields} from "../sequelize/types";
+import { GraphQLID, GraphQLNonNull, GraphQLObjectType, Source } from 'graphql';
+import { GraphqlObjectTypeFields } from './utils';
+import { IModelFields } from '../sequelize/types';
 
 const buildCreateTypeMutation = (
   type: GraphQLObjectType,
@@ -18,12 +13,12 @@ const buildCreateTypeMutation = (
     description: 'Creates a new ' + typeName,
     args: fields,
     resolve: async (_: Source, { ...rest }: any) => {
-      console.log("Executing mutation create from " + typeName);
+      console.log('Executing mutation create from ' + typeName);
 
-      return createCallback(rest)
-    }
-  }
-}
+      return createCallback(rest);
+    },
+  };
+};
 
 const buildUpdateTypeMutation = (
   type: GraphQLObjectType,
@@ -36,12 +31,12 @@ const buildUpdateTypeMutation = (
     description: 'Updates a ' + typeName,
     args: fields,
     resolve: async (_: Source, { id, ...rest }: any) => {
-      console.log("Executing mutation update from " + typeName);
+      console.log('Executing mutation update from ' + typeName);
 
-      return updateCallback(id, rest)
-    }
-  }
-}
+      return updateCallback(id, rest);
+    },
+  };
+};
 
 const buildDeleteTypeMutation = (
   type: GraphQLObjectType,
@@ -50,15 +45,15 @@ const buildDeleteTypeMutation = (
 ) => {
   return {
     type: type,
-    args: { id: { type: new GraphQLNonNull(GraphQLID) }},
+    args: { id: { type: new GraphQLNonNull(GraphQLID) } },
     resolve: async (_: Source, { id }: any) => {
-      console.log("Would delete " + typeName + ": ", { id })
+      console.log('Would delete ' + typeName + ': ', { id });
       // Currently, not deleting entities
 
-      return findCallback(id)
-    }
-  }
-}
+      return findCallback(id);
+    },
+  };
+};
 
 interface MutationsParams<T extends IModelFields> {
   type: GraphQLObjectType;
@@ -71,35 +66,29 @@ interface MutationsParams<T extends IModelFields> {
   findCallback: (id: string) => Promise<T>;
 }
 
-export const buildEntityMutations = <T extends IModelFields>(
-  {
-    type,
-    keyName,
-    typeName,
-    createFields,
-    updateFields,
-    createCallback,
-    updateCallback,
-    findCallback,
-  }: MutationsParams<T>
-) => {
+export const buildEntityMutations = <T extends IModelFields>({
+  type,
+  keyName,
+  typeName,
+  createFields,
+  updateFields,
+  createCallback,
+  updateCallback,
+  findCallback,
+}: MutationsParams<T>) => {
   return {
-    ["create" + keyName]: buildCreateTypeMutation(
+    ['create' + keyName]: buildCreateTypeMutation(
       type,
       typeName,
       createFields,
       createCallback
     ),
-    ["update" + keyName]: buildUpdateTypeMutation(
+    ['update' + keyName]: buildUpdateTypeMutation(
       type,
       typeName,
       updateFields,
       updateCallback
     ),
-    ["delete" + keyName]: buildDeleteTypeMutation(
-      type,
-      typeName,
-      findCallback
-    )
-  }
-}
+    ['delete' + keyName]: buildDeleteTypeMutation(type, typeName, findCallback),
+  };
+};
