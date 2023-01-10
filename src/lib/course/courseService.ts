@@ -9,6 +9,7 @@ import { Nullable, Optional } from "../../types";
 import {
   countModels,
   createModel,
+  existsModel,
   findAllModels,
   findModel,
   updateModel,
@@ -44,8 +45,20 @@ const fixData = (data: CourseFields) => {
   return data;
 };
 
+const validate = async (data: CourseFields) => {
+  const courseAlreadyExists = await existsModel(Course, {
+    year: data.year,
+    period: String(data.period),
+    subjectId: data.subjectId,
+  });
+
+  if (courseAlreadyExists)
+    throw new Error("Course for subject in year and period already exists");
+};
+
 export async function createCourse(data: CourseFields): Promise<CourseFields> {
   data.active = true; // Always create active
+  await validate(data);
   return createModel(Course, fixData(data), buildModelFields);
 }
 
@@ -53,6 +66,7 @@ export async function updateCourse(
   id: string,
   data: CourseFields
 ): Promise<CourseFields> {
+  await validate(data);
   return updateModel(Course, fixData(data), buildModelFields, buildQuery(id));
 }
 
