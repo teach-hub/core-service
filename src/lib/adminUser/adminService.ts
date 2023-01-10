@@ -1,7 +1,7 @@
 import AdminUserModel from './adminModel';
 import { OrderingOptions } from "../../utils";
 import crypto from "crypto";
-import {IModelFields, ModelAttributes, ModelWhereQuery} from "../../sequelize/types";
+import { IModelFields, ModelAttributes, ModelWhereQuery } from "../../sequelize/types";
 import {Nullable, Optional} from "../../types";
 import {countModels, createModel, findAllModels, findModel, updateModel} from "../../sequelize/serviceUtils";
 
