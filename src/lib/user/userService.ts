@@ -10,6 +10,7 @@ import { Nullable, Optional } from "../../types";
 import {
   countModels,
   createModel,
+  existsModel,
   findAllModels,
   findModel,
   updateModel,
@@ -40,8 +41,18 @@ const buildQuery = (id: string): ModelWhereQuery<UserModel> => {
   return { id: Number(id) };
 };
 
+const validate = async (data: UserFields) => {
+  const githubIdAlreadyUsed = await existsModel(UserModel, {
+    githubId: data.githubId,
+  });
+
+  if (githubIdAlreadyUsed) throw new Error("Github id already used");
+};
+
 export async function createUser(data: UserFields): Promise<UserFields> {
   data.active = true; // Always create active
+
+  await validate(data);
   return createModel(UserModel, data, buildModelFields);
 }
 
@@ -49,6 +60,7 @@ export async function updateUser(
   id: string,
   data: UserFields
 ): Promise<UserFields> {
+  await validate(data);
   return updateModel(UserModel, data, buildModelFields, buildQuery(id));
 }
 
