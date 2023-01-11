@@ -4,13 +4,13 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   Source,
-} from "graphql";
+} from 'graphql';
 
-import { updateUser } from "./userService";
+import { updateUser } from './userService';
 
 export const UserType = new GraphQLObjectType({
-  name: "User",
-  description: "A non-admin user within TeachHub",
+  name: 'User',
+  description: 'A non-admin user within TeachHub',
   fields: {
     userId: { type: GraphQLID },
     name: { type: GraphQLString },
@@ -24,7 +24,7 @@ export const UserType = new GraphQLObjectType({
 export const userMutations = {
   updateUser: {
     type: UserType,
-    description: "Updates a user",
+    description: 'Updates a user',
     args: {
       userId: { type: new GraphQLNonNull(GraphQLID) },
       name: { type: GraphQLString },
@@ -36,7 +36,7 @@ export const userMutations = {
     resolve: async (_: Source, args: any) => {
       const { userId, ...rest } = args;
 
-      console.log("Executing updateUser mutation with values", args);
+      console.log('Executing updateUser mutation with values', args);
 
       const updatedUser = await updateUser(userId, rest);
       return updatedUser;

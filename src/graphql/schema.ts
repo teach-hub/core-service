@@ -1,12 +1,8 @@
-import { GraphQLSchema, GraphQLObjectType } from "graphql";
+import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 
-import {
-  userMutations,
-  userFields,
-  UserType,
-} from "../lib/user/internalGraphql";
+import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
 
-import { findAllUsers } from "../lib/user/userService";
+import { findAllUsers } from '../lib/user/userService';
 
 /**
  * Funcion totalmente dummy hasta que implementemos la autenticacion.
@@ -17,7 +13,7 @@ import { findAllUsers } from "../lib/user/userService";
 const getViewer = async () => {
   const [viewer] = await findAllUsers({});
 
-  console.log("Using viewer", viewer);
+  console.log('Using viewer', viewer);
 
   return {
     userId: viewer.id,
@@ -30,11 +26,11 @@ const getViewer = async () => {
 };
 
 const Query = new GraphQLObjectType({
-  name: "RootQueryType",
-  description: "Root query",
+  name: 'RootQueryType',
+  description: 'Root query',
   fields: {
     viewer: {
-      description: "Logged in user",
+      description: 'Logged in user',
       type: UserType,
       resolve: getViewer,
     },
@@ -43,8 +39,8 @@ const Query = new GraphQLObjectType({
 });
 
 const Mutation = new GraphQLObjectType({
-  name: "RootMutationType",
-  description: "Root mutation",
+  name: 'RootMutationType',
+  description: 'Root mutation',
   fields: {
     ...userMutations,
   },
