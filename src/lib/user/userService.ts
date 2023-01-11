@@ -1,5 +1,4 @@
 import UserModel from './userModel';
-
 import { OrderingOptions } from '../../utils';
 import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
 import { Nullable, Optional } from '../../types';

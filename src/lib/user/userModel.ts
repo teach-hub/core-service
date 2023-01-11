@@ -4,11 +4,11 @@ import { DatabaseConstants } from '../../consts';
 
 class User extends Sequelize.Model {
   readonly id!: number;
+  readonly githubId!: string;
   readonly name!: string;
   readonly lastName!: string;
   readonly notificationEmail!: string;
   readonly file!: string;
-  readonly githubId!: string;
   readonly active!: boolean;
 
   static initialize = (db: Sequelize.Sequelize) => {

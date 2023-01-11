@@ -1,4 +1,4 @@
-import { GraphQLString, GraphQLInt, GraphQLNonNull } from 'graphql';
+import { GraphQLString, GraphQLInt } from 'graphql';
 
 const RAArgs = {
   page: { type: GraphQLInt },
