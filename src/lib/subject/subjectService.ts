@@ -1,18 +1,14 @@
-import Subject from "./subjectModel";
-import { OrderingOptions } from "../../utils";
-import {
-  IModelFields,
-  ModelAttributes,
-  ModelWhereQuery,
-} from "../../sequelize/types";
-import { Nullable, Optional } from "../../types";
+import Subject from './subjectModel';
+import { OrderingOptions } from '../../utils';
+import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
+import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
   findAllModels,
   findModel,
   updateModel,
-} from "../../sequelize/serviceUtils";
+} from '../../sequelize/serviceUtils';
 
 interface SubjectFields extends IModelFields, ModelAttributes<Subject> {
   name: Optional<string>;
@@ -38,9 +34,7 @@ const fixData = (data: SubjectFields) => {
   return data;
 };
 
-export async function createSubject(
-  data: SubjectFields
-): Promise<SubjectFields> {
+export async function createSubject(data: SubjectFields): Promise<SubjectFields> {
   data.active = true; // Always create active
   return createModel(Subject, fixData(data), buildModelFields);
 }

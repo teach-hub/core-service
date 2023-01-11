@@ -1,4 +1,4 @@
-import { buildEntityFields } from "../../graphql/fields";
+import { buildEntityFields } from '../../graphql/fields';
 
 import {
   GraphQLObjectType,
@@ -9,7 +9,7 @@ import {
   GraphQLID,
   Source,
   GraphQLBoolean,
-} from "graphql";
+} from 'graphql';
 
 import {
   createSubject,
@@ -17,10 +17,10 @@ import {
   findSubject,
   updateSubject,
   countSubjects,
-} from "./subjectService";
+} from './subjectService';
 
-import { GraphqlObjectTypeFields } from "../../graphql/utils";
-import { buildEntityMutations } from "../../graphql/mutations";
+import { GraphqlObjectTypeFields } from '../../graphql/utils';
+import { buildEntityMutations } from '../../graphql/mutations';
 
 const getFields = (addIdd: boolean) => {
   const fields: GraphqlObjectTypeFields = {
@@ -36,8 +36,8 @@ const getFields = (addIdd: boolean) => {
 };
 
 const SubjectType = new GraphQLObjectType({
-  name: "Subject",
-  description: "A subject within TeachHub",
+  name: 'Subject',
+  description: 'A subject within TeachHub',
   fields: getFields(true),
 });
 
@@ -47,8 +47,8 @@ const findSubjectCallback = (id: string) => {
 
 const subjectFields = buildEntityFields({
   type: SubjectType,
-  keyName: "Subject",
-  typeName: "subject",
+  keyName: 'Subject',
+  typeName: 'subject',
   findCallback: findSubjectCallback,
   findAllCallback: findAllSubjects,
   countCallback: countSubjects,
@@ -56,8 +56,8 @@ const subjectFields = buildEntityFields({
 
 const subjectMutations = buildEntityMutations({
   type: SubjectType,
-  keyName: "Subject",
-  typeName: "subject",
+  keyName: 'Subject',
+  typeName: 'subject',
   createFields: getFields(false),
   updateFields: getFields(true),
   createCallback: createSubject,

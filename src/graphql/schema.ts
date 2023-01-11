@@ -9,8 +9,8 @@ const schema = new GraphQLSchema({
   mutation: new GraphQLObjectType({
     name: 'RootMutationType',
     description: 'Root mutation',
-    fields: {}
-  })
+    fields: {},
+  }),
 });
 
 export default schema;

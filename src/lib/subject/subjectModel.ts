@@ -1,12 +1,12 @@
 import Sequelize from 'sequelize';
 
-import { DatabaseConstants } from "../../consts";
+import { DatabaseConstants } from '../../consts';
 
 class SubjectModel extends Sequelize.Model {
   readonly id!: number;
   readonly name!: string;
   readonly code!: string;
-  readonly active!: boolean
+  readonly active!: boolean;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return SubjectModel.init(
@@ -14,11 +14,11 @@ class SubjectModel extends Sequelize.Model {
         id: {
           type: Sequelize.INTEGER,
           primaryKey: true,
-          autoIncrement: true
+          autoIncrement: true,
         },
         name: Sequelize.TEXT,
         code: Sequelize.TEXT,
-        active: Sequelize.BOOLEAN
+        active: Sequelize.BOOLEAN,
       },
       {
         sequelize: db,
@@ -27,7 +27,7 @@ class SubjectModel extends Sequelize.Model {
         timestamps: false,
       }
     );
-  }
+  };
 }
 
 export default SubjectModel;

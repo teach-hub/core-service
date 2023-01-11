@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 
-import { DatabaseConstants } from "../../consts";
+import { DatabaseConstants } from '../../consts';
 
 class Role extends Sequelize.Model {
   readonly id!: number;
@@ -15,7 +15,7 @@ class Role extends Sequelize.Model {
         id: {
           type: Sequelize.INTEGER,
           primaryKey: true,
-          autoIncrement: true
+          autoIncrement: true,
         },
         name: {
           type: Sequelize.TEXT,
@@ -26,12 +26,12 @@ class Role extends Sequelize.Model {
           field: 'parent_role_id',
         },
         permissions: {
-          type: Sequelize.STRING
+          type: Sequelize.STRING,
         },
         active: {
           type: Sequelize.BOOLEAN,
-          allowNull: false
-        }
+          allowNull: false,
+        },
       },
       {
         sequelize: db,
@@ -40,10 +40,9 @@ class Role extends Sequelize.Model {
         timestamps: false,
       }
     );
-  }
+  };
 
-  static associate = () => {
-  }
+  static associate = () => {};
 }
 
 export default Role;

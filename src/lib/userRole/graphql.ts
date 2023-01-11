@@ -6,7 +6,7 @@ import {
   GraphQLID,
   GraphQLBoolean,
   GraphQLNonNull,
-  Source
+  Source,
 } from 'graphql';
 
 import {
@@ -17,9 +17,9 @@ import {
   countUserRoles,
 } from './userRoleService';
 
-import {GraphqlObjectTypeFields} from '../../graphql/utils';
-import {buildEntityFields} from "../../graphql/fields";
-import {buildEntityMutations} from "../../graphql/mutations";
+import { GraphqlObjectTypeFields } from '../../graphql/utils';
+import { buildEntityFields } from '../../graphql/fields';
+import { buildEntityMutations } from '../../graphql/mutations';
 
 const getFields = (addIdd: boolean) => {
   const fields: GraphqlObjectTypeFields = {
@@ -27,47 +27,39 @@ const getFields = (addIdd: boolean) => {
     roleId: { type: GraphQLString },
     userId: { type: GraphQLString },
     active: { type: GraphQLBoolean },
-  }
-  if (addIdd)
-    fields.id = { type: GraphQLID }
+  };
+  if (addIdd) fields.id = { type: GraphQLID };
 
-  return fields
-}
+  return fields;
+};
 
 const UserRoleType = new GraphQLObjectType({
   name: 'UserRole',
   description: 'A role within TeachHub',
-  fields: getFields(true)
+  fields: getFields(true),
 });
 
 const findUserRoleCallback = (id: string) => {
   return findUserRole({ roleId: id });
-}
+};
 
-const userRoleFields = buildEntityFields(
-  {
-    type: UserRoleType,
-    keyName: "UserRole",
-    typeName: "user role",
-    findCallback: findUserRoleCallback,
-    findAllCallback: findAllUserRoles,
-    countCallback: countUserRoles
-  }
-)
-const userRoleMutations = buildEntityMutations(
-  {
-    type: UserRoleType,
-    keyName: "UserRole",
-    typeName: "user role",
-    createFields: getFields(false),
-    updateFields: getFields(true),
-    createCallback: createUserRole,
-    updateCallback: updateUserRole,
-    findCallback: findUserRoleCallback
-  }
-);
+const userRoleFields = buildEntityFields({
+  type: UserRoleType,
+  keyName: 'UserRole',
+  typeName: 'user role',
+  findCallback: findUserRoleCallback,
+  findAllCallback: findAllUserRoles,
+  countCallback: countUserRoles,
+});
+const userRoleMutations = buildEntityMutations({
+  type: UserRoleType,
+  keyName: 'UserRole',
+  typeName: 'user role',
+  createFields: getFields(false),
+  updateFields: getFields(true),
+  createCallback: createUserRole,
+  updateCallback: updateUserRole,
+  findCallback: findUserRoleCallback,
+});
 
-export {
-  userRoleMutations,
-  userRoleFields
-}
+export { userRoleMutations, userRoleFields };

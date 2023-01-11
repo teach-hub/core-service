@@ -1,8 +1,8 @@
-import Sequelize from "sequelize";
+import Sequelize from 'sequelize';
 
-import { DatabaseConstants } from "../../consts";
+import { DatabaseConstants } from '../../consts';
 
-export type CoursePeriod = "1" | "2";
+export type CoursePeriod = '1' | '2';
 
 class CourseModel extends Sequelize.Model {
   readonly id!: number;
@@ -27,15 +27,15 @@ class CourseModel extends Sequelize.Model {
         },
         githubOrganization: {
           type: Sequelize.TEXT,
-          field: "github_organization",
+          field: 'github_organization',
         },
         subjectId: {
           type: Sequelize.NUMBER,
-          field: "subject_id",
+          field: 'subject_id',
           allowNull: false,
         },
         period: {
-          type: Sequelize.ENUM("1", "2"),
+          type: Sequelize.ENUM('1', '2'),
           allowNull: false,
         },
         year: {
@@ -59,7 +59,7 @@ class CourseModel extends Sequelize.Model {
   static associate = (models: any) => {
     const { SubjectModel } = models;
 
-    CourseModel.belongsTo(SubjectModel, { foreignKey: "subject_id" });
+    CourseModel.belongsTo(SubjectModel, { foreignKey: 'subject_id' });
   };
 }
 

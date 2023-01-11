@@ -1,5 +1,5 @@
-import {WhereOptions} from "sequelize/types/model";
-import {Attributes, Model} from "sequelize";
+import { WhereOptions } from 'sequelize/types/model';
+import { Attributes, Model } from 'sequelize';
 
 /**
  * Fields to use from sequelize model
@@ -13,10 +13,10 @@ export interface IModelFields {
  * Type of attributes to use on create
  * or update
  * */
-export type ModelAttributes<T extends Model> = Attributes<T>
+export type ModelAttributes<T extends Model> = Attributes<T>;
 
 /*
-* Type of where query to apply
-* on sequelize
-* */
-export type ModelWhereQuery<T extends Model> = WhereOptions<Attributes<T>>
+ * Type of where query to apply
+ * on sequelize
+ * */
+export type ModelWhereQuery<T extends Model> = WhereOptions<Attributes<T>>;

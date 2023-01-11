@@ -1,13 +1,7 @@
-import { RAArgs } from "./utils";
-import { OrderingOptions } from "../utils";
-import {
-  GraphQLID,
-  GraphQLInt,
-  GraphQLList,
-  GraphQLObjectType,
-  Source,
-} from "graphql";
-import { IModelFields } from "../sequelize/types";
+import { RAArgs } from './utils';
+import { OrderingOptions } from '../utils';
+import { GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, Source } from 'graphql';
+import { IModelFields } from '../sequelize/types';
 
 const buildFindTypeObject = (
   type: GraphQLObjectType,
@@ -29,7 +23,7 @@ const buildFindAllTypeObject = (
 ) => {
   return {
     type: new GraphQLList(type),
-    description: "List of " + typeName + " on the whole application",
+    description: 'List of ' + typeName + ' on the whole application',
     args: RAArgs,
     resolve: async (
       _: Source,
@@ -40,18 +34,15 @@ const buildFindAllTypeObject = (
   };
 };
 
-const buildMetaTypeObject = (
-  keyName: string,
-  countCallback: () => Promise<number>
-) => {
+const buildMetaTypeObject = (keyName: string, countCallback: () => Promise<number>) => {
   return {
     type: new GraphQLObjectType({
-      name: keyName + "ListMetadata",
+      name: keyName + 'ListMetadata',
       fields: { count: { type: GraphQLInt } },
     }),
     args: RAArgs,
     resolve: async () => {
-      return countCallback().then((count) => ({ count }));
+      return countCallback().then(count => ({ count }));
     },
   };
 };

@@ -5,11 +5,8 @@ const RAArgs = {
   perPage: { type: GraphQLInt },
   sortField: { type: GraphQLString },
   sortOrder: { type: GraphQLString },
-}
+};
 
-type GraphqlObjectTypeFields = Record<any, any>
+type GraphqlObjectTypeFields = Record<any, any>;
 
-export {
-  RAArgs,
-  GraphqlObjectTypeFields
-}
+export { RAArgs, GraphqlObjectTypeFields };
