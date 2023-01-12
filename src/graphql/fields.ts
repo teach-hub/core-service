@@ -1,7 +1,9 @@
-import { RAArgs } from './utils';
-import { OrderingOptions } from '../utils';
 import { GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, Source } from 'graphql';
-import { IModelFields } from '../sequelize/types';
+
+import { RAArgs } from '../graphql/utils';
+
+import type { OrderingOptions } from 'src/utils';
+import type { IModelFields } from 'src/sequelize/types';
 
 const buildFindTypeObject = (
   type: GraphQLObjectType,

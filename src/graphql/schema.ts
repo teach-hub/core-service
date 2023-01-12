@@ -1,7 +1,6 @@
 import { GraphQLSchema, GraphQLObjectType, Source } from 'graphql';
 
 import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
-
 import { findAllUsers } from '../lib/user/userService';
 
 import type { Context } from 'src/types';
