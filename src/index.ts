@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
+import logger from './logger';
+
 import { writeSchema, checkDB, initializeDB } from './utils';
 
 import adminSchema from './graphql/adminSchema';
@@ -26,15 +28,15 @@ app.use('*', (req, _, next) => {
 // Agregamos como middleware a GraphQL
 app.use(
   '/graphql',
-  graphqlHTTP({
-    schema,
+  graphqlHTTP((request, response) => {
+    return { schema, context: { logger, request, response } };
   })
 );
 
 app.use(
   '/admin/graphql',
-  graphqlHTTP({
-    schema: adminSchema,
+  graphqlHTTP((request, response) => {
+    return { schema: adminSchema, context: { logger, request, response } };
   })
 );
 

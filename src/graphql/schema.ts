@@ -1,8 +1,10 @@
-import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+import { GraphQLSchema, GraphQLObjectType, Source } from 'graphql';
 
 import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
 
 import { findAllUsers } from '../lib/user/userService';
+
+import type { Context } from 'src/types';
 
 /**
  * Funcion totalmente dummy hasta que implementemos la autenticacion.
@@ -10,10 +12,10 @@ import { findAllUsers } from '../lib/user/userService';
  * usuario logeado. Hasta entonces devolvemos simplemente el primer
  * usuario de la base.
  */
-const getViewer = async () => {
+const getViewer = async (source: Source, args: any, ctx: Context) => {
   const [viewer] = await findAllUsers({});
 
-  console.log('Using viewer', viewer);
+  ctx.logger.info('Using viewer', viewer);
 
   return {
     userId: viewer.id,
