@@ -8,6 +8,8 @@ import {
 
 import { updateUser } from './userService';
 
+import type { Context } from '../../types';
+
 export const UserType = new GraphQLObjectType({
   name: 'User',
   description: 'A non-admin user within TeachHub',
@@ -33,10 +35,10 @@ export const userMutations = {
       githubId: { type: GraphQLString },
       notificationEmail: { type: GraphQLString },
     },
-    resolve: async (_: Source, args: any) => {
+    resolve: async (_: Source, args: any, ctx: Context) => {
       const { userId, ...rest } = args;
 
-      console.log('Executing updateUser mutation with values', args);
+      ctx.logger.info('Executing updateUser mutation with values', args);
 
       const updatedUser = await updateUser(userId, rest);
       return updatedUser;

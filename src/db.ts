@@ -7,11 +7,13 @@ import UserModel from './lib/user/userModel';
 import RoleModel from './lib/role/roleModel';
 import UserRoleModel from './lib/userRole/userRoleModel';
 
+import logger from './logger';
+
 const DB_URL = process.env.DB_URL || 'postgres://postgres@localhost:5432/teachhub';
 
 const db = new Sequelize(DB_URL);
 
-console.log('Connected to db!');
+logger.info('Connected to db!');
 
 const initializeDB = () => {
   let models = {

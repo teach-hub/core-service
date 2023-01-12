@@ -1,6 +1,8 @@
 import { GraphQLID, GraphQLNonNull, GraphQLObjectType, Source } from 'graphql';
-import { GraphqlObjectTypeFields } from './utils';
-import { IModelFields } from '../sequelize/types';
+
+import type { Context } from 'src/types';
+import type { IModelFields } from 'src/sequelize/types';
+import type { GraphqlObjectTypeFields } from 'src/graphql/utils';
 
 const buildCreateTypeMutation = (
   type: GraphQLObjectType,
@@ -12,8 +14,8 @@ const buildCreateTypeMutation = (
     type: type,
     description: 'Creates a new ' + typeName,
     args: fields,
-    resolve: async (_: Source, { ...rest }: any) => {
-      console.log('Executing mutation create from ' + typeName);
+    resolve: async (_: Source, { ...rest }: any, ctx: Context) => {
+      ctx.logger.info('Executing mutation create from ' + typeName);
 
       return createCallback(rest);
     },
@@ -30,8 +32,8 @@ const buildUpdateTypeMutation = (
     type: type,
     description: 'Updates a ' + typeName,
     args: fields,
-    resolve: async (_: Source, { id, ...rest }: any) => {
-      console.log('Executing mutation update from ' + typeName);
+    resolve: async (_: Source, { id, ...rest }: any, ctx: Context) => {
+      ctx.logger.info('Executing mutation update from ' + typeName);
 
       return updateCallback(id, rest);
     },
@@ -46,8 +48,8 @@ const buildDeleteTypeMutation = (
   return {
     type: type,
     args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-    resolve: async (_: Source, { id }: any) => {
-      console.log('Would delete ' + typeName + ': ', { id });
+    resolve: async (_: Source, { id }: any, ctx: Context) => {
+      ctx.logger.info('Would delete ' + typeName + ': ', { id });
       // Currently, not deleting entities
 
       return findCallback(id);

@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
+import logger from './logger';
+
 import { writeSchema, checkDB, initializeDB } from './utils';
 
 import adminSchema from './graphql/adminSchema';
@@ -19,22 +21,22 @@ writeSchema(schema, path.resolve(__dirname, '../../data/schema.graphql'));
 app.use(cors());
 
 app.use('*', (req, _, next) => {
-  console.log(`Receiving request, endpoint: ${req.baseUrl} from ${req.ip}`);
+  logger.info(`Receiving request, endpoint: ${req.baseUrl} from ${req.ip}`);
   next();
 });
 
 // Agregamos como middleware a GraphQL
 app.use(
   '/graphql',
-  graphqlHTTP({
-    schema,
+  graphqlHTTP((request, response) => {
+    return { schema, context: { logger, request, response } };
   })
 );
 
 app.use(
   '/admin/graphql',
-  graphqlHTTP({
-    schema: adminSchema,
+  graphqlHTTP((request, response) => {
+    return { schema: adminSchema, context: { logger, request, response } };
   })
 );
 
@@ -43,7 +45,7 @@ app.get('/healthz', async (_, response) => {
     await checkDB();
     response.status(200).send('OK');
   } catch (e: Error | any) {
-    console.log(e);
+    logger.error(e);
     response.status(500).send(e.message);
   }
 });
@@ -53,5 +55,5 @@ app.get('/', (_, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server listening on: ${port}`);
+  logger.info(`Server listening on: ${port}`);
 });
