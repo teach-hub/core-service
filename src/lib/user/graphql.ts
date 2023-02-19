@@ -1,10 +1,8 @@
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLList,
   GraphQLNonNull,
   GraphQLBoolean,
-  GraphQLInt,
   GraphQLID,
   Source,
 } from 'graphql';
@@ -22,6 +20,7 @@ import { buildEntityMutations } from '../../graphql/mutations';
 
 const getFields = (addIdd: boolean) => {
   const fields: GraphqlObjectTypeFields = {
+    ...(addIdd ? { id: { type: GraphQLID } } : {}),
     name: { type: new GraphQLNonNull(GraphQLString) },
     lastName: { type: new GraphQLNonNull(GraphQLString) },
     githubId: { type: new GraphQLNonNull(GraphQLString) },
@@ -29,7 +28,6 @@ const getFields = (addIdd: boolean) => {
     file: { type: new GraphQLNonNull(GraphQLString) },
     active: { type: GraphQLBoolean },
   };
-  if (addIdd) fields.id = { type: GraphQLID };
 
   return fields;
 };
@@ -52,6 +50,7 @@ const userFields = buildEntityFields({
   findAllCallback: findAllUsers,
   countCallback: countUsers,
 });
+
 const userMutations = buildEntityMutations({
   type: UserType,
   keyName: 'User',

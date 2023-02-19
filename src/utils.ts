@@ -2,6 +2,7 @@ import fs from 'fs';
 import { GraphQLSchema, lexicographicSortSchema, printSchema } from 'graphql';
 
 import { db } from './db';
+import logger from './logger';
 
 export type OrderingOptions = {
   page?: number;
@@ -21,7 +22,7 @@ export async function writeSchema(
   schema: GraphQLSchema,
   outputPath: string
 ): Promise<void> {
-  console.log(`Writing SDL Schema to Disk`);
+  logger.info(`Writing SDL Schema to Disk`);
   console.time(`Done writing SDL Schema to Disk`);
 
   fs.writeFileSync(outputPath, printSchema(lexicographicSortSchema(schema)));
