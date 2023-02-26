@@ -1,6 +1,9 @@
 import {
   GraphQLNonNull,
   GraphQLSchema,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLBoolean,
   GraphQLObjectType,
   Source,
   GraphQLList,
@@ -8,7 +11,6 @@ import {
 
 import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
 import { findAllUsers } from '../lib/user/userService';
-import { SubjectType } from '../lib/subject/graphql';
 
 import type { Context } from 'src/types';
 
@@ -33,6 +35,18 @@ const getViewer = async (ctx: Context) => {
   };
 };
 
+const ViewerCourseType = new GraphQLObjectType({
+  name: 'ViewerCourseType',
+  description: 'Courses belonging to viewer',
+  fields: {
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    organization: { type: new GraphQLNonNull(GraphQLString) },
+    period: { type: new GraphQLNonNull(GraphQLInt) },
+    year: { type: new GraphQLNonNull(GraphQLInt) },
+    active: { type: new GraphQLNonNull(GraphQLBoolean) },
+  },
+});
+
 const ViewerType = new GraphQLObjectType({
   name: 'ViewerType',
   fields: {
@@ -43,9 +57,8 @@ const ViewerType = new GraphQLObjectType({
     },
 
     // TODO(Tomas): esto tiene que ser una connection.
-    subjects: {
-      description: 'Subjects belonging to viewer',
-      type: new GraphQLNonNull(new GraphQLList(SubjectType)),
+    courses: {
+      type: new GraphQLNonNull(new GraphQLList(ViewerCourseType)),
       resolve: () => [],
     },
   },
