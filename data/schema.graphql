@@ -37,8 +37,11 @@ type ViewerCourseType {
 }
 
 type ViewerType {
+  active: Boolean
   courses: [ViewerCourseType]!
-
-  """User related information from viewer"""
-  userInfo: User!
+  file: String!
+  githubId: String!
+  lastName: String!
+  name: String!
+  notificationEmail: String!
 }

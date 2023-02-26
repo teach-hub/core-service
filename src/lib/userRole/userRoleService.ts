@@ -11,6 +11,8 @@ import {
 import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
 import { Nullable, Optional } from '../../types';
 
+import User from '../user/userModel';
+
 interface UserRoleFields extends IModelFields, ModelAttributes<UserRoleModel> {
   roleId: Optional<number>;
   userId: Optional<number>;
@@ -56,8 +58,16 @@ export async function findUserRole({
   return findModel(UserRoleModel, buildModelFields, buildQuery(roleId));
 }
 
+type FindCoursesFilter = OrderingOptions & {
+  forUserId?: User['id'];
+};
+
 export async function findAllUserRoles(
-  options: OrderingOptions
+  filter: FindCoursesFilter
 ): Promise<UserRoleFields[]> {
-  return findAllModels(UserRoleModel, options, buildModelFields);
+  const { forUserId } = filter;
+
+  const whereClause = forUserId ? { userId: forUserId } : {};
+
+  return findAllModels(UserRoleModel, filter, buildModelFields, whereClause);
 }

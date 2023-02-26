@@ -11,6 +11,8 @@ import {
 
 import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
 import { findAllUsers } from '../lib/user/userService';
+import { findAllUserRoles } from '../lib/userRole/userRoleService';
+import { findCourse } from '../lib/course/courseService';
 
 import type { Context } from 'src/types';
 
@@ -50,16 +52,26 @@ const ViewerCourseType = new GraphQLObjectType({
 const ViewerType = new GraphQLObjectType({
   name: 'ViewerType',
   fields: {
-    userInfo: {
-      description: 'User related information from viewer',
-      type: new GraphQLNonNull(UserType),
-      resolve: getViewer,
-    },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    lastName: { type: new GraphQLNonNull(GraphQLString) },
+    file: { type: new GraphQLNonNull(GraphQLString) },
+    active: { type: GraphQLBoolean },
+    githubId: { type: new GraphQLNonNull(GraphQLString) },
+    notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
 
     // TODO(Tomas): esto tiene que ser una connection.
     courses: {
       type: new GraphQLNonNull(new GraphQLList(ViewerCourseType)),
-      resolve: () => [],
+      resolve: async source => {
+        const roles = await findAllUserRoles({ forUserId: source.userId });
+
+        // @ts-expect-error: TODO. Mejorar tema de tipos con modelos. Esto no es opcional.
+        const courses = await Promise.all(
+          roles.map(r => findCourse({ courseId: r.courseId }))
+        );
+
+        return courses;
+      },
     },
   },
 });
