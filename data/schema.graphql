@@ -14,7 +14,15 @@ type RootQueryType {
   findUser(userId: ID): User
 
   """Logged in user"""
-  viewer: User
+  viewer: ViewerType
+}
+
+"""A subject within TeachHub"""
+type Subject {
+  active: Boolean
+  code: String!
+  id: ID
+  name: String!
 }
 
 """A non-admin user within TeachHub"""
@@ -25,4 +33,12 @@ type User {
   name: String
   notificationEmail: String
   userId: ID
+}
+
+type ViewerType {
+  """Subjects belonging to viewer"""
+  subjects: [Subject]!
+
+  """User related information from viewer"""
+  userInfo: User!
 }
