@@ -1,38 +1,43 @@
-import { GraphQLID, GraphQLNonNull, GraphQLObjectType, Source } from 'graphql';
+import {
+  GraphQLFieldConfig,
+  GraphQLFieldConfigMap,
+  GraphQLFieldConfigArgumentMap,
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLOutputType,
+  Source,
+} from 'graphql';
 
 import type { Context } from 'src/types';
 import type { IModelFields } from 'src/sequelize/types';
-import type { GraphqlObjectTypeFields } from 'src/graphql/utils';
 
 const buildCreateTypeMutation = (
-  type: GraphQLObjectType,
+  type: GraphQLOutputType,
   typeName: string,
-  fields: GraphqlObjectTypeFields,
+  fields: GraphQLFieldConfigArgumentMap,
   createCallback: (args: any) => Promise<IModelFields>
-) => {
-  return {
-    type: type,
-    description: 'Creates a new ' + typeName,
-    args: fields,
-    resolve: async (_: Source, { ...rest }: any, ctx: Context) => {
-      ctx.logger.info('Executing mutation create from ' + typeName);
+): GraphQLFieldConfig<Source, Context> => ({
+  type,
+  description: 'Creates a new ' + typeName,
+  args: fields,
+  resolve: async (_, { ...rest }, ctx) => {
+    ctx.logger.info('Executing mutation create from ' + typeName);
 
-      return createCallback(rest);
-    },
-  };
-};
+    return createCallback(rest);
+  },
+});
 
 const buildUpdateTypeMutation = (
-  type: GraphQLObjectType,
+  type: GraphQLOutputType,
   typeName: string,
-  fields: GraphqlObjectTypeFields,
+  fields: GraphQLFieldConfigArgumentMap,
   updateCallback: (id: string, args: any) => Promise<IModelFields>
-) => {
+): GraphQLFieldConfig<Source, Context> => {
   return {
     type: type,
     description: 'Updates a ' + typeName,
     args: fields,
-    resolve: async (_: Source, { id, ...rest }: any, ctx: Context) => {
+    resolve: async (_, { id, ...rest }, ctx) => {
       ctx.logger.info('Executing mutation update from ' + typeName);
 
       return updateCallback(id, rest);
@@ -41,28 +46,28 @@ const buildUpdateTypeMutation = (
 };
 
 const buildDeleteTypeMutation = (
-  type: GraphQLObjectType,
+  type: GraphQLOutputType,
   typeName: string,
   findCallback: (id: string) => Promise<IModelFields>
-) => {
+): GraphQLFieldConfig<Source, Context> => {
   return {
     type: type,
     args: { id: { type: new GraphQLNonNull(GraphQLID) } },
     resolve: async (_: Source, { id }: any, ctx: Context) => {
       ctx.logger.info('Would delete ' + typeName + ': ', { id });
-      // Currently, not deleting entities
 
+      // Currently, not deleting entities
       return findCallback(id);
     },
   };
 };
 
 interface MutationsParams<T extends IModelFields> {
-  type: GraphQLObjectType;
+  type: GraphQLOutputType;
   keyName: string;
   typeName: string;
-  createFields: GraphqlObjectTypeFields;
-  updateFields: GraphqlObjectTypeFields;
+  createFields: GraphQLFieldConfigArgumentMap;
+  updateFields: GraphQLFieldConfigArgumentMap;
   createCallback: (args: T) => Promise<T>;
   updateCallback: (id: string, args: T) => Promise<T>;
   findCallback: (id: string) => Promise<T>;
@@ -77,7 +82,7 @@ export const buildEntityMutations = <T extends IModelFields>({
   createCallback,
   updateCallback,
   findCallback,
-}: MutationsParams<T>) => {
+}: MutationsParams<T>): GraphQLFieldConfigMap<Source, Context> => {
   return {
     ['create' + keyName]: buildCreateTypeMutation(
       type,

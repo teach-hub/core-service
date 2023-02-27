@@ -56,6 +56,7 @@ const courseFields = buildEntityFields({
   findAllCallback: findAllCourses,
   countCallback: countCourses,
 });
+
 const courseMutations = buildEntityMutations({
   type: CourseType,
   keyName: 'Course',

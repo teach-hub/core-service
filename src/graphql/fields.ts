@@ -1,14 +1,24 @@
-import { GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, Source } from 'graphql';
+import {
+  GraphQLOutputType,
+  GraphQLFieldConfig,
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLInt,
+  GraphQLList,
+  GraphQLObjectType,
+  Source,
+} from 'graphql';
 
 import { RAArgs } from '../graphql/utils';
 
 import type { OrderingOptions } from 'src/utils';
 import type { IModelFields } from 'src/sequelize/types';
+import type { Context } from 'src/types';
 
 const buildFindTypeObject = (
-  type: GraphQLObjectType,
+  type: GraphQLOutputType,
   findCallback: (id: string) => Promise<IModelFields>
-) => {
+): GraphQLFieldConfig<Source, Context> => {
   return {
     type: type,
     args: { id: { type: GraphQLID } },
@@ -19,10 +29,10 @@ const buildFindTypeObject = (
 };
 
 const buildFindAllTypeObject = (
-  type: GraphQLObjectType,
+  type: GraphQLOutputType,
   typeName: string,
   findAllCallback: (args: OrderingOptions) => Promise<IModelFields[]>
-) => {
+): GraphQLFieldConfig<Source, Context> => {
   return {
     type: new GraphQLList(type),
     description: 'List of ' + typeName + ' on the whole application',
@@ -36,7 +46,10 @@ const buildFindAllTypeObject = (
   };
 };
 
-const buildMetaTypeObject = (keyName: string, countCallback: () => Promise<number>) => {
+const buildMetaTypeObject = (
+  keyName: string,
+  countCallback: () => Promise<number>
+): GraphQLFieldConfig<Source, Context> => {
   return {
     type: new GraphQLObjectType({
       name: keyName + 'ListMetadata',
@@ -50,7 +63,7 @@ const buildMetaTypeObject = (keyName: string, countCallback: () => Promise<numbe
 };
 
 interface FieldParams {
-  type: GraphQLObjectType;
+  type: GraphQLOutputType;
   keyName: string;
   typeName: string;
   countCallback: () => Promise<number>;
@@ -65,7 +78,7 @@ export const buildEntityFields = ({
   countCallback,
   findCallback,
   findAllCallback,
-}: FieldParams) => {
+}: FieldParams): GraphQLFieldConfigMap<Source, Context> => {
   return {
     [keyName]: buildFindTypeObject(type, findCallback),
     [`all${keyName}s`]: buildFindAllTypeObject(type, typeName, findAllCallback),

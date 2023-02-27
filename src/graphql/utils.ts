@@ -7,6 +7,7 @@ const RAArgs = {
   sortOrder: { type: GraphQLString },
 };
 
-type GraphqlObjectTypeFields = Record<any, any>;
+// type GraphqlObjectTypeFields = Record<any, any>;
+type GraphqlObjectTypeFields = Record<string, any>;
 
 export { RAArgs, GraphqlObjectTypeFields };

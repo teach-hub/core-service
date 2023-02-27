@@ -51,6 +51,7 @@ const userRoleFields = buildEntityFields({
   findAllCallback: findAllUserRoles,
   countCallback: countUserRoles,
 });
+
 const userRoleMutations = buildEntityMutations({
   type: UserRoleType,
   keyName: 'UserRole',

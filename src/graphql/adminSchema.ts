@@ -1,4 +1,4 @@
-import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+import { Source, GraphQLSchema, GraphQLObjectType } from 'graphql';
 
 import { subjectFields, subjectMutations } from '../lib/subject/graphql';
 import { courseFields, courseMutations } from '../lib/course/graphql';
@@ -7,8 +7,10 @@ import { userFields, userMutations } from '../lib/user/graphql';
 import { roleFields, roleMutations } from '../lib/role/graphql';
 import { userRoleFields, userRoleMutations } from '../lib/userRole/graphql';
 
+import type { Context } from 'src/types';
+
 const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
+  query: new GraphQLObjectType<Source, Context>({
     name: 'Query',
     description: 'Admin schema root query',
     fields: {
@@ -20,7 +22,7 @@ const schema = new GraphQLSchema({
       ...userRoleFields,
     },
   }),
-  mutation: new GraphQLObjectType({
+  mutation: new GraphQLObjectType<Source, Context>({
     name: 'Mutation',
     description: 'Admin schema root mutation',
     fields: {

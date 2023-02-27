@@ -52,6 +52,7 @@ const adminUserFields = buildEntityFields({
   findAllCallback: findAllAdminUsers,
   countCallback: countAdminUsers,
 });
+
 const adminUserMutations = buildEntityMutations({
   type: AdminUserType,
   keyName: 'AdminUser',

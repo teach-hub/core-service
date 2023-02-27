@@ -14,7 +14,12 @@ type RootQueryType {
   findUser(userId: ID): User
 
   """Logged in user"""
-  viewer: User
+  viewer(
+    age: Int
+
+    """testing"""
+    name: Int
+  ): User
 }
 
 """A non-admin user within TeachHub"""
