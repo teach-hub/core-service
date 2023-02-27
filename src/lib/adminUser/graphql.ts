@@ -1,10 +1,4 @@
-import {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLNonNull,
-  GraphQLID,
-  Source,
-} from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID } from 'graphql';
 
 import {
   createAdminUser,
@@ -33,7 +27,7 @@ const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
   return fields;
 };
 
-const AdminUserType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+const AdminUserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'AdminUser',
   description: 'A role within TeachHub',
   fields: getFields({ isUpdate: true }),

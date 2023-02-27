@@ -5,7 +5,6 @@ import {
   GraphQLID,
   GraphQLBoolean,
   GraphQLNonNull,
-  Source,
 } from 'graphql';
 
 import {
@@ -40,7 +39,7 @@ const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
   return fields;
 };
 
-const CourseType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+const CourseType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Course',
   description: 'A course within TeachHub',
   fields: getFields({ isUpdate: true }),

@@ -4,7 +4,6 @@ import {
   GraphQLNonNull,
   GraphQLBoolean,
   GraphQLID,
-  Source,
 } from 'graphql';
 
 import {
@@ -34,7 +33,7 @@ const getFields = ({ addId }: { addId: boolean }) => {
   return fields;
 };
 
-const UserType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+const UserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'User',
   description: 'A user within TeachHub',
   fields: getFields({ addId: true }),

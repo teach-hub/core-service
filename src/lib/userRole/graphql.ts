@@ -1,10 +1,4 @@
-import {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLID,
-  GraphQLBoolean,
-  Source,
-} from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLID, GraphQLBoolean } from 'graphql';
 
 import {
   createUserRole,
@@ -31,7 +25,7 @@ const getFields = ({ addId }: { addId: boolean }) => {
   return fields;
 };
 
-const UserRoleType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+const UserRoleType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'UserRole',
   description: 'A role within TeachHub',
   fields: getFields({ addId: true }),

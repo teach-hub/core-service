@@ -1,11 +1,4 @@
-import {
-  GraphQLFieldConfig,
-  GraphQLFieldConfigArgumentMap,
-  GraphQLSchema,
-  GraphQLObjectType,
-  Source,
-  GraphQLInt,
-} from 'graphql';
+import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 
 import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
 import { findAllUsers } from '../lib/user/userService';
@@ -33,35 +26,20 @@ const getViewer = async (ctx: Context) => {
   };
 };
 
-const testing: GraphQLFieldConfigArgumentMap = {
-  age: {
-    type: GraphQLInt,
-  },
-  name: {
-    description: 'testing',
-    type: GraphQLInt,
-  },
-};
-
-const x: GraphQLFieldConfig<Source, Context> = {
-  args: testing,
-  description: 'Logged in user',
-  type: UserType,
-  resolve: async (_source, _args, context) => {
-    return getViewer(context);
-  },
-};
-
-const Query: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   name: 'RootQueryType',
   description: 'Root query',
   fields: {
-    viewer: x,
+    viewer: {
+      description: 'Logged in user',
+      type: UserType,
+      resolve: async (_source, _args, ctx) => getViewer(ctx),
+    },
     ...userFields,
   },
 });
 
-const Mutation: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   name: 'RootMutationType',
   description: 'Root mutation',
   fields: {

@@ -7,6 +7,7 @@ import {
   findModel,
   updateModel,
 } from '../../sequelize/serviceUtils';
+
 import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
 import { Nullable, Optional } from '../../types';
 

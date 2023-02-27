@@ -5,7 +5,6 @@ import {
   GraphQLString,
   GraphQLNonNull,
   GraphQLID,
-  Source,
   GraphQLBoolean,
 } from 'graphql';
 
@@ -28,7 +27,7 @@ const getFields = ({ addId }: { addId: boolean }) => ({
   active: { type: GraphQLBoolean },
 });
 
-const SubjectType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+const SubjectType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Subject',
   description: 'A subject within TeachHub',
   fields: getFields({ addId: true }),

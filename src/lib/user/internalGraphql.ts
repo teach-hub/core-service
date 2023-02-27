@@ -4,14 +4,13 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLFieldConfigMap,
-  Source,
 } from 'graphql';
 
 import { updateUser } from './userService';
 
 import type { Context } from '../../types';
 
-export const UserType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
+export const UserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'User',
   description: 'A non-admin user within TeachHub',
   fields: {
@@ -24,7 +23,7 @@ export const UserType: GraphQLObjectType<Source, Context> = new GraphQLObjectTyp
   },
 });
 
-export const userMutations: GraphQLFieldConfigMap<Source, Context> = {
+export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
   updateUser: {
     type: UserType,
     description: 'Updates a user',
@@ -48,7 +47,7 @@ export const userMutations: GraphQLFieldConfigMap<Source, Context> = {
   },
 };
 
-export const userFields: GraphQLFieldConfigMap<Source, Context> = {
+export const userFields: GraphQLFieldConfigMap<unknown, Context> = {
   findUser: {
     type: UserType,
     args: { userId: { type: GraphQLID } },

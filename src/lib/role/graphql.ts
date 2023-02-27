@@ -2,11 +2,8 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLList,
-  GraphQLInt,
   GraphQLID,
   GraphQLBoolean,
-  GraphQLNonNull,
-  Source,
 } from 'graphql';
 
 import {
@@ -20,6 +17,8 @@ import {
 import { buildEntityFields } from '../../graphql/fields';
 import { buildEntityMutations } from '../../graphql/mutations';
 
+import type { Context } from 'src/types';
+
 const getFields = ({ addId }: { addId: boolean }) => {
   const fields = {
     ...(addId ? { id: { type: GraphQLID } } : {}),
@@ -32,7 +31,7 @@ const getFields = ({ addId }: { addId: boolean }) => {
   return fields;
 };
 
-const RoleType = new GraphQLObjectType({
+const RoleType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Role',
   description: 'A role within TeachHub',
   fields: getFields({ addId: true }),
