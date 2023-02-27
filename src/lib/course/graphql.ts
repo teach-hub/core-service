@@ -1,7 +1,6 @@
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLList,
   GraphQLInt,
   GraphQLID,
   GraphQLBoolean,
@@ -17,12 +16,19 @@ import {
   countCourses,
 } from './courseService';
 
-import { GraphqlObjectTypeFields } from '../../graphql/utils';
 import { buildEntityFields } from '../../graphql/fields';
 import { buildEntityMutations } from '../../graphql/mutations';
 
-const getFields = (isUpdate: boolean) => {
-  const fields: GraphqlObjectTypeFields = {
+import type { Context } from 'src/types';
+
+const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
+  const fields = {
+    ...(isUpdate
+      ? {
+          id: { type: new GraphQLNonNull(GraphQLID) },
+          name: { type: new GraphQLNonNull(GraphQLString) },
+        }
+      : {}),
     name: { type: GraphQLString },
     organization: { type: GraphQLString },
     period: { type: GraphQLInt },
@@ -30,18 +36,14 @@ const getFields = (isUpdate: boolean) => {
     subjectId: { type: GraphQLInt },
     active: { type: GraphQLBoolean },
   };
-  if (isUpdate) {
-    fields.id = { type: new GraphQLNonNull(GraphQLID) };
-    fields.name = { type: new GraphQLNonNull(GraphQLString) };
-  }
 
   return fields;
 };
 
-const CourseType = new GraphQLObjectType({
+const CourseType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
   name: 'Course',
   description: 'A course within TeachHub',
-  fields: getFields(true),
+  fields: getFields({ isUpdate: true }),
 });
 
 const findCourseCallback = (id: string) => {
@@ -61,8 +63,8 @@ const courseMutations = buildEntityMutations({
   type: CourseType,
   keyName: 'Course',
   typeName: 'course',
-  createFields: getFields(false),
-  updateFields: getFields(true),
+  createFields: getFields({ isUpdate: false }),
+  updateFields: getFields({ isUpdate: true }),
   createCallback: createCourse,
   updateCallback: updateCourse,
   findCallback: findCourseCallback,

@@ -17,12 +17,11 @@ import {
   countSubjects,
 } from './subjectService';
 
-import { GraphqlObjectTypeFields } from '../../graphql/utils';
 import { buildEntityMutations } from '../../graphql/mutations';
 
 import type { Context } from 'src/types';
 
-const getFields = ({ addId }: { addId: boolean }): GraphqlObjectTypeFields => ({
+const getFields = ({ addId }: { addId: boolean }) => ({
   ...(addId ? { id: { type: GraphQLID } } : {}),
   name: { type: new GraphQLNonNull(GraphQLString) },
   code: { type: new GraphQLNonNull(GraphQLString) },

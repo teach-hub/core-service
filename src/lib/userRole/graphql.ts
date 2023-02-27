@@ -1,11 +1,8 @@
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLList,
-  GraphQLInt,
   GraphQLID,
   GraphQLBoolean,
-  GraphQLNonNull,
   Source,
 } from 'graphql';
 
@@ -17,26 +14,27 @@ import {
   countUserRoles,
 } from './userRoleService';
 
-import { GraphqlObjectTypeFields } from '../../graphql/utils';
 import { buildEntityFields } from '../../graphql/fields';
 import { buildEntityMutations } from '../../graphql/mutations';
 
-const getFields = (addIdd: boolean) => {
-  const fields: GraphqlObjectTypeFields = {
+import type { Context } from 'src/types';
+
+const getFields = ({ addId }: { addId: boolean }) => {
+  const fields = {
+    ...(addId ? { id: { type: GraphQLID } } : {}),
     courseId: { type: GraphQLString },
     roleId: { type: GraphQLString },
     userId: { type: GraphQLString },
     active: { type: GraphQLBoolean },
   };
-  if (addIdd) fields.id = { type: GraphQLID };
 
   return fields;
 };
 
-const UserRoleType = new GraphQLObjectType({
+const UserRoleType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
   name: 'UserRole',
   description: 'A role within TeachHub',
-  fields: getFields(true),
+  fields: getFields({ addId: true }),
 });
 
 const findUserRoleCallback = (id: string) => {
@@ -56,8 +54,8 @@ const userRoleMutations = buildEntityMutations({
   type: UserRoleType,
   keyName: 'UserRole',
   typeName: 'user role',
-  createFields: getFields(false),
-  updateFields: getFields(true),
+  createFields: getFields({ addId: false }),
+  updateFields: getFields({ addId: true }),
   createCallback: createUserRole,
   updateCallback: updateUserRole,
   findCallback: findUserRoleCallback,

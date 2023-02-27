@@ -1,9 +1,7 @@
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLList,
   GraphQLNonNull,
-  GraphQLInt,
   GraphQLID,
   Source,
 } from 'graphql';
@@ -15,29 +13,30 @@ import {
   updateAdminUser,
   findAdminUser,
 } from './adminService';
-import { GraphqlObjectTypeFields } from '../../graphql/utils';
+
 import { buildEntityFields } from '../../graphql/fields';
 import { buildEntityMutations } from '../../graphql/mutations';
 
-const getFields = (isUpdate: boolean) => {
-  const fields: GraphqlObjectTypeFields = {
+import type { Context } from 'src/types';
+
+const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
+  const fields = {
+    ...(isUpdate
+      ? { id: { type: GraphQLID }, password: { type: new GraphQLNonNull(GraphQLString) } }
+      : {}),
     email: { type: GraphQLString },
     password: { type: GraphQLString },
     name: { type: GraphQLString },
     lastName: { type: GraphQLString },
   };
-  if (isUpdate) {
-    fields.id = { type: GraphQLID };
-    fields.password = { type: new GraphQLNonNull(GraphQLString) };
-  }
 
   return fields;
 };
 
-const AdminUserType = new GraphQLObjectType({
+const AdminUserType: GraphQLObjectType<Source, Context> = new GraphQLObjectType({
   name: 'AdminUser',
   description: 'A role within TeachHub',
-  fields: getFields(true),
+  fields: getFields({ isUpdate: true }),
 });
 
 const findAdminUserCallback = (id: string) => {
@@ -57,8 +56,8 @@ const adminUserMutations = buildEntityMutations({
   type: AdminUserType,
   keyName: 'AdminUser',
   typeName: 'admin user',
-  createFields: getFields(false),
-  updateFields: getFields(true),
+  createFields: getFields({ isUpdate: false }),
+  updateFields: getFields({ isUpdate: true }),
   createCallback: createAdminUser,
   updateCallback: updateAdminUser,
   findCallback: findAdminUserCallback,
