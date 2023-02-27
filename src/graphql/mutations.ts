@@ -5,7 +5,6 @@ import {
   GraphQLID,
   GraphQLNonNull,
   GraphQLOutputType,
-  Source,
 } from 'graphql';
 
 import type { Context } from 'src/types';
@@ -16,7 +15,7 @@ const buildCreateTypeMutation = (
   typeName: string,
   fields: GraphQLFieldConfigArgumentMap,
   createCallback: (args: any) => Promise<IModelFields>
-): GraphQLFieldConfig<Source, Context> => ({
+): GraphQLFieldConfig<unknown, Context> => ({
   type,
   description: 'Creates a new ' + typeName,
   args: fields,
@@ -32,7 +31,7 @@ const buildUpdateTypeMutation = (
   typeName: string,
   fields: GraphQLFieldConfigArgumentMap,
   updateCallback: (id: string, args: any) => Promise<IModelFields>
-): GraphQLFieldConfig<Source, Context> => {
+): GraphQLFieldConfig<unknown, Context> => {
   return {
     type: type,
     description: 'Updates a ' + typeName,
@@ -49,11 +48,11 @@ const buildDeleteTypeMutation = (
   type: GraphQLOutputType,
   typeName: string,
   findCallback: (id: string) => Promise<IModelFields>
-): GraphQLFieldConfig<Source, Context> => {
+): GraphQLFieldConfig<unknown, Context> => {
   return {
     type: type,
     args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-    resolve: async (_: Source, { id }: any, ctx: Context) => {
+    resolve: async (_: unknown, { id }: any, ctx: Context) => {
       ctx.logger.info('Would delete ' + typeName + ': ', { id });
 
       // Currently, not deleting entities
@@ -82,7 +81,7 @@ export const buildEntityMutations = <T extends IModelFields>({
   createCallback,
   updateCallback,
   findCallback,
-}: MutationsParams<T>): GraphQLFieldConfigMap<Source, Context> => {
+}: MutationsParams<T>): GraphQLFieldConfigMap<unknown, Context> => {
   return {
     ['create' + keyName]: buildCreateTypeMutation(
       type,
