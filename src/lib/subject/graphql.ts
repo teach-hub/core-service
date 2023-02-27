@@ -27,7 +27,7 @@ const getFields = ({ addId }: { addId: boolean }) => ({
   active: { type: GraphQLBoolean },
 });
 
-const SubjectType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
+export const SubjectType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Subject',
   description: 'A subject within TeachHub',
   fields: getFields({ addId: true }),

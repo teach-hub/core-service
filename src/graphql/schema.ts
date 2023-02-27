@@ -5,7 +5,6 @@ import {
   GraphQLInt,
   GraphQLBoolean,
   GraphQLObjectType,
-  Source,
   GraphQLList,
 } from 'graphql';
 
@@ -13,6 +12,8 @@ import { userMutations, userFields, UserType } from '../lib/user/internalGraphql
 import { findAllUsers } from '../lib/user/userService';
 import { findAllUserRoles } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
+import { findSubject } from '../lib/subject/subjectService';
+import { SubjectType } from '../lib/subject/graphql';
 
 import type { Context } from 'src/types';
 
@@ -46,6 +47,14 @@ const ViewerCourseType = new GraphQLObjectType({
     period: { type: new GraphQLNonNull(GraphQLInt) },
     year: { type: new GraphQLNonNull(GraphQLInt) },
     active: { type: new GraphQLNonNull(GraphQLBoolean) },
+    subject: {
+      type: new GraphQLNonNull(SubjectType),
+      description: 'Subject the course belongs to',
+      resolve: async ({ subjectId }) => {
+        const subject = await findSubject({ subjectId });
+        return subject;
+      },
+    },
   },
 });
 
@@ -65,8 +74,8 @@ const ViewerType = new GraphQLObjectType({
       resolve: async source => {
         const roles = await findAllUserRoles({ forUserId: source.userId });
 
-        // @ts-expect-error: TODO. Mejorar tema de tipos con modelos. Esto no es opcional.
         const courses = await Promise.all(
+          // @ts-expect-error: TODO. Mejorar tema de tipos con modelos. Esto no es opcional.
           roles.map(r => findCourse({ courseId: r.courseId }))
         );
 

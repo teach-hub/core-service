@@ -17,6 +17,14 @@ type RootQueryType {
   viewer: ViewerType
 }
 
+"""A subject within TeachHub"""
+type Subject {
+  active: Boolean
+  code: String!
+  id: ID
+  name: String!
+}
+
 """A non-admin user within TeachHub"""
 type User {
   file: String
@@ -33,6 +41,9 @@ type ViewerCourseType {
   name: String!
   organization: String!
   period: Int!
+
+  """Subject the course belongs to"""
+  subject: Subject!
   year: Int!
 }
 
