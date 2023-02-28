@@ -3,11 +3,8 @@ import { buildEntityFields } from '../../graphql/fields';
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLList,
   GraphQLNonNull,
-  GraphQLInt,
   GraphQLID,
-  Source,
   GraphQLBoolean,
 } from 'graphql';
 
@@ -19,26 +16,21 @@ import {
   countSubjects,
 } from './subjectService';
 
-import { GraphqlObjectTypeFields } from '../../graphql/utils';
 import { buildEntityMutations } from '../../graphql/mutations';
 
-const getFields = (addIdd: boolean) => {
-  const fields: GraphqlObjectTypeFields = {
-    name: { type: new GraphQLNonNull(GraphQLString) },
-    code: { type: new GraphQLNonNull(GraphQLString) },
-    active: { type: GraphQLBoolean },
-  };
-  if (addIdd) {
-    fields.id = { type: GraphQLID };
-  }
+import type { Context } from 'src/types';
 
-  return fields;
-};
+const getFields = ({ addId }: { addId: boolean }) => ({
+  ...(addId ? { id: { type: GraphQLID } } : {}),
+  name: { type: new GraphQLNonNull(GraphQLString) },
+  code: { type: new GraphQLNonNull(GraphQLString) },
+  active: { type: GraphQLBoolean },
+});
 
-const SubjectType = new GraphQLObjectType({
+const SubjectType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Subject',
   description: 'A subject within TeachHub',
-  fields: getFields(true),
+  fields: getFields({ addId: true }),
 });
 
 const findSubjectCallback = (id: string) => {
@@ -58,8 +50,8 @@ const subjectMutations = buildEntityMutations({
   type: SubjectType,
   keyName: 'Subject',
   typeName: 'subject',
-  createFields: getFields(false),
-  updateFields: getFields(true),
+  createFields: getFields({ addId: false }),
+  updateFields: getFields({ addId: true }),
   createCallback: createSubject,
   updateCallback: updateSubject,
   findCallback: findSubjectCallback,

@@ -4,10 +4,8 @@ import {
   GraphQLNonNull,
   GraphQLBoolean,
   GraphQLID,
-  Source,
 } from 'graphql';
 
-import { GraphqlObjectTypeFields } from '../../graphql/utils';
 import {
   countUsers,
   createUser,
@@ -15,12 +13,15 @@ import {
   findUser,
   updateUser,
 } from './userService';
+
 import { buildEntityFields } from '../../graphql/fields';
 import { buildEntityMutations } from '../../graphql/mutations';
 
-const getFields = (addIdd: boolean) => {
-  const fields: GraphqlObjectTypeFields = {
-    ...(addIdd ? { id: { type: GraphQLID } } : {}),
+import type { Context } from 'src/types';
+
+const getFields = ({ addId }: { addId: boolean }) => {
+  const fields = {
+    ...(addId ? { id: { type: GraphQLID } } : {}),
     name: { type: new GraphQLNonNull(GraphQLString) },
     lastName: { type: new GraphQLNonNull(GraphQLString) },
     githubId: { type: new GraphQLNonNull(GraphQLString) },
@@ -32,10 +33,10 @@ const getFields = (addIdd: boolean) => {
   return fields;
 };
 
-const UserType = new GraphQLObjectType({
+const UserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'User',
   description: 'A user within TeachHub',
-  fields: getFields(true),
+  fields: getFields({ addId: true }),
 });
 
 const findUserCallback = (id: string) => {
@@ -55,8 +56,8 @@ const userMutations = buildEntityMutations({
   type: UserType,
   keyName: 'User',
   typeName: 'user',
-  createFields: getFields(false),
-  updateFields: getFields(true),
+  createFields: getFields({ addId: false }),
+  updateFields: getFields({ addId: true }),
   createCallback: createUser,
   updateCallback: updateUser,
   findCallback: findUserCallback,

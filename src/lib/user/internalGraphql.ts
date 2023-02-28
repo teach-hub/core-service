@@ -3,14 +3,14 @@ import {
   GraphQLString,
   GraphQLNonNull,
   GraphQLObjectType,
-  Source,
+  GraphQLFieldConfigMap,
 } from 'graphql';
 
 import { updateUser } from './userService';
 
 import type { Context } from '../../types';
 
-export const UserType = new GraphQLObjectType({
+export const UserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'User',
   description: 'A non-admin user within TeachHub',
   fields: {
@@ -23,7 +23,7 @@ export const UserType = new GraphQLObjectType({
   },
 });
 
-export const userMutations = {
+export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
   updateUser: {
     type: UserType,
     description: 'Updates a user',
@@ -35,18 +35,19 @@ export const userMutations = {
       githubId: { type: GraphQLString },
       notificationEmail: { type: GraphQLString },
     },
-    resolve: async (_: Source, args: any, ctx: Context) => {
+    resolve: async (_, args, ctx) => {
       const { userId, ...rest } = args;
 
       ctx.logger.info('Executing updateUser mutation with values', args);
 
+      // @ts-expect-error
       const updatedUser = await updateUser(userId, rest);
       return updatedUser;
     },
   },
 };
 
-export const userFields = {
+export const userFields: GraphQLFieldConfigMap<unknown, Context> = {
   findUser: {
     type: UserType,
     args: { userId: { type: GraphQLID } },

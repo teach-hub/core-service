@@ -1,4 +1,4 @@
-import { GraphQLSchema, GraphQLObjectType, Source } from 'graphql';
+import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 
 import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
 import { findAllUsers } from '../lib/user/userService';
@@ -11,7 +11,7 @@ import type { Context } from 'src/types';
  * usuario logeado. Hasta entonces devolvemos simplemente el primer
  * usuario de la base.
  */
-const getViewer = async (source: Source, args: any, ctx: Context) => {
+const getViewer = async (ctx: Context) => {
   const [viewer] = await findAllUsers({});
 
   ctx.logger.info('Using viewer', viewer);
@@ -26,20 +26,20 @@ const getViewer = async (source: Source, args: any, ctx: Context) => {
   };
 };
 
-const Query = new GraphQLObjectType({
+const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   name: 'RootQueryType',
   description: 'Root query',
   fields: {
     viewer: {
       description: 'Logged in user',
       type: UserType,
-      resolve: getViewer,
+      resolve: async (_source, _args, ctx) => getViewer(ctx),
     },
     ...userFields,
   },
 });
 
-const Mutation = new GraphQLObjectType({
+const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   name: 'RootMutationType',
   description: 'Root mutation',
   fields: {
