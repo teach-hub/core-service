@@ -6,6 +6,7 @@ import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
+  existsModel,
   findAllModels,
   findModel,
   updateModel,
@@ -32,8 +33,17 @@ const buildQuery = (id: string): ModelWhereQuery<AdminUserModel> => {
   return { id: Number(id) };
 };
 
+const validate = async (data: AdminUserFields) => {
+  const emailAlreadyUsed = await existsModel(AdminUserModel, {
+    email: data.email,
+  });
+
+  if (emailAlreadyUsed) throw new Error('Email already used');
+};
+
 export async function createAdminUser(data: AdminUserFields): Promise<AdminUserFields> {
   data.password = data.password ? data.password : crypto.randomBytes(20).toString('hex');
+  await validate(data);
   return createModel(AdminUserModel, data, buildModelFields);
 }
 
@@ -41,6 +51,7 @@ export async function updateAdminUser(
   id: string,
   data: AdminUserFields
 ): Promise<AdminUserFields> {
+  await validate(data);
   return updateModel(AdminUserModel, data, buildModelFields, buildQuery(id));
 }
 
