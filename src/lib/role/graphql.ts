@@ -31,7 +31,7 @@ const getFields = ({ addId }: { addId: boolean }) => {
   return fields;
 };
 
-const RoleType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
+export const RoleType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Role',
   description: 'A role within TeachHub',
   fields: getFields({ addId: true }),

@@ -42,9 +42,19 @@ type ViewerCourseType {
   organization: String!
   period: Int!
 
+  """Role that user has within a course"""
+  role: ViewerRoleType!
+
   """Subject the course belongs to"""
   subject: Subject!
   year: Int!
+}
+
+type ViewerRoleType {
+  active: Boolean
+  name: String
+  parent: ViewerRoleType
+  permissions: [String]
 }
 
 type ViewerType {
@@ -55,4 +65,5 @@ type ViewerType {
   lastName: String!
   name: String!
   notificationEmail: String!
+  userId: String!
 }
