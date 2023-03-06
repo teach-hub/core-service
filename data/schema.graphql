@@ -52,6 +52,7 @@ type ViewerCourseType {
 
 type ViewerRoleType {
   active: Boolean
+  id: Int
   name: String
   parent: ViewerRoleType
   permissions: [String]

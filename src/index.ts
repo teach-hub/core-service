@@ -14,6 +14,7 @@ const port = process.env.PORT || 4000;
 
 const app = express();
 
+checkDB();
 initializeDB();
 
 writeSchema(schema, path.resolve(__dirname, '../../data/schema.graphql'));
