@@ -35,18 +35,32 @@ type User {
   userId: ID
 }
 
-"""Courses belonging to viewer"""
+"""UserType"""
+type UserType {
+  active: Boolean
+  file: String
+  githubId: String
+  id: String
+  lastName: String
+  name: String
+  notificationEmail: String
+}
+
+"""Courses viewer belongs belongs to"""
 type ViewerCourseType {
   active: Boolean!
   name: String!
   organization: String!
   period: Int!
 
-  """Role that user has within a course"""
+  """Role the user has within a course"""
   role: ViewerRoleType!
 
   """Subject the course belongs to"""
   subject: Subject!
+
+  """Users in course"""
+  users: [UserType]!
   year: Int!
 }
 
@@ -62,6 +76,9 @@ type ViewerType {
   active: Boolean
   courses: [ViewerCourseType]!
   file: String!
+
+  """Finds a course for the viewer"""
+  findCourse(id: Int!): ViewerCourseType
   githubId: String!
   lastName: String!
   name: String!

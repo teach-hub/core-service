@@ -33,6 +33,8 @@ const initializeDB = () => {
   // Si tiene el metodo `associate()` definido es porque usa alguna asociacion.
   // Entonces necesitamos pasarle los otros modelos.
   Object.values(models).map(m => 'associate' in m && m.associate(models));
+
+  logger.info('db models ready!');
 };
 
 export { db, initializeDB };

@@ -1,5 +1,5 @@
 import { isNumber, OrderingOptions } from '../utils';
-import { Model, ModelStatic } from 'sequelize';
+import { WhereOptions, Model, ModelStatic } from 'sequelize';
 import { IModelFields, ModelAttributes, ModelWhereQuery } from './types';
 import { Nullable } from '../types';
 
@@ -7,7 +7,7 @@ export const findAllModels = async <T extends Model, U extends IModelFields>(
   sequelizeModel: ModelStatic<T>,
   options: OrderingOptions,
   buildModelObject: (model: T) => U,
-  where = {}
+  where: WhereOptions = {}
 ): Promise<U[]> => {
   const paginationOptions =
     isNumber(options.perPage) && isNumber(options.page)
