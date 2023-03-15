@@ -9,7 +9,7 @@ import {
 } from 'graphql';
 
 import { userMutations, userFields } from '../lib/user/internalGraphql';
-import { findUser, findAllUsers, findUsersInCourse } from '../lib/user/userService';
+import { findAllUsers, findUsersInCourse } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
 import { findSubject } from '../lib/subject/subjectService';
@@ -49,7 +49,7 @@ const ViewerRoleType: any = new GraphQLObjectType({
     active: { type: GraphQLBoolean },
     parent: {
       type: ViewerRoleType,
-      resolve: async (source, args, context) => {
+      resolve: async (source, _, context) => {
         const { logger } = context;
         const { id, parentRoleId } = source;
 
@@ -81,6 +81,7 @@ const ViewerCourseType = new GraphQLObjectType({
   name: 'ViewerCourseType',
   description: 'Courses viewer belongs belongs to',
   fields: {
+    id: { type: new GraphQLNonNull(GraphQLString) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     organization: { type: new GraphQLNonNull(GraphQLString) },
     period: { type: new GraphQLNonNull(GraphQLInt) },
@@ -149,8 +150,6 @@ const ViewerType = new GraphQLObjectType({
         };
       },
     },
-
-    // TODO(Tomas): esto tiene que ser una connection.
     courses: {
       type: new GraphQLNonNull(new GraphQLList(ViewerCourseType)),
       resolve: async viewer => {

@@ -49,6 +49,7 @@ type UserType {
 """Courses viewer belongs belongs to"""
 type ViewerCourseType {
   active: Boolean!
+  id: String!
   name: String!
   organization: String!
   period: Int!
