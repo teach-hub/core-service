@@ -14,7 +14,8 @@ import { Op } from 'sequelize';
 
 import { findAllUserRoles } from '../userRole/userRoleService';
 
-interface UserFields extends IModelFields, ModelAttributes<UserModel> {
+export interface UserFields extends IModelFields, ModelAttributes<UserModel> {
+  id: Optional<number>;
   name: Optional<string>;
   lastName: Optional<string>;
   githubId: Optional<string>;

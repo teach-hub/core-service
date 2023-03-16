@@ -8,14 +8,12 @@ import {
   GraphQLList,
 } from 'graphql';
 
-import { userMutations, userFields } from '../lib/user/internalGraphql';
-import { findAllUsers, findUsersInCourse } from '../lib/user/userService';
+import { UserFields, findAllUsers } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
-import { findSubject } from '../lib/subject/subjectService';
-import { findRole } from '../lib/role/roleService';
 
-import { SubjectType } from '../lib/subject/graphql';
+import { userMutations } from '../lib/user/internalGraphql';
+import { CourseType, CourseSummaryType } from '../lib/course/internalGraphql';
 
 import type { Context } from 'src/types';
 
@@ -25,123 +23,43 @@ import type { Context } from 'src/types';
  * usuario logeado. Hasta entonces devolvemos simplemente el primer
  * usuario de la base.
  */
-const getViewer = async (ctx: Context) => {
+const getViewer = async (ctx: Context): Promise<UserFields> => {
   const [viewer] = await findAllUsers({});
 
   ctx.logger.info('Using viewer', viewer);
 
   return {
-    userId: viewer.id,
+    id: viewer.id,
     githubId: viewer.githubId,
     name: viewer.name,
     lastName: viewer.lastName,
     notificationEmail: viewer.notificationEmail,
     file: viewer.file,
+    active: viewer.active,
   };
 };
 
-const ViewerRoleType: any = new GraphQLObjectType({
-  name: 'ViewerRoleType',
-  fields: () => ({
-    id: { type: GraphQLInt },
-    name: { type: GraphQLString },
-    permissions: { type: new GraphQLList(GraphQLString) },
-    active: { type: GraphQLBoolean },
-    parent: {
-      type: ViewerRoleType,
-      resolve: async (source, _, context) => {
-        const { logger } = context;
-        const { id, parentRoleId } = source;
-
-        logger.info(`Resolving parent role for role ${id}`);
-
-        const parentRole = await findRole({ roleId: parentRoleId });
-
-        return parentRole;
-      },
-    },
-  }),
-});
-
-const UserType = new GraphQLObjectType({
-  name: 'UserType',
-  description: 'UserType',
-  fields: {
-    id: { type: GraphQLString },
-    name: { type: GraphQLString },
-    lastName: { type: GraphQLString },
-    file: { type: GraphQLString },
-    active: { type: GraphQLBoolean },
-    githubId: { type: GraphQLString },
-    notificationEmail: { type: GraphQLString },
-  },
-});
-
-const ViewerCourseType = new GraphQLObjectType({
-  name: 'ViewerCourseType',
-  description: 'Courses viewer belongs belongs to',
+const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
+  name: 'ViewerType',
   fields: {
     id: { type: new GraphQLNonNull(GraphQLString) },
     name: { type: new GraphQLNonNull(GraphQLString) },
-    organization: { type: new GraphQLNonNull(GraphQLString) },
-    period: { type: new GraphQLNonNull(GraphQLInt) },
-    year: { type: new GraphQLNonNull(GraphQLInt) },
-    active: { type: new GraphQLNonNull(GraphQLBoolean) },
-    role: {
-      type: new GraphQLNonNull(ViewerRoleType),
-      description: 'Role the user has within a course',
-      resolve: async (userCourse, _) => {
-        const { roleId } = userCourse;
-
-        const role = await findRole({ roleId });
-        return role;
-      },
-    },
-    subject: {
-      type: new GraphQLNonNull(SubjectType),
-      description: 'Subject the course belongs to',
-      resolve: async ({ subjectId }) => {
-        const subject = await findSubject({ subjectId });
-        return subject;
-      },
-    },
-    users: {
-      type: new GraphQLNonNull(new GraphQLList(UserType)),
-      description: 'Users in course',
-      resolve: async (course, _, ctx) => {
-        const { logger } = ctx;
-
-        logger.info(`Looking for users within course ${course.id}`);
-
-        const users = await findUsersInCourse({ courseId: course.id });
-        return users;
-      },
-    },
-  },
-});
-
-const ViewerType = new GraphQLObjectType({
-  name: 'ViewerType',
-  fields: {
-    userId: { type: new GraphQLNonNull(GraphQLString) },
-    name: { type: new GraphQLNonNull(GraphQLString) },
     lastName: { type: new GraphQLNonNull(GraphQLString) },
     file: { type: new GraphQLNonNull(GraphQLString) },
-    active: { type: GraphQLBoolean },
+    active: { type: new GraphQLNonNull(GraphQLBoolean) },
     githubId: { type: new GraphQLNonNull(GraphQLString) },
     notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
-
     findCourse: {
       args: { id: { type: new GraphQLNonNull(GraphQLInt) } },
       description: 'Finds a course for the viewer',
-      type: ViewerCourseType,
-      resolve: async (viewer, args, context) => {
-        context.logger.info('Finding course', { courseId: args.id });
+      type: CourseType,
+      resolve: async (viewer, args, { logger }) => {
+        logger.info('Finding course', { courseId: args.id });
 
         const course = await findCourse({ courseId: args.id });
         const userRole = await findUserRoleInCourse({
           courseId: args.id,
-          userId: viewer.userId,
+          userId: viewer.id as number,
         });
 
         return {
@@ -151,7 +69,7 @@ const ViewerType = new GraphQLObjectType({
       },
     },
     courses: {
-      type: new GraphQLNonNull(new GraphQLList(ViewerCourseType)),
+      type: new GraphQLNonNull(new GraphQLList(CourseSummaryType)),
       resolve: async viewer => {
         const userRoles = await findAllUserRoles({ forUserId: viewer.userId });
 
@@ -180,7 +98,6 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
       type: ViewerType,
       resolve: async (_source, _args, ctx) => getViewer(ctx),
     },
-    ...userFields,
   },
 });
 
