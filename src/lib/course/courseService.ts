@@ -10,7 +10,8 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-interface CourseFields extends IModelFields, ModelAttributes<Course> {
+export interface CourseFields extends IModelFields, ModelAttributes<Course> {
+  id: Optional<number>;
   name: Optional<string>;
   organization: Optional<string>;
   subjectId: Optional<number>;

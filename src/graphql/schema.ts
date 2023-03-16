@@ -1,7 +1,19 @@
-import { GraphQLSchema, GraphQLObjectType } from 'graphql';
+import {
+  GraphQLNonNull,
+  GraphQLSchema,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLBoolean,
+  GraphQLObjectType,
+  GraphQLList,
+} from 'graphql';
 
-import { userMutations, userFields, UserType } from '../lib/user/internalGraphql';
-import { findAllUsers } from '../lib/user/userService';
+import { UserFields, findAllUsers } from '../lib/user/userService';
+import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
+import { findCourse } from '../lib/course/courseService';
+
+import { userMutations } from '../lib/user/internalGraphql';
+import { CourseType, CourseSummaryType } from '../lib/course/internalGraphql';
 
 import type { Context } from 'src/types';
 
@@ -11,20 +23,71 @@ import type { Context } from 'src/types';
  * usuario logeado. Hasta entonces devolvemos simplemente el primer
  * usuario de la base.
  */
-const getViewer = async (ctx: Context) => {
+const getViewer = async (ctx: Context): Promise<UserFields> => {
   const [viewer] = await findAllUsers({});
 
   ctx.logger.info('Using viewer', viewer);
 
   return {
-    userId: viewer.id,
+    id: viewer.id,
     githubId: viewer.githubId,
     name: viewer.name,
     lastName: viewer.lastName,
     notificationEmail: viewer.notificationEmail,
     file: viewer.file,
+    active: viewer.active,
   };
 };
+
+const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
+  name: 'ViewerType',
+  fields: {
+    id: { type: new GraphQLNonNull(GraphQLString) },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    lastName: { type: new GraphQLNonNull(GraphQLString) },
+    file: { type: new GraphQLNonNull(GraphQLString) },
+    active: { type: new GraphQLNonNull(GraphQLBoolean) },
+    githubId: { type: new GraphQLNonNull(GraphQLString) },
+    notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
+    findCourse: {
+      args: { id: { type: new GraphQLNonNull(GraphQLInt) } },
+      description: 'Finds a course for the viewer',
+      type: CourseType,
+      resolve: async (viewer, args, { logger }) => {
+        logger.info('Finding course', { courseId: args.id });
+
+        const course = await findCourse({ courseId: args.id });
+        const userRole = await findUserRoleInCourse({
+          courseId: args.id,
+          userId: viewer.id as number,
+        });
+
+        return {
+          ...course,
+          roleId: userRole.roleId,
+        };
+      },
+    },
+    courses: {
+      type: new GraphQLNonNull(new GraphQLList(CourseSummaryType)),
+      resolve: async viewer => {
+        const userRoles = await findAllUserRoles({ forUserId: viewer.userId });
+
+        return Promise.all(
+          userRoles.map(async userRole => {
+            // @ts-expect-error: TODO. Mejorar tema de tipos con modelos. Esto no es opcional.
+            const course = await findCourse({ courseId: userRole.courseId });
+
+            return {
+              ...course,
+              roleId: userRole.roleId,
+            };
+          })
+        );
+      },
+    },
+  },
+});
 
 const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -32,10 +95,9 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   fields: {
     viewer: {
       description: 'Logged in user',
-      type: UserType,
+      type: ViewerType,
       resolve: async (_source, _args, ctx) => getViewer(ctx),
     },
-    ...userFields,
   },
 });
 

@@ -11,6 +11,9 @@ import {
 import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
 import { Nullable, Optional } from '../../types';
 
+import User from '../user/userModel';
+import Course from '../course/courseModel';
+
 interface UserRoleFields extends IModelFields, ModelAttributes<UserRoleModel> {
   roleId: Optional<number>;
   userId: Optional<number>;
@@ -56,8 +59,34 @@ export async function findUserRole({
   return findModel(UserRoleModel, buildModelFields, buildQuery(roleId));
 }
 
+export async function findUserRoleInCourse({
+  courseId,
+  userId,
+}: {
+  courseId: Course['id'];
+  userId: User['id'];
+}): Promise<UserRoleFields> {
+  const whereClause = { courseId, userId };
+
+  const userRoles = await findAllModels(UserRoleModel, {}, buildModelFields, whereClause);
+
+  return userRoles[0];
+}
+
+type FindCoursesFilter = OrderingOptions & {
+  forUserId?: UserRoleModel['userId'];
+  forCourseId?: UserRoleModel['courseId'];
+};
+
 export async function findAllUserRoles(
-  options: OrderingOptions
+  filter: FindCoursesFilter
 ): Promise<UserRoleFields[]> {
-  return findAllModels(UserRoleModel, options, buildModelFields);
+  const { forUserId, forCourseId } = filter;
+
+  const whereClause = {
+    ...(forUserId ? { userId: forUserId } : {}),
+    ...(forCourseId ? { courseId: forCourseId } : {}),
+  };
+
+  return findAllModels(UserRoleModel, filter, buildModelFields, whereClause);
 }

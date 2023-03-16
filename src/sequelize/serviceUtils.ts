@@ -1,12 +1,13 @@
 import { isNumber, OrderingOptions } from '../utils';
-import { Model, ModelStatic } from 'sequelize';
+import { WhereOptions, Model, ModelStatic } from 'sequelize';
 import { IModelFields, ModelAttributes, ModelWhereQuery } from './types';
 import { Nullable } from '../types';
 
 export const findAllModels = async <T extends Model, U extends IModelFields>(
   sequelizeModel: ModelStatic<T>,
   options: OrderingOptions,
-  buildModelObject: (model: T) => U
+  buildModelObject: (model: T) => U,
+  where: WhereOptions = {}
 ): Promise<U[]> => {
   const paginationOptions =
     isNumber(options.perPage) && isNumber(options.page)
@@ -27,6 +28,7 @@ export const findAllModels = async <T extends Model, U extends IModelFields>(
     // keyof UserRole porque Sequelize (sus tipos para se exactos) no entiende
     // que el primer elemento de la lista en realidad son las keys del modelo.
     order: orderingOptions,
+    where,
   });
 
   return models.map(buildModelObject);

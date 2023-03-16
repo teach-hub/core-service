@@ -3,26 +3,88 @@ schema {
   mutation: RootMutationType
 }
 
+"""Summary of courses viewer belongs belongs to"""
+type CourseSummaryType {
+  id: String!
+  name: String!
+  period: Int!
+
+  """Role the user has within a course"""
+  role: RoleType!
+
+  """Subject the course belongs to"""
+  subject: Subject!
+  year: Int!
+}
+
+"""Courses viewer belongs belongs to"""
+type CourseType {
+  active: Boolean!
+  id: String!
+  name: String!
+  organization: String!
+  period: Int!
+
+  """Role the user has within a course"""
+  role: RoleType!
+
+  """Subject the course belongs to"""
+  subject: Subject!
+
+  """Users in course"""
+  users: [UserType]!
+  year: Int!
+}
+
+type RoleType {
+  active: Boolean
+  id: Int
+  name: String
+  parent: RoleType
+  permissions: [String]
+}
+
 """Root mutation"""
 type RootMutationType {
   """Updates a user"""
-  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): User
+  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType
 }
 
 """Root query"""
 type RootQueryType {
-  findUser(userId: ID): User
-
   """Logged in user"""
-  viewer: User
+  viewer: ViewerType
+}
+
+"""A subject within TeachHub"""
+type Subject {
+  active: Boolean
+  code: String!
+  id: ID
+  name: String!
 }
 
 """A non-admin user within TeachHub"""
-type User {
+type UserType {
+  active: Boolean
   file: String
   githubId: String
+  id: ID
   lastName: String
   name: String
   notificationEmail: String
-  userId: ID
+}
+
+type ViewerType {
+  active: Boolean!
+  courses: [CourseSummaryType]!
+  file: String!
+
+  """Finds a course for the viewer"""
+  findCourse(id: Int!): CourseType
+  githubId: String!
+  id: String!
+  lastName: String!
+  name: String!
+  notificationEmail: String!
 }

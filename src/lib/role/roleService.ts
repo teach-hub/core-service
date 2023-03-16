@@ -23,11 +23,11 @@ interface RoleCommonFields extends IModelFields {
   active: Optional<boolean>;
 }
 
-interface RoleFields extends RoleCommonFields {
+export interface RoleFields extends RoleCommonFields {
   permissions: Optional<string[]>;
 }
 
-interface RoleAttrs extends IModelFields, ModelAttributes<RoleModel> {
+export interface RoleAttrs extends IModelFields, ModelAttributes<RoleModel> {
   permissions: Optional<string>;
 }
 
