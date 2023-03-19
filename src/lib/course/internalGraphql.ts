@@ -18,6 +18,8 @@ import { findUsersInCourse } from '../user/userService';
 import type { Context } from 'src/types';
 import type { CourseFields } from './courseService';
 
+import { toGlobalId, fromGlobalId } from 'src/graphql/utils';
+
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
     name: 'CourseType',
@@ -33,10 +35,19 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
         type: new GraphQLNonNull(RoleType),
         description: 'Role the user has within a course',
         resolve: async (userCourse, _) => {
-          const { roleId } = userCourse;
+          const { roleId: roleIdEncoded } = userCourse;
+
+          const { dbId: roleId } = fromGlobalId(roleIdEncoded);
 
           const role = await findRole({ roleId });
-          return role;
+
+          return {
+            ...role,
+            id: toGlobalId({
+              dbId: String(role.id),
+              entityName: 'role',
+            }),
+          };
         },
       },
       subject: {

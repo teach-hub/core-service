@@ -15,6 +15,8 @@ import { findCourse } from '../lib/course/courseService';
 import { userMutations } from '../lib/user/internalGraphql';
 import { CourseType, CourseSummaryType } from '../lib/course/internalGraphql';
 
+import { toGlobalId, fromGlobalId } from './utils';
+
 import type { Context } from 'src/types';
 
 /**
@@ -54,17 +56,26 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
       description: 'Finds a course for the viewer',
       type: CourseType,
       resolve: async (viewer, args, { logger }) => {
-        logger.info('Finding course', { courseId: args.id });
+        const { dbId: courseId } = fromGlobalId(args.id);
 
-        const course = await findCourse({ courseId: args.id });
+        logger.info('Finding course', { courseId });
+
+        const course = await findCourse({ courseId });
         const userRole = await findUserRoleInCourse({
-          courseId: args.id,
+          courseId: Number(courseId),
           userId: viewer.id as number,
         });
 
         return {
           ...course,
-          roleId: userRole.roleId,
+          id: toGlobalId({
+            entityName: 'course',
+            dbId: String(course.id) as string,
+          }),
+          roleId: toGlobalId({
+            entityName: 'role',
+            dbId: String(userRole.roleId),
+          }),
         };
       },
     },
@@ -80,7 +91,14 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
 
             return {
               ...course,
-              roleId: userRole.roleId,
+              id: toGlobalId({
+                entityName: 'course',
+                dbId: String(course.id) as string,
+              }),
+              roleId: toGlobalId({
+                entityName: 'role',
+                dbId: String(userRole.roleId),
+              }),
             };
           })
         );
@@ -96,7 +114,17 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     viewer: {
       description: 'Logged in user',
       type: ViewerType,
-      resolve: async (_source, _args, ctx) => getViewer(ctx),
+      resolve: async (_source, _args, ctx) => {
+        const viewer = await getViewer(ctx);
+
+        return {
+          ...viewer,
+          id: toGlobalId({
+            dbId: String(viewer.id),
+            entityName: 'viewer',
+          }),
+        };
+      },
     },
   },
 });
