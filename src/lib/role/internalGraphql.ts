@@ -1,19 +1,23 @@
-import {
-  GraphQLInt,
-  GraphQLString,
-  GraphQLBoolean,
-  GraphQLList,
-  GraphQLObjectType,
-} from 'graphql';
+import { GraphQLString, GraphQLBoolean, GraphQLList, GraphQLObjectType } from 'graphql';
 
 import type { Context } from 'src/types';
 
 import { findRole } from './roleService';
 
+import { toGlobalId } from '../../graphql/utils';
+
 export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
   name: 'RoleType',
   fields: () => ({
-    id: { type: GraphQLInt },
+    id: {
+      type: GraphQLString,
+      resolve: role => {
+        return toGlobalId({
+          entityName: 'role',
+          dbId: String(role.id),
+        });
+      },
+    },
     name: { type: GraphQLString },
     permissions: { type: new GraphQLList(GraphQLString) },
     active: { type: GraphQLBoolean },
@@ -22,6 +26,8 @@ export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
       resolve: async (source, _, context) => {
         const { logger } = context;
         const { id, parentRoleId } = source;
+
+        if (!parentRoleId) return null;
 
         logger.info(`Resolving parent role for role ${id}`);
 

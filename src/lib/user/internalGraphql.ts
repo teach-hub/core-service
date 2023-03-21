@@ -9,13 +9,22 @@ import {
 
 import { UserFields, updateUser } from './userService';
 
+import { toGlobalId, fromGlobalId } from '../../graphql/utils';
+
 import type { Context } from '../../types';
 
 export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
   name: 'UserType',
   description: 'A non-admin user within TeachHub',
   fields: {
-    id: { type: GraphQLID },
+    id: {
+      type: GraphQLString,
+      resolve: s =>
+        toGlobalId({
+          entityName: 'user',
+          dbId: String(s.id) as string,
+        }),
+    },
     name: { type: GraphQLString },
     active: { type: GraphQLBoolean },
     lastName: { type: GraphQLString },
@@ -30,7 +39,10 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
     type: UserType,
     description: 'Updates a user',
     args: {
-      userId: { type: new GraphQLNonNull(GraphQLID) },
+      userId: {
+        // FIXME;
+        type: new GraphQLNonNull(GraphQLID),
+      },
       name: { type: GraphQLString },
       lastName: { type: GraphQLString },
       file: { type: GraphQLString },

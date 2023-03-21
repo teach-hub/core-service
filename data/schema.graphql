@@ -13,7 +13,7 @@ type CourseSummaryType {
   role: RoleType!
 
   """Subject the course belongs to"""
-  subject: Subject!
+  subject: SubjectType!
   year: Int!
 }
 
@@ -29,7 +29,7 @@ type CourseType {
   role: RoleType!
 
   """Subject the course belongs to"""
-  subject: Subject!
+  subject: SubjectType!
 
   """Users in course"""
   users: [UserType]!
@@ -38,7 +38,7 @@ type CourseType {
 
 type RoleType {
   active: Boolean
-  id: Int
+  id: String
   name: String
   parent: RoleType
   permissions: [String]
@@ -56,12 +56,11 @@ type RootQueryType {
   viewer: ViewerType
 }
 
-"""A subject within TeachHub"""
-type Subject {
+type SubjectType {
   active: Boolean
-  code: String!
-  id: ID
-  name: String!
+  code: String
+  id: String
+  name: String
 }
 
 """A non-admin user within TeachHub"""
@@ -69,7 +68,7 @@ type UserType {
   active: Boolean
   file: String
   githubId: String
-  id: ID
+  id: String
   lastName: String
   name: String
   notificationEmail: String
@@ -81,7 +80,7 @@ type ViewerType {
   file: String!
 
   """Finds a course for the viewer"""
-  findCourse(id: Int!): CourseType
+  findCourse(id: String!): CourseType
   githubId: String!
   id: String!
   lastName: String!

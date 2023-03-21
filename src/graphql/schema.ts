@@ -44,7 +44,15 @@ const getViewer = async (ctx: Context): Promise<UserFields> => {
 const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
   name: 'ViewerType',
   fields: {
-    id: { type: new GraphQLNonNull(GraphQLString) },
+    id: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: s => {
+        return toGlobalId({
+          entityName: 'viewer',
+          dbId: String(s.id) as string,
+        });
+      },
+    },
     name: { type: new GraphQLNonNull(GraphQLString) },
     lastName: { type: new GraphQLNonNull(GraphQLString) },
     file: { type: new GraphQLNonNull(GraphQLString) },
@@ -52,7 +60,9 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
     githubId: { type: new GraphQLNonNull(GraphQLString) },
     notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
     findCourse: {
-      args: { id: { type: new GraphQLNonNull(GraphQLInt) } },
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+      },
       description: 'Finds a course for the viewer',
       type: CourseType,
       resolve: async (viewer, args, { logger }) => {
@@ -68,14 +78,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
 
         return {
           ...course,
-          id: toGlobalId({
-            entityName: 'course',
-            dbId: String(course.id) as string,
-          }),
-          roleId: toGlobalId({
-            entityName: 'role',
-            dbId: String(userRole.roleId),
-          }),
+          roleId: userRole.roleId,
         };
       },
     },
@@ -91,14 +94,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
 
             return {
               ...course,
-              id: toGlobalId({
-                entityName: 'course',
-                dbId: String(course.id) as string,
-              }),
-              roleId: toGlobalId({
-                entityName: 'role',
-                dbId: String(userRole.roleId),
-              }),
+              roleId: userRole.roleId,
             };
           })
         );
@@ -117,13 +113,7 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
       resolve: async (_source, _args, ctx) => {
         const viewer = await getViewer(ctx);
 
-        return {
-          ...viewer,
-          id: toGlobalId({
-            dbId: String(viewer.id),
-            entityName: 'viewer',
-          }),
-        };
+        return viewer;
       },
     },
   },
