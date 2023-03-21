@@ -5,6 +5,7 @@ import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
+  existsModel,
   findAllModels,
   findModel,
   updateModel,
@@ -36,13 +37,25 @@ const buildModelFields = (user: Nullable<UserModel>): UserFields => ({
 
 const buildQuery = (id: string): ModelWhereQuery<UserModel> => ({ id: Number(id) });
 
+const validate = async (data: UserFields) => {
+  const githubIdAlreadyUsed = await existsModel(UserModel, {
+    githubId: data.githubId,
+  });
+
+  if (githubIdAlreadyUsed) throw new Error('Github id already used');
+};
+
 export async function createUser(data: UserFields): Promise<UserFields> {
   data.active = true; // Always create active
+
+  await validate(data);
   return createModel(UserModel, data, buildModelFields);
 }
 
-export const updateUser = async (id: string, data: UserFields): Promise<UserFields> =>
-  updateModel(UserModel, data, buildModelFields, buildQuery(id));
+export const updateUser = async (id: string, data: UserFields): Promise<UserFields> => {
+  await validate(data);
+  return updateModel(UserModel, data, buildModelFields, buildQuery(id));
+}
 
 export const countUsers = (): Promise<number> => countModels<UserModel>(UserModel);
 

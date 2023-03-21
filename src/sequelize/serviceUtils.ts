@@ -1,5 +1,5 @@
 import { isNumber, OrderingOptions } from '../utils';
-import { WhereOptions, Model, ModelStatic } from 'sequelize';
+import { WhereOptions, Model, ModelStatic, OrderItem } from 'sequelize';
 import { IModelFields, ModelAttributes, ModelWhereQuery } from './types';
 import { Nullable } from '../types';
 
@@ -17,16 +17,18 @@ export const findAllModels = async <T extends Model, U extends IModelFields>(
         }
       : {};
 
-  const orderingOptions = options.sortField
+  const orderingOptions: OrderItem[] = options.sortField
     ? [[options.sortField, options.sortOrder ?? 'DESC']]
     : [];
 
   const models: T[] = await sequelizeModel.findAll({
     ...paginationOptions,
 
-    // @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-    // keyof UserRole porque Sequelize (sus tipos para se exactos) no entiende
-    // que el primer elemento de la lista en realidad son las keys del modelo.
+    /*
+     * @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
+     * keyof UserRole porque Sequelize (sus tipos para se exactos) no entiende
+     * que el primer elemento de la lista en realidad son las keys del modelo.
+     * */
     order: orderingOptions,
     where,
   });
@@ -50,6 +52,19 @@ export const findModel = async <T extends Model, U extends IModelFields>(
   });
 
   return buildModelObject(model);
+};
+
+export const existsModel = async <T extends Model, U extends IModelFields>(
+  sequelizeModel: ModelStatic<T>,
+  whereQuery: ModelWhereQuery<T>
+): Promise<boolean> => {
+  const [model] = await Promise.all([
+    sequelizeModel.findOne({
+      where: whereQuery,
+    }),
+  ]);
+
+  return model !== null;
 };
 
 export const createModel = async <T extends Model, U extends IModelFields>(
