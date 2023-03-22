@@ -25,14 +25,11 @@ type CourseType {
   organization: String!
   period: Int!
 
-  """Role the user has within a course"""
-  role: RoleType!
-
   """Subject the course belongs to"""
   subject: SubjectType!
 
-  """Users in course"""
-  users: [UserType]!
+  """User roles within a course"""
+  userRoles: [UserRoleType]
   year: Int!
 }
 
@@ -63,6 +60,15 @@ type SubjectType {
   name: String
 }
 
+""""""
+type UserRoleType {
+  active: Boolean
+  course: CourseType
+  id: String
+  role: RoleType
+  user: UserType
+}
+
 """A non-admin user within TeachHub"""
 type UserType {
   active: Boolean
@@ -72,6 +78,7 @@ type UserType {
   lastName: String
   name: String
   notificationEmail: String
+  userRoles: [UserRoleType]
 }
 
 type ViewerType {
@@ -86,4 +93,7 @@ type ViewerType {
   lastName: String!
   name: String!
   notificationEmail: String!
+
+  """User user roles"""
+  userRoles: [UserRoleType]
 }

@@ -2,7 +2,6 @@ import {
   GraphQLNonNull,
   GraphQLSchema,
   GraphQLString,
-  GraphQLInt,
   GraphQLBoolean,
   GraphQLObjectType,
   GraphQLList,
@@ -14,6 +13,7 @@ import { findCourse } from '../lib/course/courseService';
 
 import { userMutations } from '../lib/user/internalGraphql';
 import { CourseType, CourseSummaryType } from '../lib/course/internalGraphql';
+import { UserRoleType } from '../lib/userRole/internalGraphql';
 
 import { toGlobalId, fromGlobalId } from './utils';
 
@@ -46,12 +46,11 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
   fields: {
     id: {
       type: new GraphQLNonNull(GraphQLString),
-      resolve: s => {
-        return toGlobalId({
+      resolve: s =>
+        toGlobalId({
           entityName: 'viewer',
           dbId: String(s.id) as string,
-        });
-      },
+        }),
     },
     name: { type: new GraphQLNonNull(GraphQLString) },
     lastName: { type: new GraphQLNonNull(GraphQLString) },
@@ -59,6 +58,13 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
     active: { type: new GraphQLNonNull(GraphQLBoolean) },
     githubId: { type: new GraphQLNonNull(GraphQLString) },
     notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
+    userRoles: {
+      type: new GraphQLList(UserRoleType),
+      description: 'User user roles',
+      resolve: async viewer => {
+        return findAllUserRoles({ forUserId: viewer.id });
+      },
+    },
     findCourse: {
       args: {
         id: { type: new GraphQLNonNull(GraphQLString) },
@@ -85,7 +91,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
     courses: {
       type: new GraphQLNonNull(new GraphQLList(CourseSummaryType)),
       resolve: async viewer => {
-        const userRoles = await findAllUserRoles({ forUserId: viewer.userId });
+        const userRoles = await findAllUserRoles({ forUserId: viewer.id });
 
         return Promise.all(
           userRoles.map(async userRole => {
