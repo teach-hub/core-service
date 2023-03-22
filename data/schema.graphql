@@ -44,7 +44,7 @@ type RoleType {
 """Root mutation"""
 type RootMutationType {
   """Updates a user"""
-  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType
+  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: String!): UserType
 }
 
 """Root query"""
@@ -87,7 +87,7 @@ type ViewerType {
   file: String!
 
   """Finds a course for the viewer"""
-  findCourse(id: String!): CourseType
+  findCourse(id: String!): CourseType @deprecated(reason: "sex")
   githubId: String!
   id: String!
   lastName: String!

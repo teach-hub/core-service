@@ -11,7 +11,7 @@ import {
 import { UserFields, updateUser } from './userService';
 import { findAllUserRoles } from '../userRole/userRoleService';
 
-import { toGlobalId } from '../../graphql/utils';
+import { toGlobalId, fromGlobalId } from '../../graphql/utils';
 
 import type { Context } from '../../types';
 
@@ -51,10 +51,7 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
     type: UserType,
     description: 'Updates a user',
     args: {
-      userId: {
-        // FIXME;
-        type: new GraphQLNonNull(GraphQLID),
-      },
+      userId: { type: new GraphQLNonNull(GraphQLString) },
       name: { type: GraphQLString },
       lastName: { type: GraphQLString },
       file: { type: GraphQLString },
@@ -63,11 +60,12 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
     },
     resolve: async (_, args, ctx) => {
       const { userId, ...rest } = args;
+      const { dbId } = fromGlobalId(userId);
 
       ctx.logger.info('Executing updateUser mutation with values', args);
 
       // @ts-expect-error
-      const updatedUser = await updateUser(userId, rest);
+      const updatedUser = await updateUser(dbId, rest);
       return updatedUser;
     },
   },

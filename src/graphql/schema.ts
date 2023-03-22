@@ -7,6 +7,8 @@ import {
   GraphQLList,
 } from 'graphql';
 
+import { orderBy } from 'lodash';
+
 import { UserFields, findAllUsers } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
@@ -26,7 +28,10 @@ import type { Context } from 'src/types';
  * usuario de la base.
  */
 const getViewer = async (ctx: Context): Promise<UserFields> => {
-  const [viewer] = await findAllUsers({});
+  const allUsers = await findAllUsers({});
+  const usersSorted = orderBy(allUsers, 'id');
+
+  const viewer = usersSorted[0];
 
   ctx.logger.info('Using viewer', viewer);
 
@@ -88,24 +93,6 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
         };
       },
     },
-    courses: {
-      type: new GraphQLNonNull(new GraphQLList(CourseSummaryType)),
-      resolve: async viewer => {
-        const userRoles = await findAllUserRoles({ forUserId: viewer.id });
-
-        return Promise.all(
-          userRoles.map(async userRole => {
-            // @ts-expect-error: TODO. Mejorar tema de tipos con modelos. Esto no es opcional.
-            const course = await findCourse({ courseId: userRole.courseId });
-
-            return {
-              ...course,
-              roleId: userRole.roleId,
-            };
-          })
-        );
-      },
-    },
   },
 });
 
@@ -116,11 +103,7 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     viewer: {
       description: 'Logged in user',
       type: ViewerType,
-      resolve: async (_source, _args, ctx) => {
-        const viewer = await getViewer(ctx);
-
-        return viewer;
-      },
+      resolve: async (_source, _args, ctx) => getViewer(ctx),
     },
   },
 });
