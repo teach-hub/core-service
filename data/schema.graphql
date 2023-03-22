@@ -3,20 +3,6 @@ schema {
   mutation: RootMutationType
 }
 
-"""Summary of courses viewer belongs belongs to"""
-type CourseSummaryType {
-  id: String!
-  name: String!
-  period: Int!
-
-  """Role the user has within a course"""
-  role: RoleType!
-
-  """Subject the course belongs to"""
-  subject: SubjectType!
-  year: Int!
-}
-
 """Courses viewer belongs belongs to"""
 type CourseType {
   active: Boolean!
@@ -83,11 +69,10 @@ type UserType {
 
 type ViewerType {
   active: Boolean!
-  courses: [CourseSummaryType]!
   file: String!
 
   """Finds a course for the viewer"""
-  findCourse(id: String!): CourseType @deprecated(reason: "sex")
+  findCourse(id: String!): CourseType
   githubId: String!
   id: String!
   lastName: String!
