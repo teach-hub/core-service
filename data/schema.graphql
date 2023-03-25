@@ -3,21 +3,6 @@ schema {
   mutation: RootMutationType
 }
 
-"""Summary of courses viewer belongs belongs to"""
-type CourseSummaryType {
-  id: String!
-  name: String!
-  period: Int!
-
-  """Role the user has within a course"""
-  role: RoleType!
-
-  """Subject the course belongs to"""
-  subject: Subject!
-  year: Int!
-}
-
-"""Courses viewer belongs belongs to"""
 type CourseType {
   active: Boolean!
   id: String!
@@ -25,20 +10,17 @@ type CourseType {
   organization: String!
   period: Int!
 
-  """Role the user has within a course"""
-  role: RoleType!
-
   """Subject the course belongs to"""
-  subject: Subject!
+  subject: SubjectType!
 
-  """Users in course"""
-  users: [UserType]!
+  """User roles within a course"""
+  userRoles: [UserRoleType]
   year: Int!
 }
 
 type RoleType {
   active: Boolean
-  id: Int
+  id: String
   name: String
   parent: RoleType
   permissions: [String]
@@ -47,7 +29,7 @@ type RoleType {
 """Root mutation"""
 type RootMutationType {
   """Updates a user"""
-  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType
+  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: String!): UserType
 }
 
 """Root query"""
@@ -56,12 +38,19 @@ type RootQueryType {
   viewer: ViewerType
 }
 
-"""A subject within TeachHub"""
-type Subject {
+type SubjectType {
   active: Boolean
-  code: String!
-  id: ID
-  name: String!
+  code: String
+  id: String
+  name: String
+}
+
+type UserRoleType {
+  active: Boolean!
+  course: CourseType
+  id: String
+  role: RoleType
+  user: UserType
 }
 
 """A non-admin user within TeachHub"""
@@ -69,7 +58,7 @@ type UserType {
   active: Boolean
   file: String
   githubId: String
-  id: ID
+  id: String
   lastName: String
   name: String
   notificationEmail: String
@@ -77,14 +66,16 @@ type UserType {
 
 type ViewerType {
   active: Boolean!
-  courses: [CourseSummaryType]!
   file: String!
 
   """Finds a course for the viewer"""
-  findCourse(id: Int!): CourseType
+  findCourse(id: String!): CourseType
   githubId: String!
   id: String!
   lastName: String!
   name: String!
   notificationEmail: String!
+
+  """User user roles"""
+  userRoles: [UserRoleType]
 }

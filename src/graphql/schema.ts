@@ -2,18 +2,24 @@ import {
   GraphQLNonNull,
   GraphQLSchema,
   GraphQLString,
-  GraphQLInt,
   GraphQLBoolean,
   GraphQLObjectType,
   GraphQLList,
 } from 'graphql';
+
+import { orderBy } from 'lodash';
 
 import { UserFields, findAllUsers } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
 
 import { userMutations } from '../lib/user/internalGraphql';
-import { CourseType, CourseSummaryType } from '../lib/course/internalGraphql';
+import { CourseType } from '../lib/course/internalGraphql';
+import { UserType } from '../lib/user/internalGraphql';
+import { RoleType } from '../lib/role/internalGraphql';
+import { buildUserRoleType } from '../lib/userRole/internalGraphql';
+
+import { toGlobalId, fromGlobalId } from './utils';
 
 import type { Context } from 'src/types';
 
@@ -24,7 +30,10 @@ import type { Context } from 'src/types';
  * usuario de la base.
  */
 const getViewer = async (ctx: Context): Promise<UserFields> => {
-  const [viewer] = await findAllUsers({});
+  const allUsers = await findAllUsers({});
+  const usersSorted = orderBy(allUsers, 'id');
+
+  const viewer = usersSorted[0];
 
   ctx.logger.info('Using viewer', viewer);
 
@@ -39,26 +48,48 @@ const getViewer = async (ctx: Context): Promise<UserFields> => {
   };
 };
 
+const UserRoleType = buildUserRoleType({
+  roleType: RoleType,
+  userType: UserType,
+  courseType: CourseType,
+});
+
 const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
   name: 'ViewerType',
   fields: {
-    id: { type: new GraphQLNonNull(GraphQLString) },
+    id: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: s =>
+        toGlobalId({
+          entityName: 'viewer',
+          dbId: String(s.id) as string,
+        }),
+    },
     name: { type: new GraphQLNonNull(GraphQLString) },
     lastName: { type: new GraphQLNonNull(GraphQLString) },
     file: { type: new GraphQLNonNull(GraphQLString) },
     active: { type: new GraphQLNonNull(GraphQLBoolean) },
     githubId: { type: new GraphQLNonNull(GraphQLString) },
     notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
+    userRoles: {
+      type: new GraphQLList(UserRoleType),
+      description: 'User user roles',
+      resolve: async viewer => {
+        return findAllUserRoles({ forUserId: viewer.id });
+      },
+    },
     findCourse: {
-      args: { id: { type: new GraphQLNonNull(GraphQLInt) } },
+      args: { id: { type: new GraphQLNonNull(GraphQLString) } },
       description: 'Finds a course for the viewer',
       type: CourseType,
       resolve: async (viewer, args, { logger }) => {
-        logger.info('Finding course', { courseId: args.id });
+        const { dbId: courseId } = fromGlobalId(args.id);
 
-        const course = await findCourse({ courseId: args.id });
+        logger.info('Finding course', { courseId });
+
+        const course = await findCourse({ courseId });
         const userRole = await findUserRoleInCourse({
-          courseId: args.id,
+          courseId: Number(courseId),
           userId: viewer.id as number,
         });
 
@@ -66,24 +97,6 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
           ...course,
           roleId: userRole.roleId,
         };
-      },
-    },
-    courses: {
-      type: new GraphQLNonNull(new GraphQLList(CourseSummaryType)),
-      resolve: async viewer => {
-        const userRoles = await findAllUserRoles({ forUserId: viewer.userId });
-
-        return Promise.all(
-          userRoles.map(async userRole => {
-            // @ts-expect-error: TODO. Mejorar tema de tipos con modelos. Esto no es opcional.
-            const course = await findCourse({ courseId: userRole.courseId });
-
-            return {
-              ...course,
-              roleId: userRole.roleId,
-            };
-          })
-        );
       },
     },
   },
