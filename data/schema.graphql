@@ -3,7 +3,6 @@ schema {
   mutation: RootMutationType
 }
 
-"""Courses viewer belongs belongs to"""
 type CourseType {
   active: Boolean!
   id: String!
@@ -46,9 +45,8 @@ type SubjectType {
   name: String
 }
 
-""""""
 type UserRoleType {
-  active: Boolean
+  active: Boolean!
   course: CourseType
   id: String
   role: RoleType
@@ -64,7 +62,6 @@ type UserType {
   lastName: String
   name: String
   notificationEmail: String
-  userRoles: [UserRoleType]
 }
 
 type ViewerType {

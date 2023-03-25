@@ -7,11 +7,12 @@ import {
   GraphQLNonNull,
 } from 'graphql';
 
-import { RoleType } from '../role/internalGraphql';
 import { SubjectType } from '../subject/internalGraphql';
+import { RoleType } from '../role/internalGraphql';
+import { UserType } from '../user/internalGraphql';
+import { buildUserRoleType } from '../userRole/internalGraphql';
 
 import { findSubject } from '../subject/subjectService';
-import { findRole } from '../role/roleService';
 import { findAllUserRoles } from '../userRole/userRoleService';
 
 import { toGlobalId } from '../../graphql/utils';
@@ -22,9 +23,12 @@ import type { CourseFields } from './courseService';
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
     name: 'CourseType',
-    description: 'Courses viewer belongs belongs to',
     fields: () => {
-      const UserRoleType = require('../userRole/internalGraphql').UserRoleType;
+      const UserRoleType = buildUserRoleType({
+        roleType: RoleType,
+        userType: UserType,
+        courseType: CourseType,
+      });
 
       return {
         id: {
@@ -62,41 +66,3 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
     },
   }
 );
-
-export const CourseSummaryType: GraphQLObjectType<CourseFields, Context> =
-  new GraphQLObjectType({
-    name: 'CourseSummaryType',
-    description: 'Summary of courses viewer belongs belongs to',
-    fields: {
-      id: {
-        type: new GraphQLNonNull(GraphQLString),
-        resolve: course => {
-          return toGlobalId({
-            entityName: 'courseSummaryType',
-            dbId: String(course.id) as string,
-          });
-        },
-      },
-      name: { type: new GraphQLNonNull(GraphQLString) },
-      period: { type: new GraphQLNonNull(GraphQLInt) },
-      year: { type: new GraphQLNonNull(GraphQLInt) },
-      role: {
-        type: new GraphQLNonNull(RoleType),
-        description: 'Role the user has within a course',
-        resolve: async (userCourse, _) => {
-          const { roleId } = userCourse;
-
-          const role = await findRole({ roleId });
-          return role;
-        },
-      },
-      subject: {
-        type: new GraphQLNonNull(SubjectType),
-        description: 'Subject the course belongs to',
-        resolve: async ({ subjectId }) => {
-          const subject = await findSubject({ subjectId: String(subjectId) });
-          return subject;
-        },
-      },
-    },
-  });

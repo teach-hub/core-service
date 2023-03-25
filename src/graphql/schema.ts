@@ -14,8 +14,10 @@ import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRole
 import { findCourse } from '../lib/course/courseService';
 
 import { userMutations } from '../lib/user/internalGraphql';
-import { CourseType, CourseSummaryType } from '../lib/course/internalGraphql';
-import { UserRoleType } from '../lib/userRole/internalGraphql';
+import { CourseType } from '../lib/course/internalGraphql';
+import { UserType } from '../lib/user/internalGraphql';
+import { RoleType } from '../lib/role/internalGraphql';
+import { buildUserRoleType } from '../lib/userRole/internalGraphql';
 
 import { toGlobalId, fromGlobalId } from './utils';
 
@@ -46,6 +48,12 @@ const getViewer = async (ctx: Context): Promise<UserFields> => {
   };
 };
 
+const UserRoleType = buildUserRoleType({
+  roleType: RoleType,
+  userType: UserType,
+  courseType: CourseType,
+});
+
 const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
   name: 'ViewerType',
   fields: {
@@ -71,9 +79,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
       },
     },
     findCourse: {
-      args: {
-        id: { type: new GraphQLNonNull(GraphQLString) },
-      },
+      args: { id: { type: new GraphQLNonNull(GraphQLString) } },
       description: 'Finds a course for the viewer',
       type: CourseType,
       resolve: async (viewer, args, { logger }) => {
