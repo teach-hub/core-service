@@ -14,6 +14,7 @@ import { buildUserRoleType } from '../userRole/internalGraphql';
 
 import { findSubject } from '../subject/subjectService';
 import { findAllUserRoles } from '../userRole/userRoleService';
+import { findAllAssignments } from '../assignment/assignmentService';
 
 import { toGlobalId } from '../../graphql/utils';
 
@@ -60,6 +61,17 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
               ? await findSubject({ subjectId: String(subjectId) })
               : null;
             return subject;
+          },
+        },
+        assignments: {
+          type: new GraphQLList(SubjectType),
+          description: 'Assignments within the course',
+          resolve: async ({ id: courseId }) => {
+            const assignments = courseId
+              ? await findAllAssignments({ forCourseId: courseId })
+              : null;
+
+            return assignments;
           },
         },
       };

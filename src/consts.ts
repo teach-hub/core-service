@@ -9,6 +9,7 @@ export const DatabaseConstants = {
     USER: 'users',
     ROLE: 'roles',
     USER_ROLE: 'user_roles',
+    ASSIGNMENT: 'assignment',
   },
 };
 
@@ -22,7 +23,6 @@ export const DatabaseConstants = {
  *
  * Disclaimer: esto podria centralizarse en algun lugar (back o front) pero
  * a falta de mejor opcion actualmente vive en ambos (backoffice + aca).
- *
  */
 
 export const ALL_PERMISSIONS = ['view_home', 'view_user', 'edit_user', 'edit_subject'];

@@ -5,6 +5,9 @@ schema {
 
 type CourseType {
   active: Boolean!
+
+  """Assignments within the course"""
+  assignments: [SubjectType]
   id: String!
   name: String!
   organization: String!
