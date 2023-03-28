@@ -22,6 +22,7 @@ import { buildUserRoleType } from '../lib/userRole/internalGraphql';
 import { toGlobalId, fromGlobalId } from './utils';
 
 import type { Context } from 'src/types';
+import { authMutations } from '../lib/auth/graphql';
 
 /**
  * Funcion totalmente dummy hasta que implementemos la autenticacion.
@@ -119,6 +120,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   description: 'Root mutation',
   fields: {
     ...userMutations,
+    ...authMutations,
   },
 });
 
