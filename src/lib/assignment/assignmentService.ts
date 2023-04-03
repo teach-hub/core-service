@@ -3,7 +3,7 @@ import AssignmentModel from './assignmentModel';
 import { Nullable, Optional } from '../../types';
 import { IModelFields, ModelAttributes } from '../../sequelize/types';
 
-import { findAllModels } from '../../sequelize/serviceUtils';
+import { findModel, findAllModels } from '../../sequelize/serviceUtils';
 
 import UserRoleModel from '../userRole/userRoleModel';
 
@@ -39,4 +39,12 @@ export async function findAllAssignments(
   };
 
   return findAllModels(AssignmentModel, options, buildModelFields, whereClause);
+}
+
+export async function findAssignment({
+  assignmentId,
+}: {
+  assignmentId: string;
+}): Promise<AssignmentFields> {
+  return findModel(AssignmentModel, buildModelFields, { id: Number(assignmentId) });
 }

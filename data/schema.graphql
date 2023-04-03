@@ -16,6 +16,9 @@ type CourseType {
 
   """Assignments within the course"""
   assignments: [AssignmentType!]!
+
+  """Finds an assignment for a specific course"""
+  findAssignment(id: String!): AssignmentType
   id: String!
   name: String!
   organization: String!
