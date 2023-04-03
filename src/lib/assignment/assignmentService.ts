@@ -1,7 +1,7 @@
 import { OrderingOptions } from '../../utils';
 import AssignmentModel from './assignmentModel';
 import { Nullable, Optional } from '../../types';
-import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
+import { IModelFields, ModelAttributes } from '../../sequelize/types';
 
 import { findAllModels } from '../../sequelize/serviceUtils';
 
@@ -12,6 +12,7 @@ interface AssignmentFields extends IModelFields, ModelAttributes<AssignmentModel
   startDate: Optional<Date>;
   endDate: Optional<Date>;
   link: Optional<string>;
+  title: Optional<string>;
 }
 
 const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFields => {
@@ -20,16 +21,22 @@ const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFiel
     link: assignment?.link,
     startDate: assignment?.startDate,
     endDate: assignment?.endDate,
+    title: assignment?.title,
   };
 };
 
 type FindAssignmentsFilter = OrderingOptions & {
-  forUserId?: UserRoleModel['userId'];
   forCourseId?: UserRoleModel['courseId'];
 };
 
 export async function findAllAssignments(
   options: FindAssignmentsFilter
 ): Promise<AssignmentFields[]> {
-  return findAllModels(AssignmentModel, options, buildModelFields);
+  const { forCourseId } = options;
+
+  const whereClause = {
+    ...(forCourseId ? { courseId: forCourseId } : {}),
+  };
+
+  return findAllModels(AssignmentModel, options, buildModelFields, whereClause);
 }

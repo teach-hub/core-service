@@ -7,6 +7,7 @@ class AssignmentModel extends Sequelize.Model {
   readonly startDate!: Date;
   readonly endDate!: Date;
   readonly link!: string;
+  readonly title!: string;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return AssignmentModel.init(
@@ -27,6 +28,10 @@ class AssignmentModel extends Sequelize.Model {
           field: 'end_date',
         },
         link: {
+          type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        title: {
           type: Sequelize.TEXT,
           allowNull: false,
         },

@@ -7,7 +7,8 @@ BEGIN;
     course_id             INTEGER REFERENCES teachhub.courses(id) NOT NULL,
     start_date            DATE,
     end_date              DATE,
-    link                  TEXT
+    link                  TEXT,
+    title                 TEXT
   );
 
 COMMIT;

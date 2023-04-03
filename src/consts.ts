@@ -9,7 +9,7 @@ export const DatabaseConstants = {
     USER: 'users',
     ROLE: 'roles',
     USER_ROLE: 'user_roles',
-    ASSIGNMENT: 'assignment',
+    ASSIGNMENT: 'assignments',
   },
 };
 

@@ -3,7 +3,7 @@
 BEGIN;
 
 SELECT
-  id, course_id, start_date, end_date, link
+  id, course_id, start_date, end_date, link, title
 FROM teachhub.assignments
 WHERE false;
 

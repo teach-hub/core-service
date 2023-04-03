@@ -10,6 +10,7 @@ import {
 import { SubjectType } from '../subject/internalGraphql';
 import { RoleType } from '../role/internalGraphql';
 import { UserType } from '../user/internalGraphql';
+import { AssignmentType } from '../assignment/internalGraphql';
 import { buildUserRoleType } from '../userRole/internalGraphql';
 
 import { findSubject } from '../subject/subjectService';
@@ -64,12 +65,12 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
           },
         },
         assignments: {
-          type: new GraphQLList(SubjectType),
+          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(AssignmentType))),
           description: 'Assignments within the course',
           resolve: async ({ id: courseId }) => {
             const assignments = courseId
               ? await findAllAssignments({ forCourseId: courseId })
-              : null;
+              : [];
 
             return assignments;
           },
