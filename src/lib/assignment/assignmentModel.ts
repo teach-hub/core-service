@@ -19,12 +19,10 @@ class AssignmentModel extends Sequelize.Model {
         },
         startDate: {
           type: Sequelize.DATE,
-          allowNull: false,
           field: 'start_date',
         },
         endDate: {
           type: Sequelize.DATE,
-          allowNull: false,
           field: 'end_date',
         },
         link: {
