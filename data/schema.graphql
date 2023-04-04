@@ -3,8 +3,22 @@ schema {
   mutation: RootMutationType
 }
 
+type AssignmentType {
+  endDate: String
+  id: String!
+  link: String
+  startDate: String
+  title: String
+}
+
 type CourseType {
   active: Boolean!
+
+  """Assignments within the course"""
+  assignments: [AssignmentType!]!
+
+  """Finds an assignment for a specific course"""
+  findAssignment(id: String!): AssignmentType
   id: String!
   name: String!
   organization: String!

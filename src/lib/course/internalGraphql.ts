@@ -10,12 +10,15 @@ import {
 import { SubjectType } from '../subject/internalGraphql';
 import { RoleType } from '../role/internalGraphql';
 import { UserType } from '../user/internalGraphql';
+import { AssignmentType } from '../assignment/internalGraphql';
 import { buildUserRoleType } from '../userRole/internalGraphql';
 
 import { findSubject } from '../subject/subjectService';
+import { findAssignment } from '../assignment/assignmentService';
 import { findAllUserRoles } from '../userRole/userRoleService';
+import { findAllAssignments } from '../assignment/assignmentService';
 
-import { toGlobalId } from '../../graphql/utils';
+import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
 import type { Context } from 'src/types';
 import type { CourseFields } from './courseService';
@@ -60,6 +63,31 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
               ? await findSubject({ subjectId: String(subjectId) })
               : null;
             return subject;
+          },
+        },
+        assignments: {
+          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(AssignmentType))),
+          description: 'Assignments within the course',
+          resolve: async ({ id: courseId }) => {
+            const assignments = courseId
+              ? await findAllAssignments({ forCourseId: courseId })
+              : [];
+
+            return assignments;
+          },
+        },
+        findAssignment: {
+          args: { id: { type: new GraphQLNonNull(GraphQLString) } },
+          description: 'Finds an assignment for a specific course',
+          type: AssignmentType,
+          resolve: async (course, args, { logger }) => {
+            const { dbId: assignmentId } = fromGlobalId(args.id);
+
+            logger.info('Finding assignment', { assignmentId });
+
+            const assignment = await findAssignment({ assignmentId });
+
+            return assignment;
           },
         },
       };
