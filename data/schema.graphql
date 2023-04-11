@@ -37,6 +37,11 @@ type Login {
   token: String
 }
 
+"""Logout data"""
+type Logout {
+  token: String
+}
+
 type RoleType {
   active: Boolean
   id: String
@@ -49,6 +54,9 @@ type RoleType {
 type RootMutationType {
   """Login user"""
   login(code: String): Login
+
+  """Logout user"""
+  logout(token: String): Logout
 
   """Updates a user"""
   updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: String!): UserType
