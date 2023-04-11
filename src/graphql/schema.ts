@@ -1,40 +1,37 @@
 import {
+  GraphQLBoolean,
+  GraphQLList,
   GraphQLNonNull,
+  GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
-  GraphQLBoolean,
-  GraphQLObjectType,
-  GraphQLList,
 } from 'graphql';
 
-import { orderBy } from 'lodash';
-
-import { UserFields, findAllUsers } from '../lib/user/userService';
+import { UserFields } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
 
-import { userMutations } from '../lib/user/internalGraphql';
+import { userMutations, UserType } from '../lib/user/internalGraphql';
 import { CourseType } from '../lib/course/internalGraphql';
-import { UserType } from '../lib/user/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
 import { buildUserRoleType } from '../lib/userRole/internalGraphql';
 
-import { toGlobalId, fromGlobalId } from './utils';
+import { fromGlobalId, toGlobalId } from './utils';
 
 import type { Context } from 'src/types';
 import { authMutations } from '../lib/auth/graphql';
+import { getToken } from '../requestUtils';
+import { getAuthenticatedUserFromToken } from '../utils/userUtils';
 
-/**
- * Funcion totalmente dummy hasta que implementemos la autenticacion.
- * Una vez que tengamos eso vamos a poder tener una idea de cual es el
- * usuario logeado. Hasta entonces devolvemos simplemente el primer
- * usuario de la base.
- */
 const getViewer = async (ctx: Context): Promise<UserFields> => {
-  const allUsers = await findAllUsers({});
-  const usersSorted = orderBy(allUsers, 'id');
+  const token = getToken(ctx);
+  if (!token) throw new Error('No token provided');
 
-  const viewer = usersSorted[0];
+  const viewer = await getAuthenticatedUserFromToken(token);
+  if (!viewer) {
+    ctx.logger.error(`No user found for token ${token}`);
+    throw new Error('Internal server error');
+  }
 
   ctx.logger.info('Using viewer', viewer);
 
