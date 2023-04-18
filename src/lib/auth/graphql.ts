@@ -1,18 +1,24 @@
 import {
+  GraphQLBoolean,
+  GraphQLFieldConfigMap,
   GraphQLID,
-  GraphQLString,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLFieldConfigMap,
+  GraphQLString,
 } from 'graphql';
 import type { Context } from '../../types';
 import { exchangeCodeForToken, revokeToken } from '../../github/auth';
+import { getGithubUserIdFromGithubToken } from '../../github/githubUser';
+import { existsUserWithGitHubId } from '../user/userService';
+import { createToken } from '../../tokens/jwt';
+import logger from '../../logger';
 
 export const Login: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Login',
   description: 'Authenticated data',
   fields: {
     token: { type: GraphQLString },
+    userRegistered: { type: GraphQLBoolean },
   },
 });
 
@@ -34,8 +40,20 @@ export const authMutations: GraphQLFieldConfigMap<unknown, Context> = {
     resolve: async (_, args, __) => {
       const { code } = args;
 
+      const githubToken = await exchangeCodeForToken(code);
+      const githubId = await getGithubUserIdFromGithubToken(githubToken);
+
+      const userExists = await existsUserWithGitHubId(githubId);
+
+      logger.info(
+        `Logging in user with githubId ${githubId}. User exists: ${userExists}`
+      );
       return {
-        token: await exchangeCodeForToken(code),
+        token: createToken({
+          githubToken,
+          userExists,
+        }),
+        userRegistered: userExists,
       };
     },
   },

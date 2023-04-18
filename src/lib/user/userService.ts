@@ -14,6 +14,7 @@ import {
 import { Op } from 'sequelize';
 
 import { findAllUserRoles } from '../userRole/userRoleService';
+import { isDefinedAndNotEmpty } from '../../utils/objectUtils';
 
 export interface UserFields extends IModelFields, ModelAttributes<UserModel> {
   id: Optional<number>;
@@ -35,7 +36,19 @@ const buildModelFields = (user: Nullable<UserModel>): UserFields => ({
   notificationEmail: user?.notificationEmail,
 });
 
-const buildQuery = (id: string): ModelWhereQuery<UserModel> => ({ id: Number(id) });
+const buildQuery = ({
+  id,
+  githubId,
+}: {
+  id?: Optional<string>;
+  githubId?: Optional<string>;
+}): ModelWhereQuery<UserModel> => {
+  const query: ModelWhereQuery<UserModel> = {};
+  if (id) query.id = Number(id);
+  if (githubId) query.githubId = githubId;
+
+  return query;
+};
 
 const validate = async (data: UserFields) => {
   const githubIdAlreadyUsed = await existsModel(UserModel, {
@@ -54,13 +67,27 @@ export async function createUser(data: UserFields): Promise<UserFields> {
 
 export const updateUser = async (id: string, data: UserFields): Promise<UserFields> => {
   await validate(data);
-  return updateModel(UserModel, data, buildModelFields, buildQuery(id));
-}
+  return updateModel(UserModel, data, buildModelFields, buildQuery({ id }));
+};
 
 export const countUsers = (): Promise<number> => countModels<UserModel>(UserModel);
 
+const findUserByQuery = async (
+  query: ModelWhereQuery<UserModel>
+): Promise<UserFields> => {
+  return findModel(UserModel, buildModelFields, query);
+};
 export const findUser = async ({ userId }: { userId: string }): Promise<UserFields> => {
-  return findModel(UserModel, buildModelFields, buildQuery(userId));
+  return findUserByQuery(buildQuery({ id: userId }));
+};
+
+export const findUserWithGithubId = async (githubId: string): Promise<UserFields> => {
+  return findUserByQuery(buildQuery({ githubId }));
+};
+
+export const existsUserWithGitHubId = async (githubId: string): Promise<boolean> => {
+  const user = await findUserWithGithubId(githubId);
+  return isDefinedAndNotEmpty(user);
 };
 
 export const findUsersInCourse = async ({

@@ -1,16 +1,24 @@
 import {
-  GraphQLString,
   GraphQLBoolean,
+  GraphQLFieldConfigMap,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLFieldConfigMap,
+  GraphQLString,
 } from 'graphql';
 
-import { UserFields, updateUser } from './userService';
+import {
+  createUser,
+  existsUserWithGitHubId,
+  updateUser,
+  UserFields,
+} from './userService';
 
-import { toGlobalId, fromGlobalId } from '../../graphql/utils';
+import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
 import type { Context } from '../../types';
+import { getToken } from '../../requestUtils';
+import { createRegisteredUserTokenFromJwt, isRegisterToken } from '../../tokens/jwt';
+import { getGithubUserId } from '../../github/githubUser';
 
 export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
   name: 'UserType',
@@ -30,6 +38,14 @@ export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjec
     notificationEmail: { type: GraphQLString },
     file: { type: GraphQLString },
     githubId: { type: GraphQLString },
+  },
+});
+
+const RegisterType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
+  name: 'RegisterType',
+  description: 'Registered user data',
+  fields: {
+    token: { type: GraphQLString },
   },
 });
 
@@ -54,6 +70,52 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       // @ts-expect-error
       const updatedUser = await updateUser(dbId, rest);
       return updatedUser;
+    },
+  },
+  registerUser: {
+    type: RegisterType,
+    description: 'Creates a user and authorizes it',
+    args: {
+      name: { type: GraphQLString },
+      lastName: { type: GraphQLString },
+      file: { type: GraphQLString },
+      notificationEmail: { type: GraphQLString },
+    },
+    resolve: async (_, args, ctx) => {
+      const { name, lastName, file, notificationEmail } = args;
+
+      const token = getToken(ctx);
+
+      /* Check that token exists and is for user registration */
+      if (!token) throw new Error('Token required');
+      if (!isRegisterToken({ token })) throw new Error('Invalid token for registration');
+
+      /* Get GitHub user id from the token and check that no user exists with that id*/
+      const githubId = await getGithubUserId(token);
+
+      if (await existsUserWithGitHubId(githubId))
+        throw new Error('GitHub user already registered');
+
+      ctx.logger.info(
+        `Registering user with githubId ${githubId} and args ${JSON.stringify(args)}`
+      );
+
+      const userData: UserFields = {
+        id: undefined,
+        active: true,
+        githubId,
+        name,
+        lastName,
+        notificationEmail,
+        file,
+      };
+
+      /* Create new user and return token from a registered user */
+      await createUser(userData);
+
+      return {
+        token: createRegisteredUserTokenFromJwt({ token }),
+      };
     },
   },
 };

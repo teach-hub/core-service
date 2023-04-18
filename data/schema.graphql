@@ -35,10 +35,16 @@ type CourseType {
 """Authenticated data"""
 type Login {
   token: String
+  userRegistered: Boolean
 }
 
 """Logout data"""
 type Logout {
+  token: String
+}
+
+"""Registered user data"""
+type RegisterType {
   token: String
 }
 
@@ -57,6 +63,9 @@ type RootMutationType {
 
   """Logout user"""
   logout(token: String): Logout
+
+  """Creates a user and authorizes it"""
+  registerUser(file: String, lastName: String, name: String, notificationEmail: String): RegisterType
 
   """Updates a user"""
   updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: String!): UserType

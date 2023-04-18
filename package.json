@@ -27,16 +27,18 @@
   "homepage": "https://github.com/teach-hub/core-service#readme",
   "description": "",
   "dependencies": {
+    "@octokit/oauth-app": "^4.2.0",
+    "@octokit/rest": "^19.0.7",
     "@types/lodash": "^4.14.191",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "express-graphql": "^0.12.0",
     "graphql": "^15.8.0",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.25.3",
-    "winston": "^3.8.2",
-    "@octokit/oauth-app": "^4.2.0"
+    "winston": "^3.8.2"
   }
 }
