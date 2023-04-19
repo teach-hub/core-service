@@ -37,8 +37,10 @@ export const authMutations: GraphQLFieldConfigMap<unknown, Context> = {
     args: {
       code: { type: GraphQLString },
     },
-    resolve: async (_, args, __) => {
+    resolve: async (_, args, { logger }) => {
       const { code } = args;
+
+      logger.info(`Getting token for code ${code}`);
 
       const githubToken = await exchangeCodeForToken(code);
       const githubId = await getGithubUserIdFromGithubToken(githubToken);

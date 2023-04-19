@@ -3,9 +3,7 @@ import logger from '../logger';
 import * as OAuthMethods from '@octokit/oauth-methods';
 
 export const exchangeCodeForToken = async (code: string): Promise<string> => {
-  const { authentication } = await githubOAuthApp.createToken({
-    code: code,
-  });
+  const { authentication } = await githubOAuthApp.createToken({ code });
 
   return authentication.token;
 };

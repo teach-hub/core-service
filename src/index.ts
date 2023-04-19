@@ -4,15 +4,15 @@ import express from 'express';
 import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
+// Cargamos todas las variables de entorno.
+dotenv.config();
+
 import logger from './logger';
 
 import { writeSchema, checkDB, initializeDB } from './utils';
 
 import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
-
-// Cargamos todas las variables de entorno.
-dotenv.config();
 
 const app = express();
 
