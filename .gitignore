@@ -2,3 +2,4 @@
 /dist
 sqitch.conf
 .idea
+.env

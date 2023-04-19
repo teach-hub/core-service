@@ -23,6 +23,13 @@ Para crear una migración nos paramos en la carpeta `db` en `src`. Una vez allí
 
 ## Instalar hooks pre-commit
 
-
 Los hooks pre-commit deberian instalarse con `npx husky install`
 
+## Bootstrap general
+
+Asegurarse de tener `npm` instalado. Correr:
+
+ - `npm install`
+ - `cp .env.example .env`
+ - `npm run db`
+ - `npm start`

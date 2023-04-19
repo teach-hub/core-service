@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
@@ -10,7 +11,8 @@ import { writeSchema, checkDB, initializeDB } from './utils';
 import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
 
-const port = process.env.PORT || 4000;
+// Cargamos todas las variables de entorno.
+dotenv.config();
 
 const app = express();
 
@@ -56,6 +58,8 @@ app.get('/healthz', async (_, response) => {
 app.get('/', (_, res) => {
   res.send('Welcome to TeachHub!');
 });
+
+const port = process.env.PORT || 4000;
 
 app.listen(port, () => {
   logger.info(`Server listening on: ${port}`);
