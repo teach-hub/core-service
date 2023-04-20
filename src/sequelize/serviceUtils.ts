@@ -37,10 +37,9 @@ export const findAllModels = async <T extends Model, U extends IModelFields>(
 };
 
 export const countModels = async <T extends Model>(
-  sequelizeModel: ModelStatic<T>
-): Promise<number> => {
-  return sequelizeModel.count({});
-};
+  sequelizeModel: ModelStatic<T>,
+  whereQuery: ModelWhereQuery<T> = {}
+): Promise<number> => sequelizeModel.count({ where: whereQuery });
 
 export const findModel = async <T extends Model, U extends IModelFields>(
   sequelizeModel: ModelStatic<T>,
@@ -54,15 +53,13 @@ export const findModel = async <T extends Model, U extends IModelFields>(
   return buildModelObject(model);
 };
 
-export const existsModel = async <T extends Model, U extends IModelFields>(
+export const existsModel = async <T extends Model>(
   sequelizeModel: ModelStatic<T>,
   whereQuery: ModelWhereQuery<T>
 ): Promise<boolean> => {
-  const [model] = await Promise.all([
-    sequelizeModel.findOne({
-      where: whereQuery,
-    }),
-  ]);
+  const model = await sequelizeModel.findOne({
+    where: whereQuery,
+  });
 
   return model !== null;
 };

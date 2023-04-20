@@ -68,8 +68,7 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       ctx.logger.info('Executing updateUser mutation with values', args);
 
       // @ts-expect-error
-      const updatedUser = await updateUser(dbId, rest);
-      return updatedUser;
+      return updateUser(dbId, rest);
     },
   },
   registerUser: {

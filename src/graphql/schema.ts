@@ -72,9 +72,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
     userRoles: {
       type: new GraphQLList(UserRoleType),
       description: 'User user roles',
-      resolve: async viewer => {
-        return findAllUserRoles({ forUserId: viewer.id });
-      },
+      resolve: async viewer => findAllUserRoles({ forUserId: viewer.id }),
     },
     findCourse: {
       args: { id: { type: new GraphQLNonNull(GraphQLString) } },

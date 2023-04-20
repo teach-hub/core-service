@@ -62,20 +62,14 @@ export async function updateSubject(
   return updateModel(Subject, fixData(data), buildModelFields, buildQuery(id));
 }
 
-export async function countSubjects(): Promise<number> {
-  return countModels<Subject>(Subject);
-}
+export const countSubjects = async (): Promise<number> => countModels<Subject>(Subject);
 
-export async function findSubject({
+export const findSubject = async ({
   subjectId,
 }: {
   subjectId: string;
-}): Promise<SubjectFields> {
-  return findModel(Subject, buildModelFields, buildQuery(subjectId));
-}
+}): Promise<SubjectFields> => findModel(Subject, buildModelFields, buildQuery(subjectId));
 
-export async function findAllSubjects(
+export const findAllSubjects = async (
   options: OrderingOptions
-): Promise<SubjectFields[]> {
-  return findAllModels(Subject, options, buildModelFields);
-}
+): Promise<SubjectFields[]> => findAllModels(Subject, options, buildModelFields);
