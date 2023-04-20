@@ -50,23 +50,27 @@ const buildQuery = ({
   return query;
 };
 
-const validate = async (data: UserFields) => {
-  const githubIdAlreadyUsed = await existsModel(UserModel, {
-    githubId: data.githubId,
-  });
-
-  if (githubIdAlreadyUsed) throw new Error('Github id already used');
-};
-
 export async function createUser(data: UserFields): Promise<UserFields> {
   data.active = true; // Always create active
 
-  await validate(data);
+  const githubIdAlreadyUsed = await existsModel(UserModel, { githubId: data.githubId });
+
+  if (githubIdAlreadyUsed) {
+    throw new Error('Github ID already used');
+  }
+
   return createModel(UserModel, data, buildModelFields);
 }
 
 export const updateUser = async (id: string, data: UserFields): Promise<UserFields> => {
-  await validate(data);
+  // Buscamos si algun usuario existente tiene un id diferente al usuario.
+  // Es decir si el github id va a colisionar con alguien mas.
+  const collidingUser = await findUserByQuery({ githubId: data.githubId });
+
+  if (collidingUser.id != Number(id)) {
+    throw new Error('Github ID already used');
+  }
+
   return updateModel(UserModel, data, buildModelFields, buildQuery({ id }));
 };
 
@@ -77,6 +81,7 @@ const findUserByQuery = async (
 ): Promise<UserFields> => {
   return findModel(UserModel, buildModelFields, query);
 };
+
 export const findUser = async ({ userId }: { userId: string }): Promise<UserFields> => {
   return findUserByQuery(buildQuery({ id: userId }));
 };
