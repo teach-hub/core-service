@@ -16,7 +16,8 @@ import {
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
 import type { Context } from '../../types';
-import { getToken } from '../../requestUtils';
+import { getToken } from '../../utils/requestUtils';
+import { getAuthenticatedUserFromToken } from '../../utils/userUtils';
 import { createRegisteredUserTokenFromJwt, isRegisterToken } from '../../tokens/jwt';
 import { getGithubUserId } from '../../github/githubUser';
 
@@ -117,4 +118,27 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       };
     },
   },
+};
+
+export const getViewer = async (ctx: Context): Promise<UserFields> => {
+  const token = getToken(ctx);
+  if (!token) throw new Error('No token provided');
+
+  const viewer = await getAuthenticatedUserFromToken(token);
+  if (!viewer) {
+    ctx.logger.error(`No user found for token ${token}`);
+    throw new Error('Internal server error');
+  }
+
+  ctx.logger.info('Using viewer', viewer);
+
+  return {
+    id: viewer.id,
+    githubId: viewer.githubId,
+    name: viewer.name,
+    lastName: viewer.lastName,
+    notificationEmail: viewer.notificationEmail,
+    file: viewer.file,
+    active: viewer.active,
+  };
 };

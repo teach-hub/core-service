@@ -11,8 +11,8 @@ import { UserFields } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
 
-import { userMutations, UserType } from '../lib/user/internalGraphql';
-import { inviteMutations } from '../lib/invites/internalGraphql';
+import { getViewer, userMutations, UserType } from '../lib/user/internalGraphql';
+import { inviteMutations } from '../lib/invite/internalGraphql';
 import { authMutations } from '../lib/auth/graphql';
 import { CourseType } from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
@@ -21,31 +21,6 @@ import { buildUserRoleType } from '../lib/userRole/internalGraphql';
 import { fromGlobalId, toGlobalId } from './utils';
 
 import type { Context } from 'src/types';
-import { getToken } from '../requestUtils';
-import { getAuthenticatedUserFromToken } from '../utils/userUtils';
-
-const getViewer = async (ctx: Context): Promise<UserFields> => {
-  const token = getToken(ctx);
-  if (!token) throw new Error('No token provided');
-
-  const viewer = await getAuthenticatedUserFromToken(token);
-  if (!viewer) {
-    ctx.logger.error(`No user found for token ${token}`);
-    throw new Error('Internal server error');
-  }
-
-  ctx.logger.info('Using viewer', viewer);
-
-  return {
-    id: viewer.id,
-    githubId: viewer.githubId,
-    name: viewer.name,
-    lastName: viewer.lastName,
-    notificationEmail: viewer.notificationEmail,
-    file: viewer.file,
-    active: viewer.active,
-  };
-};
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,

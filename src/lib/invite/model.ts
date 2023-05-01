@@ -17,7 +17,7 @@ class Invite extends Sequelize.Model {
           autoIncrement: true,
         },
         courseId: {
-          type: Sequelize.TEXT,
+          type: Sequelize.NUMBER,
           field: 'course_id',
           allowNull: false,
         },
@@ -34,13 +34,18 @@ class Invite extends Sequelize.Model {
       {
         sequelize: db,
         schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
-        tableName: DatabaseConstants.TABLES.ROLE,
+        tableName: DatabaseConstants.TABLES.INVITE,
         timestamps: false,
       }
     );
   };
 
-  static associate = () => {};
+  static associate = (models: any) => {
+    const { InviteModel, RoleModel, CourseModel } = models;
+
+    RoleModel.belongsTo(InviteModel, { foreignKey: 'role_id' });
+    CourseModel.belongsTo(InviteModel, { foreignKey: 'course_id' });
+  };
 }
 
 export default Invite;
