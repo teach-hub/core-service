@@ -1,6 +1,8 @@
 import InviteModel from './model';
 
-import { createUserRole } from '../userRole/userRoleService';
+import { UserRoleFields, createUserRole } from '../userRole/userRoleService';
+
+import type { UserFields } from '../user/userService';
 
 export const buildInvite = async ({
   courseId,
@@ -24,20 +26,22 @@ export const markInviteAsUsed = async ({
   viewer,
 }: {
   inviteId: string;
-  viewer: any;
-}) => {
+  viewer: UserFields;
+}): Promise<UserRoleFields> => {
   const invite = await InviteModel.findOne({ where: { id: Number(inviteId) } });
 
   if (!invite) {
     throw new Error('Invite not found');
   }
 
-  // @ts-expect-error
-  await createUserRole({
+  const userRole = await createUserRole({
     userId: viewer.id,
-    roleId: invite.roleId,
-    courseId: invite.courseId,
+    roleId: Number(invite.roleId),
+    courseId: Number(invite.courseId),
+    active: true,
   });
 
   await invite.update({ usedAt: new Date() });
+
+  return userRole;
 };

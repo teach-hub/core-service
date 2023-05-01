@@ -39,7 +39,7 @@ export const inviteMutations = {
   useInvite: {
     name: 'UseInvite',
     type: new GraphQLNonNull(GraphQLString),
-    description: 'Marks an invite as used returning the course',
+    description: 'Marks an invite as used returning the course id',
     args: {
       inviteId: {
         type: new GraphQLNonNull(GraphQLString),
@@ -53,7 +53,11 @@ export const inviteMutations = {
 
       context.logger.info('Marking invite as used', { inviteId });
 
-      await markInviteAsUsed({ inviteId, viewer });
+      const userRole = await markInviteAsUsed({ inviteId, viewer });
+
+      return {
+        courseId: toGlobalId({ dbId: String(userRole.courseId), entityName: 'role' }),
+      };
     },
   },
 };

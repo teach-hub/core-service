@@ -14,7 +14,7 @@ import { Nullable, Optional } from '../../types';
 import User from '../user/userModel';
 import Course from '../course/courseModel';
 
-interface UserRoleFields extends IModelFields, ModelAttributes<UserRoleModel> {
+export interface UserRoleFields extends IModelFields, ModelAttributes<UserRoleModel> {
   roleId: Optional<number>;
   userId: Optional<number>;
   courseId: Optional<number>;
