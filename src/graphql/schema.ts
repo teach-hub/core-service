@@ -12,6 +12,8 @@ import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRole
 import { findCourse } from '../lib/course/courseService';
 
 import { userMutations, UserType } from '../lib/user/internalGraphql';
+import { inviteMutations } from '../lib/invites/internalGraphql';
+import { authMutations } from '../lib/auth/graphql';
 import { CourseType } from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
 import { buildUserRoleType } from '../lib/userRole/internalGraphql';
@@ -19,7 +21,6 @@ import { buildUserRoleType } from '../lib/userRole/internalGraphql';
 import { fromGlobalId, toGlobalId } from './utils';
 
 import type { Context } from 'src/types';
-import { authMutations } from '../lib/auth/graphql';
 import { getToken } from '../requestUtils';
 import { getAuthenticatedUserFromToken } from '../utils/userUtils';
 
@@ -116,6 +117,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
   fields: {
     ...userMutations,
     ...authMutations,
+    ...inviteMutations,
   },
 });
 
