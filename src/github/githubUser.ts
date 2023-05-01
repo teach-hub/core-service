@@ -12,6 +12,7 @@ export const getGithubUserIdFromGithubToken = async (token: string): Promise<str
 
   return String(id);
 };
+
 export const getGithubUserId = async (jwt: string): Promise<string> => {
   const token = getGithubToken({ token: jwt });
   return getGithubUserIdFromGithubToken(token);

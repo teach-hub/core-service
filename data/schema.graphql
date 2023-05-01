@@ -58,6 +58,9 @@ type RoleType {
 
 """Root mutation"""
 type RootMutationType {
+  """Generates an invitation code"""
+  generateInvitationCode(courseId: String!, roleId: String!): String!
+
   """Login user"""
   login(code: String): Login
 
