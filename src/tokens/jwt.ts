@@ -1,4 +1,5 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import { get } from 'lodash';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fake-secret';
 
@@ -8,16 +9,18 @@ export const createToken = ({
 }: {
   githubToken: string;
   userExists: boolean;
-}) => {
-  return jwt.sign({ githubToken: githubToken, isRegisterToken: !userExists }, JWT_SECRET);
-};
+}): string => jwt.sign({ githubToken, isRegisterToken: !userExists }, JWT_SECRET);
 
 /**
  * Creates a new jwt, copying all the data from the
  * previous token but updating the register token
  * condition, as user should already exist
  * */
-export const createRegisteredUserTokenFromJwt = ({ token }: { token: string }) => {
+export const createRegisteredUserTokenFromJwt = ({
+  token,
+}: {
+  token: string;
+}): string => {
   return createToken({
     githubToken: getGithubToken({ token }),
     userExists: true,
@@ -28,12 +31,14 @@ export const createRegisteredUserTokenFromJwt = ({ token }: { token: string }) =
  * Checks whether the token is classified
  * as a token for registering a new user
  * */
-export const isRegisterToken = ({ token }: { token: string }) => {
+export const isRegisterToken = ({ token }: { token: string }): boolean => {
   const decoded = jwt.verify(token, JWT_SECRET);
-  return decoded.isRegisterToken;
+
+  return get(decoded, 'isRegisterToken') || false;
 };
 
-export const getGithubToken = ({ token }: { token: string }) => {
+export const getGithubToken = ({ token }: { token: string }): string => {
   const decoded = jwt.verify(token, JWT_SECRET);
-  return decoded.githubToken;
+
+  return get(decoded, 'githubToken') || 'invalid';
 };

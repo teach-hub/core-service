@@ -43,11 +43,27 @@ export const buildUserRoleType = ({
           },
           role: {
             type: roleType,
-            resolve: userRole => findRole({ roleId: String(userRole.roleId) }),
+            resolve: async (userRole, _, context) => {
+              try {
+                context.logger.info('Finding role for userRole', userRole);
+                return await findRole({ roleId: String(userRole.roleId) });
+              } catch (e) {
+                context.logger.error(e);
+                throw e;
+              }
+            },
           },
           course: {
             type: courseType,
-            resolve: userRole => findCourse({ courseId: String(userRole.courseId) }),
+            resolve: async (userRole, _, context) => {
+              try {
+                const result = await findCourse({ courseId: String(userRole.courseId) });
+                return result;
+              } catch (e) {
+                context.logger.error(e);
+                throw e;
+              }
+            },
           },
         },
       });

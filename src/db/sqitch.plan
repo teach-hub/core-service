@@ -9,3 +9,4 @@ create_users_table 2022-11-09T23:29:58Z Tomas Lopez Hidalgo <tlopez.contractor@l
 create_roles_table 2022-11-08T04:07:33Z Tomas Lopez Hidalgo <tlopez.contractor@lattice.com> # Agrega tabla de roles
 create_user_roles_table 2023-01-04T04:47:24Z Sebastian Penna <spenna@fi.uba.ar> # Create user roles table
 add_assignments_table 2023-03-27T22:44:33Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # Add assignments table
+add_invites_table 2023-05-01T17:36:59Z System Administrator <root@canada> # Add invites table

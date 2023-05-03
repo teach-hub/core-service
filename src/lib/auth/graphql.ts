@@ -1,8 +1,6 @@
 import {
   GraphQLBoolean,
   GraphQLFieldConfigMap,
-  GraphQLID,
-  GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
@@ -11,7 +9,6 @@ import { exchangeCodeForToken, revokeToken } from '../../github/auth';
 import { getGithubUserIdFromGithubToken } from '../../github/githubUser';
 import { existsUserWithGitHubId } from '../user/userService';
 import { createToken } from '../../tokens/jwt';
-import logger from '../../logger';
 
 export const Login: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Login',

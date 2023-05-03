@@ -1,4 +1,4 @@
-import { Context, Optional } from './types';
+import { Context, Optional } from '../types';
 
 export const getToken = (context: Context): Optional<string> => {
   /*

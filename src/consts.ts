@@ -10,6 +10,7 @@ export const DatabaseConstants = {
     ROLE: 'roles',
     USER_ROLE: 'user_roles',
     ASSIGNMENT: 'assignments',
+    INVITE: 'invites',
   },
 };
 

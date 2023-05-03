@@ -7,6 +7,7 @@ import UserModel from './lib/user/userModel';
 import RoleModel from './lib/role/roleModel';
 import UserRoleModel from './lib/userRole/userRoleModel';
 import AssignmentModel from './lib/assignment/assignmentModel';
+import InviteModel from './lib/invite/model';
 
 import logger from './logger';
 
@@ -25,6 +26,7 @@ const initializeDB = () => {
     RoleModel,
     UserRoleModel,
     AssignmentModel,
+    InviteModel,
   };
 
   // Esta magia inicializa los modelos de la base de datos. Basicamente

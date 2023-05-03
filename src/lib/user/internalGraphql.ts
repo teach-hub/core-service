@@ -9,6 +9,7 @@ import {
 import {
   createUser,
   existsUserWithGitHubId,
+  findUserWithGithubId,
   updateUser,
   UserFields,
 } from './userService';
@@ -16,9 +17,22 @@ import {
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
 import type { Context } from '../../types';
-import { getToken } from '../../requestUtils';
 import { createRegisteredUserTokenFromJwt, isRegisterToken } from '../../tokens/jwt';
 import { getGithubUserId } from '../../github/githubUser';
+
+import { getToken } from '../../utils/request';
+import { isDefinedAndNotEmpty } from '../../utils/object';
+
+export const getAuthenticatedUserFromToken = async (
+  token: string
+): Promise<UserFields | null> => {
+  const currentUserGithubId = await getGithubUserId(token);
+  const user = await findUserWithGithubId(currentUserGithubId);
+
+  if (isDefinedAndNotEmpty(user)) return user;
+
+  return null;
+};
 
 export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
   name: 'UserType',
@@ -50,27 +64,6 @@ const RegisterType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectTy
 });
 
 export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
-  updateUser: {
-    type: UserType,
-    description: 'Updates a user',
-    args: {
-      userId: { type: new GraphQLNonNull(GraphQLString) },
-      name: { type: GraphQLString },
-      lastName: { type: GraphQLString },
-      file: { type: GraphQLString },
-      githubId: { type: GraphQLString },
-      notificationEmail: { type: GraphQLString },
-    },
-    resolve: async (_, args, ctx) => {
-      const { userId, ...rest } = args;
-      const { dbId } = fromGlobalId(userId);
-
-      ctx.logger.info('Executing updateUser mutation with values', args);
-
-      // @ts-expect-error
-      return updateUser(dbId, rest);
-    },
-  },
   registerUser: {
     type: RegisterType,
     description: 'Creates a user and authorizes it',
@@ -92,8 +85,9 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       /* Get GitHub user id from the token and check that no user exists with that id*/
       const githubId = await getGithubUserId(token);
 
-      if (await existsUserWithGitHubId(githubId))
+      if (await existsUserWithGitHubId(githubId)) {
         throw new Error('GitHub user already registered');
+      }
 
       ctx.logger.info(
         `Registering user with githubId ${githubId} and args ${JSON.stringify(args)}`
@@ -117,4 +111,51 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       };
     },
   },
+  updateUser: {
+    type: UserType,
+    description: 'Updates a user',
+    args: {
+      userId: { type: new GraphQLNonNull(GraphQLString) },
+      name: { type: GraphQLString },
+      lastName: { type: GraphQLString },
+      file: { type: GraphQLString },
+      githubId: { type: GraphQLString },
+      notificationEmail: { type: GraphQLString },
+    },
+    resolve: async (_, args, ctx) => {
+      const { userId, ...rest } = args;
+      const { dbId } = fromGlobalId(userId);
+
+      ctx.logger.info('Executing updateUser mutation with values', args);
+
+      // @ts-expect-error
+      return updateUser(dbId, rest);
+    },
+  },
+};
+
+export const getViewer = async (ctx: Context): Promise<UserFields> => {
+  const token = getToken(ctx);
+
+  if (!token) {
+    throw new Error('No token provided');
+  }
+
+  const viewer = await getAuthenticatedUserFromToken(token);
+  if (!viewer) {
+    ctx.logger.error(`No user found for token ${token}`);
+    throw new Error('Internal server error');
+  }
+
+  ctx.logger.info('Using viewer', viewer);
+
+  return {
+    id: viewer.id,
+    githubId: viewer.githubId,
+    name: viewer.name,
+    lastName: viewer.lastName,
+    notificationEmail: viewer.notificationEmail,
+    file: viewer.file,
+    active: viewer.active,
+  };
 };

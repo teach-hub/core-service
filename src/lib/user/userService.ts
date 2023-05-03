@@ -14,7 +14,7 @@ import {
 import { Op } from 'sequelize';
 
 import { findAllUserRoles } from '../userRole/userRoleService';
-import { isDefinedAndNotEmpty } from '../../utils/objectUtils';
+import { isDefinedAndNotEmpty } from '../../utils/object';
 
 export interface UserFields extends IModelFields, ModelAttributes<UserModel> {
   id: Optional<number>;
