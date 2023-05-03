@@ -9,15 +9,7 @@ export const createToken = ({
 }: {
   githubToken: string;
   userExists: boolean;
-}): string => {
-  return jwt.sign(
-    {
-      githubToken: githubToken,
-      isRegisterToken: !userExists,
-    },
-    JWT_SECRET
-  );
-};
+}): string => jwt.sign({ githubToken, isRegisterToken: !userExists }, JWT_SECRET);
 
 /**
  * Creates a new jwt, copying all the data from the

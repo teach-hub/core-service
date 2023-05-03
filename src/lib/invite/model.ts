@@ -40,12 +40,7 @@ class Invite extends Sequelize.Model {
     );
   };
 
-  static associate = (models: any) => {
-    const { InviteModel, RoleModel, CourseModel } = models;
-
-    RoleModel.belongsTo(InviteModel, { foreignKey: 'role_id' });
-    CourseModel.belongsTo(InviteModel, { foreignKey: 'course_id' });
-  };
+  static associate = () => {};
 }
 
 export default Invite;

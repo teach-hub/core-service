@@ -1,4 +1,4 @@
-import { GraphQLNonNull, GraphQLString } from 'graphql';
+import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
 
 import { buildInvite, markInviteAsUsed } from './inviteService';
 import { toGlobalId, fromGlobalId } from '../../graphql/utils';
@@ -30,20 +30,22 @@ export const inviteMutations = {
 
       const invite = await buildInvite({ roleId, courseId });
 
-      // @ts-expect-error
-      const code = toGlobalId({ dbId: invite.id, entityName: 'invite' });
-
-      return code;
+      return toGlobalId({ dbId: String(invite.id), entityName: 'invite' });
     },
   },
   useInvite: {
     name: 'UseInvite',
-    type: new GraphQLNonNull(GraphQLString),
+    type: new GraphQLNonNull(
+      new GraphQLObjectType({
+        name: 'UseInviteResponse',
+        fields: {
+          courseId: { type: GraphQLString },
+        },
+      })
+    ),
     description: 'Marks an invite as used returning the course id',
     args: {
-      inviteId: {
-        type: new GraphQLNonNull(GraphQLString),
-      },
+      inviteId: { type: GraphQLString },
     },
     resolve: async (_: any, args: any, context: Context) => {
       const { inviteId: encodedInviteId } = args;

@@ -73,8 +73,8 @@ type RootMutationType {
   """Updates a user"""
   updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: String!): UserType
 
-  """Marks an invite as used returning the course"""
-  useInvite(inviteId: String!): String!
+  """Marks an invite as used returning the course id"""
+  useInvite(inviteId: String): UseInviteResponse!
 }
 
 """Root query"""
@@ -88,6 +88,10 @@ type SubjectType {
   code: String
   id: String
   name: String
+}
+
+type UseInviteResponse {
+  courseId: String
 }
 
 type UserRoleType {

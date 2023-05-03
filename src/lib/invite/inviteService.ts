@@ -1,6 +1,8 @@
 import InviteModel from './model';
 
 import { UserRoleFields, createUserRole } from '../userRole/userRoleService';
+import { findRole } from '../role/roleService';
+import { findCourse } from '../course/courseService';
 
 import type { UserFields } from '../user/userService';
 
@@ -11,12 +13,19 @@ export const buildInvite = async ({
   courseId: string;
   roleId: string;
 }): Promise<InviteModel> => {
-  // TODO. Validar que courseId y roleId existan.
+  const [role, course] = await Promise.all([
+    findRole({ roleId }),
+    findCourse({ courseId }),
+  ]);
 
-  const invite = await InviteModel.create(
-    { courseId: Number(courseId), roleId: Number(roleId) },
-    { returning: true }
-  );
+  if (!role.id || !course.id) {
+    throw new Error('Role or course not found');
+  }
+
+  const invite = await InviteModel.create({
+    courseId: Number(courseId),
+    roleId: Number(roleId),
+  });
 
   return invite;
 };

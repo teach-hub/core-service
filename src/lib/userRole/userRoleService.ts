@@ -37,6 +37,20 @@ const buildQuery = (id: string): ModelWhereQuery<UserRoleModel> => {
 
 export async function createUserRole(data: UserRoleFields): Promise<UserRoleFields> {
   data.active = true; // Always create active
+
+  if (!data.courseId || !data.userId) {
+    throw new Error('Missing user or course');
+  }
+
+  const existingUserRole = await findUserRoleInCourse({
+    courseId: data.courseId,
+    userId: data.userId,
+  });
+
+  if (existingUserRole) {
+    throw new Error('The user has a role in this course already');
+  }
+
   return createModel(UserRoleModel, data, buildModelFields);
 }
 
