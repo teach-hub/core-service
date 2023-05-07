@@ -1,4 +1,10 @@
-import { GraphQLString, GraphQLBoolean, GraphQLList, GraphQLObjectType } from 'graphql';
+import {
+  GraphQLString,
+  GraphQLNonNull,
+  GraphQLBoolean,
+  GraphQLList,
+  GraphQLObjectType,
+} from 'graphql';
 
 import type { Context } from 'src/types';
 
@@ -10,7 +16,7 @@ export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
   name: 'RoleType',
   fields: () => ({
     id: {
-      type: GraphQLString,
+      type: new GraphQLNonNull(GraphQLString),
       resolve: role => {
         return toGlobalId({
           entityName: 'role',
@@ -18,16 +24,18 @@ export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
         });
       },
     },
-    name: { type: GraphQLString },
+    name: { type: new GraphQLNonNull(GraphQLString) },
     permissions: { type: new GraphQLList(GraphQLString) },
-    active: { type: GraphQLBoolean },
+    active: { type: new GraphQLNonNull(GraphQLBoolean) },
     parent: {
       type: RoleType,
       resolve: async (source, _, context) => {
         const { logger } = context;
         const { id, parentRoleId } = source;
 
-        if (!parentRoleId) return null;
+        if (!parentRoleId) {
+          return null;
+        }
 
         logger.info(`Resolving parent role for role ${id}`);
 

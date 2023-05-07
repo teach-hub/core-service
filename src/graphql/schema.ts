@@ -11,6 +11,7 @@ import { buildUserRoleType } from '../lib/userRole/internalGraphql';
 import { UserFields } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
+import { findAllRoles } from '../lib/role/roleService';
 
 import { getViewer, userMutations, UserType } from '../lib/user/internalGraphql';
 import { inviteMutations } from '../lib/invite/internalGraphql';
@@ -86,6 +87,15 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
       description: 'Logged in user',
       type: ViewerType,
       resolve: async (_source, _args, ctx) => getViewer(ctx),
+    },
+    availableRoles: {
+      description: 'Logged in user',
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(RoleType))),
+      resolve: async (_source, _args, ctx) => {
+        const roles = await findAllRoles({});
+
+        return roles;
+      },
     },
   },
 });

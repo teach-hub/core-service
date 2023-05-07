@@ -45,7 +45,7 @@ export const inviteMutations = {
     ),
     description: 'Marks an invite as used returning the course id',
     args: {
-      inviteId: { type: GraphQLString },
+      inviteId: { type: new GraphQLNonNull(GraphQLString) },
     },
     resolve: async (_: any, args: any, context: Context) => {
       const { inviteId: encodedInviteId } = args;

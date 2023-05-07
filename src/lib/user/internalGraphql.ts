@@ -39,19 +39,19 @@ export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjec
   description: 'A non-admin user within TeachHub',
   fields: {
     id: {
-      type: GraphQLString,
+      type: new GraphQLNonNull(GraphQLString),
       resolve: s =>
         toGlobalId({
           entityName: 'user',
           dbId: String(s.id) as string,
         }),
     },
-    name: { type: GraphQLString },
-    active: { type: GraphQLBoolean },
-    lastName: { type: GraphQLString },
-    notificationEmail: { type: GraphQLString },
-    file: { type: GraphQLString },
-    githubId: { type: GraphQLString },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    active: { type: new GraphQLNonNull(GraphQLBoolean) },
+    lastName: { type: new GraphQLNonNull(GraphQLString) },
+    notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
+    file: { type: new GraphQLNonNull(GraphQLString) },
+    githubId: { type: new GraphQLNonNull(GraphQLString) },
   },
 });
 

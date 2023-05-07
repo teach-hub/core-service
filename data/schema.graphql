@@ -49,9 +49,9 @@ type RegisterType {
 }
 
 type RoleType {
-  active: Boolean
-  id: String
-  name: String
+  active: Boolean!
+  id: String!
+  name: String!
   parent: RoleType
   permissions: [String]
 }
@@ -74,20 +74,23 @@ type RootMutationType {
   updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: String!): UserType
 
   """Marks an invite as used returning the course id"""
-  useInvite(inviteId: String): UseInviteResponse!
+  useInvite(inviteId: String!): UseInviteResponse!
 }
 
 """Root query"""
 type RootQueryType {
   """Logged in user"""
+  availableRoles: [RoleType!]!
+
+  """Logged in user"""
   viewer: ViewerType
 }
 
 type SubjectType {
-  active: Boolean
-  code: String
-  id: String
-  name: String
+  active: Boolean!
+  code: String!
+  id: String!
+  name: String!
 }
 
 type UseInviteResponse {
@@ -97,20 +100,20 @@ type UseInviteResponse {
 type UserRoleType {
   active: Boolean!
   course: CourseType
-  id: String
+  id: String!
   role: RoleType
   user: UserType
 }
 
 """A non-admin user within TeachHub"""
 type UserType {
-  active: Boolean
-  file: String
-  githubId: String
-  id: String
-  lastName: String
-  name: String
-  notificationEmail: String
+  active: Boolean!
+  file: String!
+  githubId: String!
+  id: String!
+  lastName: String!
+  name: String!
+  notificationEmail: String!
 }
 
 type ViewerType {
