@@ -29,7 +29,7 @@ export const buildUserRoleType = ({
         name: 'UserRoleType',
         fields: {
           id: {
-            type: GraphQLString,
+            type: new GraphQLNonNull(GraphQLString),
             resolve: s =>
               toGlobalId({
                 entityName: 'userRole',
