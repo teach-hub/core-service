@@ -23,9 +23,11 @@ type CourseType {
   name: String!
   organization: String!
   period: Int!
+  studentsCount: Int!
 
   """Subject the course belongs to"""
   subject: SubjectType!
+  teachersCount: Int!
 
   """User roles within a course"""
   userRoles: [UserRoleType]
@@ -99,10 +101,10 @@ type UseInviteResponse {
 
 type UserRoleType {
   active: Boolean!
-  course: CourseType
+  course: CourseType!
   id: String!
-  role: RoleType
-  user: UserType
+  role: RoleType!
+  user: UserType!
 }
 
 """A non-admin user within TeachHub"""

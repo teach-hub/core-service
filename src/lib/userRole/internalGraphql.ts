@@ -38,11 +38,11 @@ export const buildUserRoleType = ({
           },
           active: { type: new GraphQLNonNull(GraphQLBoolean) },
           user: {
-            type: userType,
+            type: new GraphQLNonNull(userType),
             resolve: userRole => findUser({ userId: String(userRole.userId) }),
           },
           role: {
-            type: roleType,
+            type: new GraphQLNonNull(roleType),
             resolve: async (userRole, _, context) => {
               try {
                 context.logger.info('Finding role for userRole', userRole);
@@ -54,7 +54,7 @@ export const buildUserRoleType = ({
             },
           },
           course: {
-            type: courseType,
+            type: new GraphQLNonNull(courseType),
             resolve: async (userRole, _, context) => {
               try {
                 const result = await findCourse({ courseId: String(userRole.courseId) });
