@@ -11,3 +11,4 @@ create_user_roles_table 2023-01-04T04:47:24Z Sebastian Penna <spenna@fi.uba.ar> 
 add_assignments_table 2023-03-27T22:44:33Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # Add assignments table
 add_invites_table 2023-05-01T17:36:59Z System Administrator <root@canada> # Add invites table
 add_assignments_fields 2023-05-08T23:43:01Z Sebastian Penna <spenna@fi.uba.ar> # Add missing assignments fields
+add_is_teacher_to_roles 2023-05-16T22:49:03Z System Administrator <root@canada> # Add is_teacher to roles table
