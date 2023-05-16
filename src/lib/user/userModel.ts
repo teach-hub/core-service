@@ -2,7 +2,18 @@ import Sequelize from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-class User extends Sequelize.Model {
+interface UserAttributes {
+  readonly id: number;
+  readonly githubId: string;
+  readonly name: string;
+  readonly lastName: string;
+  readonly notificationEmail: string;
+  readonly file: string;
+  readonly active: boolean;
+}
+
+class User extends Sequelize.Model<UserAttributes> implements UserAttributes {
+
   readonly id!: number;
   readonly githubId!: string;
   readonly name!: string;

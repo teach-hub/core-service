@@ -2,7 +2,15 @@ import Sequelize from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-class SubjectModel extends Sequelize.Model {
+interface SubjectAttributes {
+  readonly id: number;
+  readonly name: string;
+  readonly code: string;
+  readonly active: boolean;
+}
+
+class SubjectModel extends Sequelize.Model<SubjectAttributes> implements SubjectAttributes {
+
   readonly id!: number;
   readonly name!: string;
   readonly code!: string;

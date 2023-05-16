@@ -18,7 +18,7 @@ import { buildUserRoleType } from '../userRole/internalGraphql';
 import { findSubject } from '../subject/subjectService';
 import { findAllAssignments, findAssignment } from '../assignment/assignmentService';
 import { findAllUserRoles } from '../userRole/userRoleService';
-import { findAllRoles } from '../role/roleService';
+import { isTeacherRole, findAllRoles } from '../role/roleService';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
@@ -60,7 +60,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             const courseRoles = userRoles
               .map(userRole => allRolesById[userRole.roleId!])
-              .filter(role => role.active && role.name !== 'Alumno');
+              .filter(role => !isTeacherRole(role));
 
             return courseRoles.length;
           },
@@ -75,7 +75,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             const courseRoles = userRoles
               .map(userRole => allRolesById[userRole.roleId!])
-              .filter(role => role.active && role.name === 'Alumno');
+              .filter(isTeacherRole);
 
             return courseRoles.length;
           },

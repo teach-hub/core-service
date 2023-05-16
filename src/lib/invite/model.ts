@@ -2,11 +2,14 @@ import Sequelize from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-class Invite extends Sequelize.Model {
-  readonly id!: number;
-  readonly courseId!: string;
-  readonly roleId!: string;
-  readonly usedAt!: Date;
+interface InviteAttributes {
+  readonly id: number;
+  readonly courseId: string;
+  readonly roleId: string;
+  readonly usedAt: Date;
+}
+
+class Invite extends Sequelize.Model<InviteAttributes> {
 
   static initialize = (db: Sequelize.Sequelize) => {
     return Invite.init(

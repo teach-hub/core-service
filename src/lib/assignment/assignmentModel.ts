@@ -2,19 +2,32 @@ import Sequelize from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-class AssignmentModel extends Sequelize.Model {
+interface AssignmentAttributes {
+  readonly id: number;
+  readonly startDate: Date;
+  readonly endDate: Date;
+  readonly link: string;
+  readonly title: string;
+  readonly courseId: number;
+  readonly description: string;
+  readonly allowLateSubmissions: boolean;
+  readonly active: boolean;
+}
+
+class Assignment extends Sequelize.Model<AssignmentAttributes> implements AssignmentAttributes{
+
   readonly id!: number;
   readonly startDate!: Date;
   readonly endDate!: Date;
   readonly link!: string;
   readonly title!: string;
+  readonly courseId!: number;
   readonly description!: string;
   readonly allowLateSubmissions!: boolean;
   readonly active!: boolean;
-  readonly courseId!: number;
 
   static initialize = (db: Sequelize.Sequelize) => {
-    return AssignmentModel.init(
+    return Assignment.init(
       {
         id: {
           type: Sequelize.INTEGER,
@@ -66,8 +79,8 @@ class AssignmentModel extends Sequelize.Model {
   static associate = (models: any) => {
     const { CourseModel } = models;
 
-    AssignmentModel.belongsTo(CourseModel, { foreignKey: 'course_id' });
+    Assignment.belongsTo(CourseModel, { foreignKey: 'course_id' });
   };
 }
 
-export default AssignmentModel;
+export default Assignment;

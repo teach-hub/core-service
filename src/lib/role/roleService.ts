@@ -1,4 +1,3 @@
-import RoleModel from './roleModel';
 import { OrderingOptions } from '../../utils';
 import { ALL_PERMISSIONS } from '../../consts';
 import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
@@ -12,6 +11,8 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
+import type RoleModel from './roleModel';
+
 const encodePermissions = (permissions: string[]): string => permissions.join(',');
 const decodePermissions = (encoded: string): string[] => encoded.split(',');
 
@@ -22,6 +23,7 @@ interface RoleCommonFields extends IModelFields {
   name: Optional<string>;
   parentRoleId: Optional<number>;
   active: Optional<boolean>;
+  isTeacher: boolean;
 }
 
 export interface RoleFields extends RoleCommonFields {
@@ -32,13 +34,14 @@ export interface RoleAttrs extends IModelFields, ModelAttributes<RoleModel> {
   permissions: Optional<string>;
 }
 
-const buildModelFields = (role: Nullable<RoleModel>): RoleFields => {
+const toRoleFields = (role: Nullable<RoleModel>): RoleFields => {
   return {
     id: role?.id,
     name: role?.name,
-    permissions: decodePermissions(role?.permissions ?? ''),
+    permissions: role?.permissions ? decodePermissions(role?.permissions): [],
     parentRoleId: role?.parentRoleId,
     active: role?.active,
+    isTeacher: role?.isTeacher ?? false,
   };
 };
 
@@ -62,7 +65,7 @@ export async function createRole(data: RoleFields): Promise<RoleFields> {
   }
 
   data.active = true;
-  return createModel(RoleModel, fixData(data), buildModelFields);
+  return createModel(RoleModel, data, toRoleFields);
 }
 
 export async function updateRole(id: string, data: RoleFields): Promise<RoleFields> {
@@ -76,7 +79,7 @@ export async function updateRole(id: string, data: RoleFields): Promise<RoleFiel
 
   // TODO. Validar que no haya ciclos.
 
-  return updateModel(RoleModel, fixData(data), buildModelFields, buildQuery(id));
+  return updateModel(RoleModel, fixData(data), toRoleFields, buildQuery(id));
 }
 
 export async function countRoles(): Promise<number> {
@@ -84,9 +87,13 @@ export async function countRoles(): Promise<number> {
 }
 
 export async function findRole({ roleId }: { roleId: string }): Promise<RoleFields> {
-  return findModel(RoleModel, buildModelFields, buildQuery(roleId));
+  return findModel(RoleModel, toRoleFields, buildQuery(roleId));
 }
 
 export async function findAllRoles(options: OrderingOptions): Promise<RoleFields[]> {
-  return findAllModels(RoleModel, options, buildModelFields);
+  return findAllModels(RoleModel, options, toRoleFields);
+}
+
+export const isTeacherRole = (role: RoleFields): boolean => {
+  return role.isTeacher
 }
