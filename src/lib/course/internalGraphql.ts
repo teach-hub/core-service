@@ -7,6 +7,8 @@ import {
   GraphQLNonNull,
 } from 'graphql';
 
+import { keyBy } from 'lodash';
+
 import { SubjectType } from '../subject/internalGraphql';
 import { RoleType } from '../role/internalGraphql';
 import { UserType } from '../user/internalGraphql';
@@ -17,6 +19,7 @@ import { findSubject } from '../subject/subjectService';
 import { findAssignment } from '../assignment/assignmentService';
 import { findAllUserRoles } from '../userRole/userRoleService';
 import { findAllAssignments } from '../assignment/assignmentService';
+import { findAllRoles } from '../role/roleService';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
@@ -48,6 +51,36 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
         period: { type: new GraphQLNonNull(GraphQLInt) },
         year: { type: new GraphQLNonNull(GraphQLInt) },
         active: { type: new GraphQLNonNull(GraphQLBoolean) },
+        teachersCount: {
+          type: new GraphQLNonNull(GraphQLInt),
+          resolve: async course => {
+            const userRoles = await findAllUserRoles({ forCourseId: course.id });
+            const allRoles = await findAllRoles({});
+
+            const allRolesById = keyBy(allRoles, 'id');
+
+            const courseRoles = userRoles
+              .map(userRole => allRolesById[userRole.roleId!])
+              .filter(role => role.active && role.name !== 'Alumno');
+
+            return courseRoles.length;
+          },
+        },
+        studentsCount: {
+          type: new GraphQLNonNull(GraphQLInt),
+          resolve: async course => {
+            const userRoles = await findAllUserRoles({ forCourseId: course.id });
+            const allRoles = await findAllRoles({});
+
+            const allRolesById = keyBy(allRoles, 'id');
+
+            const courseRoles = userRoles
+              .map(userRole => allRolesById[userRole.roleId!])
+              .filter(role => role.active && role.name === 'Alumno');
+
+            return courseRoles.length;
+          },
+        },
         userRoles: {
           type: new GraphQLList(UserRoleType),
           description: 'User roles within a course',

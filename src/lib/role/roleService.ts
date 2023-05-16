@@ -18,6 +18,7 @@ const decodePermissions = (encoded: string): string[] => encoded.split(',');
 const isInvalidPermission = (p: string) => !ALL_PERMISSIONS.includes(p);
 
 interface RoleCommonFields extends IModelFields {
+  id: Optional<number>;
   name: Optional<string>;
   parentRoleId: Optional<number>;
   active: Optional<boolean>;
