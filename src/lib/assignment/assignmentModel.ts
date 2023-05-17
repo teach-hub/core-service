@@ -3,19 +3,21 @@ import Sequelize from 'sequelize';
 import { DatabaseConstants } from '../../consts';
 
 interface AssignmentAttributes {
-  readonly id: number;
-  readonly startDate: Date;
-  readonly endDate: Date;
-  readonly link: string;
-  readonly title: string;
-  readonly courseId: number;
-  readonly description: string;
-  readonly allowLateSubmissions: boolean;
-  readonly active: boolean;
+  readonly id?: number;
+  readonly startDate?: Date;
+  readonly endDate?: Date;
+  readonly link?: string;
+  readonly title?: string;
+  readonly courseId?: number;
+  readonly description?: string;
+  readonly allowLateSubmissions?: boolean;
+  readonly active?: boolean;
 }
 
-class Assignment extends Sequelize.Model<AssignmentAttributes> implements AssignmentAttributes{
-
+class Assignment
+  extends Sequelize.Model<AssignmentAttributes>
+  implements AssignmentAttributes
+{
   readonly id!: number;
   readonly startDate!: Date;
   readonly endDate!: Date;

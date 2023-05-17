@@ -1,8 +1,3 @@
-import { OrderingOptions } from '../../utils';
-import AssignmentModel from './assignmentModel';
-import { Nullable, Optional } from '../../types';
-import { IModelFields, ModelAttributes } from '../../sequelize/types';
-
 import {
   countModels,
   createModel,
@@ -11,18 +6,23 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-import UserRoleModel from '../userRole/userRoleModel';
+import AssignmentModel from './assignmentModel';
 
-export interface AssignmentFields extends IModelFields, ModelAttributes<AssignmentModel> {
+import type UserRoleModel from '../userRole/userRoleModel';
+import type { OrderingOptions } from '../../utils';
+import type { Nullable, Optional } from '../../types';
+
+type AssignmentFields = {
   id: Optional<number>;
   startDate: Optional<string>;
   endDate: Optional<string>;
   link: Optional<string>;
   title: Optional<string>;
   courseId: Optional<number>;
+  description: Optional<string>;
   allowLateSubmissions: Optional<boolean>;
   active: Optional<boolean>;
-}
+};
 
 const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFields => {
   return {

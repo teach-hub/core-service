@@ -1,8 +1,6 @@
-import AdminUserModel from './adminModel';
-import { OrderingOptions } from '../../utils';
 import crypto from 'crypto';
-import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
-import { Nullable, Optional } from '../../types';
+
+import { OrderingOptions } from '../../utils';
 import {
   countModels,
   createModel,
@@ -12,12 +10,18 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-interface AdminUserFields extends IModelFields, ModelAttributes<AdminUserModel> {
+import AdminUserModel from './adminModel';
+
+import type { WhereOptions } from 'sequelize';
+import type { Nullable, Optional } from '../../types';
+
+type AdminUserFields = {
+  id: Optional<number>;
   email: Optional<string>;
   password: Optional<string>;
   name: Optional<string>;
   lastName: Optional<string>;
-}
+};
 
 const buildModelFields = (adminUser: Nullable<AdminUserModel>): AdminUserFields => {
   return {
@@ -29,29 +33,40 @@ const buildModelFields = (adminUser: Nullable<AdminUserModel>): AdminUserFields 
   };
 };
 
-const buildQuery = (id: string): ModelWhereQuery<AdminUserModel> => {
+const buildQuery = (id: string): WhereOptions<AdminUserModel> => {
   return { id: Number(id) };
 };
 
-const validate = async (data: AdminUserFields) => {
+const validate = async (data: Omit<AdminUserFields, 'id'>): Promise<void> => {
   const emailAlreadyUsed = await existsModel(AdminUserModel, {
     email: data.email,
   });
 
-  if (emailAlreadyUsed) throw new Error('Email already used');
+  if (emailAlreadyUsed) {
+    throw new Error('Email already used');
+  }
 };
 
-export async function createAdminUser(data: AdminUserFields): Promise<AdminUserFields> {
-  data.password = data.password ? data.password : crypto.randomBytes(20).toString('hex');
-  await validate(data);
-  return createModel(AdminUserModel, data, buildModelFields);
+export async function createAdminUser(
+  data: Omit<AdminUserFields, 'id'>
+): Promise<AdminUserFields> {
+  const dataWithPassword = {
+    ...data,
+    password: data.password ? data.password : crypto.randomBytes(20).toString('hex'),
+  };
+
+  await validate(dataWithPassword);
+  const model = await createModel(AdminUserModel, dataWithPassword, buildModelFields);
+
+  return model;
 }
 
 export async function updateAdminUser(
   id: string,
-  data: AdminUserFields
+  data: Omit<AdminUserFields, 'id'>
 ): Promise<AdminUserFields> {
   await validate(data);
+
   return updateModel(AdminUserModel, data, buildModelFields, buildQuery(id));
 }
 

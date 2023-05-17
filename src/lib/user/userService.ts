@@ -1,7 +1,4 @@
 import UserModel from './userModel';
-import { OrderingOptions } from '../../utils';
-import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
-import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
@@ -11,12 +8,15 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-import { Op } from 'sequelize';
+import { WhereOptions, Op } from 'sequelize';
 
 import { findAllUserRoles } from '../userRole/userRoleService';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 
-export interface UserFields extends IModelFields, ModelAttributes<UserModel> {
+import type { OrderingOptions } from '../../utils';
+import type { Nullable, Optional } from '../../types';
+
+export type UserFields = {
   id: Optional<number>;
   name: Optional<string>;
   lastName: Optional<string>;
@@ -24,7 +24,7 @@ export interface UserFields extends IModelFields, ModelAttributes<UserModel> {
   file: Optional<string>;
   notificationEmail: Optional<string>;
   active: Optional<boolean>;
-}
+};
 
 const buildModelFields = (user: Nullable<UserModel>): UserFields => ({
   id: user?.id,
@@ -42,24 +42,32 @@ const buildQuery = ({
 }: {
   id?: Optional<string>;
   githubId?: Optional<string>;
-}): ModelWhereQuery<UserModel> => {
-  const query: ModelWhereQuery<UserModel> = {};
-  if (id) query.id = Number(id);
-  if (githubId) query.githubId = githubId;
+}): WhereOptions<UserModel> => {
+  let query: WhereOptions<UserModel> = {};
+
+  if (id) {
+    query = { ...query, id: Number(id) };
+  }
+
+  if (githubId) {
+    query = { ...query, githubId };
+  }
 
   return query;
 };
 
 export async function createUser(data: UserFields): Promise<UserFields> {
-  data.active = true; // Always create active
+  const dataWithActiveField = { ...data, active: true };
 
-  const githubIdAlreadyUsed = await existsModel(UserModel, { githubId: data.githubId });
+  const githubIdAlreadyUsed = await existsModel(UserModel, {
+    githubId: dataWithActiveField.githubId,
+  });
 
   if (githubIdAlreadyUsed) {
     throw new Error('Github ID already used');
   }
 
-  return createModel(UserModel, data, buildModelFields);
+  return createModel(UserModel, dataWithActiveField, buildModelFields);
 }
 
 export const updateUser = async (id: string, data: UserFields): Promise<UserFields> => {
@@ -76,9 +84,7 @@ export const updateUser = async (id: string, data: UserFields): Promise<UserFiel
 
 export const countUsers = (): Promise<number> => countModels<UserModel>(UserModel);
 
-const findUserByQuery = async (
-  query: ModelWhereQuery<UserModel>
-): Promise<UserFields> => {
+const findUserByQuery = async (query: WhereOptions<UserModel>): Promise<UserFields> => {
   return findModel(UserModel, buildModelFields, query);
 };
 

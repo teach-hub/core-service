@@ -2,16 +2,18 @@ import Sequelize from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface AdminUserModelAttributes {
-  readonly id: number;
-  readonly email: string;
-  readonly password: string;
-  readonly name: string;
-  readonly lastName: string;
+interface AdminUserAttributes {
+  readonly id?: number;
+  readonly email?: string;
+  readonly password?: string;
+  readonly name?: string;
+  readonly lastName?: string;
 }
 
-class AdminUserModel extends Sequelize.Model<AdminUserModelAttributes> implements AdminUserModelAttributes {
-
+class AdminUser
+  extends Sequelize.Model<AdminUserAttributes>
+  implements AdminUserAttributes
+{
   readonly id!: number;
   readonly email!: string;
   readonly password!: string;
@@ -19,7 +21,7 @@ class AdminUserModel extends Sequelize.Model<AdminUserModelAttributes> implement
   readonly lastName!: string;
 
   static initialize = (db: Sequelize.Sequelize) => {
-    return AdminUserModel.init(
+    return AdminUser.init(
       {
         id: {
           type: Sequelize.INTEGER,
@@ -44,4 +46,4 @@ class AdminUserModel extends Sequelize.Model<AdminUserModelAttributes> implement
   };
 }
 
-export default AdminUserModel;
+export default AdminUser;

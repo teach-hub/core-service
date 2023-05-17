@@ -3,15 +3,14 @@ import Sequelize from 'sequelize';
 import { DatabaseConstants } from '../../consts';
 
 interface UserRoleAttributes {
-  readonly id: number;
-  readonly roleId: number;
-  readonly userId: number;
-  readonly courseId: number;
-  readonly active: boolean;
+  readonly id?: number;
+  readonly roleId?: number;
+  readonly userId?: number;
+  readonly courseId?: number;
+  readonly active?: boolean;
 }
 
 class UserRole extends Sequelize.Model<UserRoleAttributes> implements UserRoleAttributes {
-
   readonly id!: number;
   readonly roleId!: number;
   readonly userId!: number;
