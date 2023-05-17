@@ -22,6 +22,8 @@ import { RoleType } from '../lib/role/internalGraphql';
 import { fromGlobalId, toGlobalId } from './utils';
 
 import type { Context } from 'src/types';
+import { assignmentMutations, AssignmentType } from '../lib/assignment/graphql';
+import { findAssignment } from '../lib/assignment/assignmentService';
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,
@@ -97,6 +99,18 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
         return roles;
       },
     },
+    findAssignment: {
+      args: { id: { type: new GraphQLNonNull(GraphQLString) } },
+      description: 'Finds an assignment by id',
+      type: AssignmentType,
+      resolve: async (course, args, { logger }) => {
+        const { dbId: assignmentId } = fromGlobalId(args.id);
+
+        logger.info('Finding assignment', { assignmentId });
+
+        return await findAssignment({ assignmentId });
+      },
+    },
   },
 });
 
@@ -107,6 +121,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...inviteMutations,
     ...userMutations,
     ...authMutations,
+    ...assignmentMutations,
   },
 });
 

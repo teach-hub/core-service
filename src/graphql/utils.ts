@@ -1,4 +1,4 @@
-import { GraphQLString, GraphQLInt } from 'graphql';
+import { GraphQLInt, GraphQLString } from 'graphql';
 
 const RAArgs = {
   page: { type: GraphQLInt },
@@ -18,5 +18,8 @@ export const fromGlobalId = (globalId: GlobalId): EntityPayload => {
   const decoded = Buffer.from(globalId, 'base64').toString().split(':');
   return { entityName: decoded[0], dbId: decoded[1] };
 };
+
+export const fromGlobalIdAsNumber = (globalId: GlobalId): number =>
+  Number(fromGlobalId(globalId).dbId);
 
 export { RAArgs };
