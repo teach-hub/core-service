@@ -8,6 +8,10 @@ class AssignmentModel extends Sequelize.Model {
   readonly endDate!: Date;
   readonly link!: string;
   readonly title!: string;
+  readonly description!: string;
+  readonly allowLateSubmissions!: boolean;
+  readonly active!: boolean;
+  readonly courseId!: number;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return AssignmentModel.init(
@@ -27,10 +31,21 @@ class AssignmentModel extends Sequelize.Model {
         },
         link: {
           type: Sequelize.TEXT,
-          allowNull: false,
         },
         title: {
           type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        description: {
+          type: Sequelize.TEXT,
+        },
+        allowLateSubmissions: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          field: 'allow_late_submissions',
+        },
+        active: {
+          type: Sequelize.BOOLEAN,
           allowNull: false,
         },
         courseId: {

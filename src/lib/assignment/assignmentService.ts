@@ -3,31 +3,62 @@ import AssignmentModel from './assignmentModel';
 import { Nullable, Optional } from '../../types';
 import { IModelFields, ModelAttributes } from '../../sequelize/types';
 
-import { findModel, findAllModels } from '../../sequelize/serviceUtils';
+import {
+  countModels,
+  createModel,
+  findAllModels,
+  findModel,
+  updateModel,
+} from '../../sequelize/serviceUtils';
 
 import UserRoleModel from '../userRole/userRoleModel';
 
-interface AssignmentFields extends IModelFields, ModelAttributes<AssignmentModel> {
+export interface AssignmentFields extends IModelFields, ModelAttributes<AssignmentModel> {
   id: Optional<number>;
-  startDate: Optional<Date>;
-  endDate: Optional<Date>;
+  startDate: Optional<string>;
+  endDate: Optional<string>;
   link: Optional<string>;
   title: Optional<string>;
+  courseId: Optional<number>;
+  allowLateSubmissions: Optional<boolean>;
+  active: Optional<boolean>;
 }
 
 const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFields => {
   return {
     id: assignment?.id,
     link: assignment?.link,
-    startDate: assignment?.startDate,
-    endDate: assignment?.endDate,
+    startDate: assignment?.startDate?.toISOString(),
+    endDate: assignment?.endDate?.toISOString(),
     title: assignment?.title,
+    description: assignment?.description,
+    allowLateSubmissions: assignment?.allowLateSubmissions,
+    courseId: assignment?.courseId,
+    active: assignment?.active,
   };
 };
 
 type FindAssignmentsFilter = OrderingOptions & {
   forCourseId?: UserRoleModel['courseId'];
 };
+
+export async function createAssignment(
+  data: AssignmentFields
+): Promise<AssignmentFields> {
+  data.active = data.active || true; // Always create active
+  return createModel(AssignmentModel, data, buildModelFields);
+}
+
+export async function updateAssignment(
+  id: string,
+  data: AssignmentFields
+): Promise<AssignmentFields> {
+  return updateModel(AssignmentModel, data, buildModelFields, { id: Number(id) });
+}
+
+export async function countAssignments(): Promise<number> {
+  return countModels<AssignmentModel>(AssignmentModel);
+}
 
 export async function findAllAssignments(
   options: FindAssignmentsFilter

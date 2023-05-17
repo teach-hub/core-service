@@ -1,5 +1,5 @@
 import { isNumber, OrderingOptions } from '../utils';
-import { WhereOptions, Model, ModelStatic, OrderItem } from 'sequelize';
+import { Model, ModelStatic, OrderItem, WhereOptions } from 'sequelize';
 import { IModelFields, ModelAttributes, ModelWhereQuery } from './types';
 import { Nullable } from '../types';
 

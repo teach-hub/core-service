@@ -1,10 +1,10 @@
 import {
-  GraphQLInt,
-  GraphQLString,
   GraphQLBoolean,
+  GraphQLInt,
   GraphQLList,
-  GraphQLObjectType,
   GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
 } from 'graphql';
 
 import { keyBy } from 'lodash';
@@ -12,13 +12,12 @@ import { keyBy } from 'lodash';
 import { SubjectType } from '../subject/internalGraphql';
 import { RoleType } from '../role/internalGraphql';
 import { UserType } from '../user/internalGraphql';
-import { AssignmentType } from '../assignment/internalGraphql';
+import { AssignmentType } from '../assignment/graphql';
 import { buildUserRoleType } from '../userRole/internalGraphql';
 
 import { findSubject } from '../subject/subjectService';
-import { findAssignment } from '../assignment/assignmentService';
+import { findAllAssignments, findAssignment } from '../assignment/assignmentService';
 import { findAllUserRoles } from '../userRole/userRoleService';
-import { findAllAssignments } from '../assignment/assignmentService';
 import { findAllRoles } from '../role/roleService';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
