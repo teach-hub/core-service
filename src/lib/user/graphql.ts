@@ -12,6 +12,7 @@ import {
   findAllUsers,
   findUser,
   updateUser,
+  type UserFields,
 } from './userService';
 
 import { buildEntityFields } from '../../graphql/fields';
@@ -39,11 +40,11 @@ const UserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   fields: getFields({ addId: true }),
 });
 
-const findUserCallback = (id: string) => {
+const findUserCallback = (id: string): Promise<UserFields> => {
   return findUser({ userId: id });
 };
 
-const userFields = buildEntityFields({
+const userFields = buildEntityFields<UserFields>({
   type: UserType,
   keyName: 'User',
   typeName: 'user',
@@ -52,10 +53,9 @@ const userFields = buildEntityFields({
   countCallback: countUsers,
 });
 
-const userMutations = buildEntityMutations({
+const userMutations = buildEntityMutations<UserFields>({
   type: UserType,
   keyName: 'User',
-  typeName: 'user',
   createFields: getFields({ addId: false }),
   updateFields: getFields({ addId: true }),
   createCallback: createUser,

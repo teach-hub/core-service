@@ -1,9 +1,15 @@
-import { isNumber, OrderingOptions } from '../utils';
-import { Model, ModelStatic, OrderItem, WhereOptions } from 'sequelize';
-import { IModelFields, ModelAttributes, ModelWhereQuery } from './types';
-import { Nullable } from '../types';
+import { isNumber, type OrderingOptions } from '../utils';
 
-export const findAllModels = async <T extends Model, U extends IModelFields>(
+import type { Nullable } from '../types';
+import type {
+  CreationAttributes,
+  Model,
+  ModelStatic,
+  OrderItem,
+  WhereOptions,
+} from 'sequelize';
+
+export const findAllModels = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   options: OrderingOptions,
   buildModelObject: (model: T) => U,
@@ -23,12 +29,6 @@ export const findAllModels = async <T extends Model, U extends IModelFields>(
 
   const models: T[] = await sequelizeModel.findAll({
     ...paginationOptions,
-
-    /*
-     * @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-     * keyof UserRole porque Sequelize (sus tipos para se exactos) no entiende
-     * que el primer elemento de la lista en realidad son las keys del modelo.
-     * */
     order: orderingOptions,
     where,
   });
@@ -38,13 +38,13 @@ export const findAllModels = async <T extends Model, U extends IModelFields>(
 
 export const countModels = async <T extends Model>(
   sequelizeModel: ModelStatic<T>,
-  whereQuery: ModelWhereQuery<T> = {}
+  whereQuery: WhereOptions<T> = {}
 ): Promise<number> => sequelizeModel.count({ where: whereQuery });
 
-export const findModel = async <T extends Model, U extends IModelFields>(
-  sequelizeModel: ModelStatic<T>,
-  buildModelObject: (model: Nullable<T>) => U,
-  whereQuery: ModelWhereQuery<T>
+export const findModel = async <M extends Model, U>(
+  sequelizeModel: ModelStatic<M>,
+  buildModelObject: (model: Nullable<M>) => U,
+  whereQuery: WhereOptions<M>
 ): Promise<U> => {
   const model = await sequelizeModel.findOne({
     where: whereQuery,
@@ -55,7 +55,7 @@ export const findModel = async <T extends Model, U extends IModelFields>(
 
 export const existsModel = async <T extends Model>(
   sequelizeModel: ModelStatic<T>,
-  whereQuery: ModelWhereQuery<T>
+  whereQuery: WhereOptions<T>
 ): Promise<boolean> => {
   const model = await sequelizeModel.findOne({
     where: whereQuery,
@@ -64,9 +64,9 @@ export const existsModel = async <T extends Model>(
   return model !== null;
 };
 
-export const createModel = async <T extends Model, U extends IModelFields>(
+export const createModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
-  values: ModelAttributes<T>,
+  values: CreationAttributes<T>,
   buildModelObject: (model: T) => U
 ): Promise<U> => {
   const created = await sequelizeModel.create(values);
@@ -74,11 +74,11 @@ export const createModel = async <T extends Model, U extends IModelFields>(
   return buildModelObject(created);
 };
 
-export const updateModel = async <T extends Model, U extends IModelFields>(
+export const updateModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
-  values: ModelAttributes<T>,
+  values: CreationAttributes<T>,
   buildModelObject: (model: T) => U,
-  whereQuery: ModelWhereQuery<T>
+  whereQuery: WhereOptions<T>
 ): Promise<U> => {
   const [_, [updated]] = await sequelizeModel.update(values, {
     where: whereQuery,

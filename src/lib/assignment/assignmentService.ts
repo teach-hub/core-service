@@ -1,7 +1,4 @@
-import { OrderingOptions } from '../../utils';
-import AssignmentModel from './assignmentModel';
-import { Nullable, Optional } from '../../types';
-import { IModelFields, ModelAttributes } from '../../sequelize/types';
+import { omit } from 'lodash';
 
 import {
   countModels,
@@ -11,18 +8,23 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-import UserRoleModel from '../userRole/userRoleModel';
+import AssignmentModel from './assignmentModel';
 
-export interface AssignmentFields extends IModelFields, ModelAttributes<AssignmentModel> {
+import type UserRoleModel from '../userRole/userRoleModel';
+import type { OrderingOptions } from '../../utils';
+import type { Nullable, Optional } from '../../types';
+
+export type AssignmentFields = {
   id: Optional<number>;
   startDate: Optional<string>;
   endDate: Optional<string>;
   link: Optional<string>;
   title: Optional<string>;
   courseId: Optional<number>;
+  description: Optional<string>;
   allowLateSubmissions: Optional<boolean>;
   active: Optional<boolean>;
-}
+};
 
 const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFields => {
   return {
@@ -45,15 +47,28 @@ type FindAssignmentsFilter = OrderingOptions & {
 export async function createAssignment(
   data: AssignmentFields
 ): Promise<AssignmentFields> {
-  data.active = data.active || true; // Always create active
-  return createModel(AssignmentModel, data, buildModelFields);
+  const dataWithActiveField = {
+    ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
+    ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
+    ...omit(data, ['startDate', 'endDate']),
+  };
+
+  return createModel(AssignmentModel, dataWithActiveField, buildModelFields);
 }
 
 export async function updateAssignment(
   id: string,
   data: AssignmentFields
 ): Promise<AssignmentFields> {
-  return updateModel(AssignmentModel, data, buildModelFields, { id: Number(id) });
+  const dataWithActiveField = {
+    ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
+    ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
+    ...omit(data, ['startDate', 'endDate']),
+  };
+
+  return updateModel(AssignmentModel, dataWithActiveField, buildModelFields, {
+    id: Number(id),
+  });
 }
 
 export async function countAssignments(): Promise<number> {

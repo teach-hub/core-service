@@ -45,8 +45,8 @@ export const markInviteAsUsed = async ({
 
   const userRole = await createUserRole({
     userId: viewer.id,
-    roleId: Number(invite.roleId),
-    courseId: Number(invite.courseId),
+    roleId: invite.roleId,
+    courseId: invite.courseId,
     active: true,
   });
 

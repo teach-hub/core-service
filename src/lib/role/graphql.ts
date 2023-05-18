@@ -19,13 +19,27 @@ import { buildEntityMutations } from '../../graphql/mutations';
 
 import type { Context } from 'src/types';
 
-const getFields = ({ addId }: { addId: boolean }) => {
+const buildGraphQLFields = ({ includeId }: { includeId: boolean }) => {
   const fields = {
-    ...(addId ? { id: { type: GraphQLID } } : {}),
-    name: { type: GraphQLString },
-    permissions: { type: new GraphQLList(GraphQLString) },
-    parentRoleId: { type: GraphQLID },
-    active: { type: GraphQLBoolean },
+    ...(includeId
+      ? {
+          id: {
+            type: GraphQLID,
+          },
+        }
+      : {}),
+    name: {
+      type: GraphQLString,
+    },
+    permissions: {
+      type: new GraphQLList(GraphQLString),
+    },
+    parentRoleId: {
+      type: GraphQLID,
+    },
+    active: {
+      type: GraphQLBoolean,
+    },
   };
 
   return fields;
@@ -34,18 +48,14 @@ const getFields = ({ addId }: { addId: boolean }) => {
 export const RoleType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'Role',
   description: 'A role within TeachHub',
-  fields: getFields({ addId: true }),
+  fields: buildGraphQLFields({ includeId: true }),
 });
-
-const findRoleCallback = (id: string) => {
-  return findRole({ roleId: id });
-};
 
 const roleFields = buildEntityFields({
   type: RoleType,
   keyName: 'Role',
   typeName: 'role',
-  findCallback: findRoleCallback,
+  findCallback: id => findRole({ roleId: id }),
   findAllCallback: findAllRoles,
   countCallback: countRoles,
 });
@@ -53,12 +63,11 @@ const roleFields = buildEntityFields({
 const roleMutations = buildEntityMutations({
   type: RoleType,
   keyName: 'Role',
-  typeName: 'role',
-  createFields: getFields({ addId: false }),
-  updateFields: getFields({ addId: true }),
+  createFields: buildGraphQLFields({ includeId: false }),
+  updateFields: buildGraphQLFields({ includeId: true }),
   createCallback: createRole,
   updateCallback: updateRole,
-  findCallback: findRoleCallback,
+  findCallback: id => findRole({ roleId: id }),
 });
 
 export { roleMutations, roleFields };

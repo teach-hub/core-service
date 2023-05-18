@@ -25,15 +25,26 @@ const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
     ...(isUpdate
       ? {
           id: { type: new GraphQLNonNull(GraphQLID) },
-          name: { type: new GraphQLNonNull(GraphQLString) },
         }
       : {}),
-    name: { type: GraphQLString },
-    organization: { type: GraphQLString },
-    period: { type: GraphQLInt },
-    year: { type: GraphQLInt },
-    subjectId: { type: GraphQLInt },
-    active: { type: GraphQLBoolean },
+    name: {
+      type: GraphQLString,
+    },
+    organization: {
+      type: GraphQLString,
+    },
+    period: {
+      type: GraphQLInt,
+    },
+    year: {
+      type: GraphQLInt,
+    },
+    subjectId: {
+      type: GraphQLInt,
+    },
+    active: {
+      type: GraphQLBoolean,
+    },
   };
 
   return fields;
@@ -61,7 +72,6 @@ const courseFields = buildEntityFields({
 const courseMutations = buildEntityMutations({
   type: CourseType,
   keyName: 'Course',
-  typeName: 'course',
   createFields: getFields({ isUpdate: false }),
   updateFields: getFields({ isUpdate: true }),
   createCallback: createCourse,

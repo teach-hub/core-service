@@ -49,7 +49,6 @@ const subjectFields = buildEntityFields({
 const subjectMutations = buildEntityMutations({
   type: SubjectType,
   keyName: 'Subject',
-  typeName: 'subject',
   createFields: getFields({ addId: false }),
   updateFields: getFields({ addId: true }),
   createCallback: createSubject,

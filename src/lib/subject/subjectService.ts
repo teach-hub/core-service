@@ -1,7 +1,6 @@
+import type Sequelize from 'sequelize';
+
 import Subject from './subjectModel';
-import { OrderingOptions } from '../../utils';
-import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
-import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
@@ -11,11 +10,15 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-interface SubjectFields extends IModelFields, ModelAttributes<Subject> {
+import type { OrderingOptions } from '../../utils';
+import type { Nullable, Optional } from '../../types';
+
+type SubjectFields = {
+  id: Optional<number>;
   name: Optional<string>;
   code: Optional<string>;
   active: Optional<boolean>;
-}
+};
 
 const buildModelFields = (subject: Nullable<Subject>): SubjectFields => {
   return {
@@ -26,13 +29,8 @@ const buildModelFields = (subject: Nullable<Subject>): SubjectFields => {
   };
 };
 
-const buildQuery = (id: string): ModelWhereQuery<Subject> => {
+const buildQuery = (id: string): Sequelize.WhereOptions<Subject> => {
   return { id: Number(id) };
-};
-
-const fixData = (data: SubjectFields) => {
-  data.githubOrganization = data.organization;
-  return data;
 };
 
 const validate = async (data: SubjectFields) => {
@@ -49,9 +47,11 @@ const validate = async (data: SubjectFields) => {
 };
 
 export async function createSubject(data: SubjectFields): Promise<SubjectFields> {
-  data.active = true; // Always create active
-  await validate(data);
-  return createModel(Subject, fixData(data), buildModelFields);
+  const dataWithActiveField = { ...data, active: true };
+
+  await validate(dataWithActiveField);
+
+  return createModel(Subject, dataWithActiveField, buildModelFields);
 }
 
 export async function updateSubject(
@@ -59,7 +59,7 @@ export async function updateSubject(
   data: SubjectFields
 ): Promise<SubjectFields> {
   await validate(data);
-  return updateModel(Subject, fixData(data), buildModelFields, buildQuery(id));
+  return updateModel(Subject, data, buildModelFields, buildQuery(id));
 }
 
 export const countSubjects = async (): Promise<number> => countModels<Subject>(Subject);

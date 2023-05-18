@@ -6,7 +6,7 @@ schema {
 type AssignmentType {
   active: Boolean
   allowLateSubmissions: Boolean
-  courseId: String
+  courseId: String!
   description: String
   endDate: String
   id: String!

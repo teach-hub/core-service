@@ -1,7 +1,4 @@
 import Course, { CoursePeriod } from './courseModel';
-import { OrderingOptions } from '../../utils';
-import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
-import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
@@ -11,7 +8,11 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-export interface CourseFields extends IModelFields, ModelAttributes<Course> {
+import type { OrderingOptions } from '../../utils';
+import type { WhereOptions } from 'sequelize';
+import type { Nullable, Optional } from '../../types';
+
+export type CourseFields = {
   id: Optional<number>;
   name: Optional<string>;
   organization: Optional<string>;
@@ -19,7 +20,7 @@ export interface CourseFields extends IModelFields, ModelAttributes<Course> {
   period: Optional<CoursePeriod>;
   year: Optional<number>;
   active: Optional<boolean>;
-}
+};
 
 const buildModelFields = (course: Nullable<Course>): CourseFields => {
   return {
@@ -33,30 +34,32 @@ const buildModelFields = (course: Nullable<Course>): CourseFields => {
   };
 };
 
-const buildQuery = (id: string): ModelWhereQuery<Course> => {
+const buildQuery = (id: string): WhereOptions<Course> => {
   return { id: Number(id) };
 };
 
 const fixData = (data: CourseFields) => {
-  data.githubOrganization = data.organization;
-  return data;
+  return { ...data, githubOrganization: data.organization ?? '' };
 };
 
-const validate = async (data: CourseFields) => {
+const validate = async (data: CourseFields): Promise<void> => {
   const courseAlreadyExists = await existsModel(Course, {
     year: data.year,
     period: String(data.period),
     subjectId: data.subjectId,
   });
 
-  if (courseAlreadyExists)
-    throw new Error("Course for subject in year and period already exists");
+  if (courseAlreadyExists) {
+    throw new Error('Course for subject in year and period already exists');
+  }
 };
 
 export async function createCourse(data: CourseFields): Promise<CourseFields> {
-  data.active = true; // Always create active
-  await validate(data);
-  return createModel(Course, fixData(data), buildModelFields);
+  const dataWithActiveFlag = { ...data, active: true };
+
+  await validate(dataWithActiveFlag);
+
+  return createModel(Course, fixData(dataWithActiveFlag), buildModelFields);
 }
 
 export async function updateCourse(

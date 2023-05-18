@@ -1,5 +1,5 @@
 import UserRoleModel from './userRoleModel';
-import { OrderingOptions } from '../../utils';
+
 import {
   countModels,
   createModel,
@@ -8,18 +8,19 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-import { IModelFields, ModelAttributes, ModelWhereQuery } from '../../sequelize/types';
-import { Nullable, Optional } from '../../types';
+import type { Nullable, Optional } from '../../types';
+import type User from '../user/userModel';
+import type Course from '../course/courseModel';
+import type { OrderingOptions } from '../../utils';
+import type { WhereOptions } from 'sequelize';
 
-import User from '../user/userModel';
-import Course from '../course/courseModel';
-
-export interface UserRoleFields extends IModelFields, ModelAttributes<UserRoleModel> {
+export type UserRoleFields = {
+  id: Optional<number>;
   roleId: Optional<number>;
   userId: Optional<number>;
   courseId: Optional<number>;
   active: Optional<boolean>;
-}
+};
 
 const buildModelFields = (userRole: Nullable<UserRoleModel>): UserRoleFields => {
   return {
@@ -31,12 +32,14 @@ const buildModelFields = (userRole: Nullable<UserRoleModel>): UserRoleFields => 
   };
 };
 
-const buildQuery = (id: string): ModelWhereQuery<UserRoleModel> => {
+const buildQuery = (id: string): WhereOptions<UserRoleModel> => {
   return { id: Number(id) };
 };
 
-export async function createUserRole(data: UserRoleFields): Promise<UserRoleFields> {
-  data.active = true; // Always create active
+export async function createUserRole(
+  data: Omit<UserRoleFields, 'id'>
+): Promise<UserRoleFields> {
+  const dataWithActiveField = { ...data, active: true };
 
   if (!data.courseId || !data.userId) {
     throw new Error('Missing user or course');

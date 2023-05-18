@@ -4,7 +4,17 @@ import { DatabaseConstants } from '../../consts';
 
 export type CoursePeriod = '1' | '2';
 
-class CourseModel extends Sequelize.Model {
+interface CourseAttributes {
+  readonly id?: number;
+  readonly name?: string;
+  readonly githubOrganization?: string;
+  readonly subjectId?: number;
+  readonly period?: CoursePeriod;
+  readonly year?: number;
+  readonly active?: boolean;
+}
+
+class CourseModel extends Sequelize.Model<CourseAttributes> implements CourseAttributes {
   readonly id!: number;
   readonly name!: string;
   readonly githubOrganization!: string;

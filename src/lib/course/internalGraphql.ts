@@ -60,7 +60,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             const courseRoles = userRoles
               .map(userRole => allRolesById[userRole.roleId!])
-              .filter(role => role.active && role.name !== 'Alumno');
+              .filter(role => role?.name !== 'Alumno');
 
             return courseRoles.length;
           },
@@ -75,7 +75,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             const courseRoles = userRoles
               .map(userRole => allRolesById[userRole.roleId!])
-              .filter(role => role.active && role.name === 'Alumno');
+              .filter(role => role?.name === 'Alumno');
 
             return courseRoles.length;
           },
