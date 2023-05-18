@@ -49,7 +49,6 @@ const adminUserFields = buildEntityFields({
 const adminUserMutations = buildEntityMutations({
   type: AdminUserType,
   keyName: 'AdminUser',
-  typeName: 'admin user',
   createFields: getFields({ isUpdate: false }),
   updateFields: getFields({ isUpdate: true }),
   createCallback: createAdminUser,

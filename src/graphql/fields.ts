@@ -11,15 +11,14 @@ import {
 import { RAArgs } from '../graphql/utils';
 
 import type { OrderingOptions } from 'src/utils';
-import type { IModelFields } from 'src/sequelize/types';
 import type { Context } from 'src/types';
 
-const buildFindTypeObject = (
+const buildFindTypeObject = <T>(
   type: GraphQLOutputType,
-  findCallback: (id: string) => Promise<IModelFields>
+  findCallback: (id: string) => Promise<T>
 ): GraphQLFieldConfig<unknown, Context> => {
   return {
-    type: type,
+    type,
     args: { id: { type: GraphQLID } },
     resolve: async (_: unknown, { id }: any) => {
       return findCallback(id);
@@ -27,10 +26,10 @@ const buildFindTypeObject = (
   };
 };
 
-const buildFindAllTypeObject = (
+const buildFindAllTypeObject = <T>(
   type: GraphQLOutputType,
   typeName: string,
-  findAllCallback: (args: OrderingOptions) => Promise<IModelFields[]>
+  findAllCallback: (args: OrderingOptions) => Promise<T[]>
 ): GraphQLFieldConfig<unknown, Context> => {
   return {
     type: new GraphQLList(type),
@@ -61,26 +60,26 @@ const buildMetaTypeObject = (
   };
 };
 
-interface FieldParams {
+type FieldParams<T> = {
   type: GraphQLOutputType;
   keyName: string;
   typeName: string;
   countCallback: () => Promise<number>;
-  findCallback: (id: string) => Promise<IModelFields>;
-  findAllCallback: (args: OrderingOptions) => Promise<IModelFields[]>;
-}
+  findCallback: (id: string) => Promise<T>;
+  findAllCallback: (args: OrderingOptions) => Promise<T[]>;
+};
 
-export const buildEntityFields = ({
+export const buildEntityFields = <T>({
   type,
   keyName,
   typeName,
   countCallback,
   findCallback,
   findAllCallback,
-}: FieldParams): GraphQLFieldConfigMap<unknown, Context> => {
+}: FieldParams<T>): GraphQLFieldConfigMap<unknown, Context> => {
   return {
-    [keyName]: buildFindTypeObject(type, findCallback),
-    [`all${keyName}s`]: buildFindAllTypeObject(type, typeName, findAllCallback),
+    [keyName]: buildFindTypeObject<T>(type, findCallback),
+    [`all${keyName}s`]: buildFindAllTypeObject<T>(type, typeName, findAllCallback),
     [`_all${keyName}sMeta`]: buildMetaTypeObject(keyName, countCallback),
   };
 };

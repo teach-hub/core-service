@@ -47,7 +47,6 @@ const userRoleFields = buildEntityFields({
 const userRoleMutations = buildEntityMutations({
   type: UserRoleType,
   keyName: 'UserRole',
-  typeName: 'user role',
   createFields: getFields({ addId: false }),
   updateFields: getFields({ addId: true }),
   createCallback: createUserRole,

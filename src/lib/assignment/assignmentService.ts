@@ -1,3 +1,5 @@
+import { omit } from 'lodash';
+
 import {
   countModels,
   createModel,
@@ -12,7 +14,7 @@ import type UserRoleModel from '../userRole/userRoleModel';
 import type { OrderingOptions } from '../../utils';
 import type { Nullable, Optional } from '../../types';
 
-type AssignmentFields = {
+export type AssignmentFields = {
   id: Optional<number>;
   startDate: Optional<string>;
   endDate: Optional<string>;
@@ -45,15 +47,28 @@ type FindAssignmentsFilter = OrderingOptions & {
 export async function createAssignment(
   data: AssignmentFields
 ): Promise<AssignmentFields> {
-  data.active = data.active || true; // Always create active
-  return createModel(AssignmentModel, data, buildModelFields);
+  const dataWithActiveField = {
+    ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
+    ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
+    ...omit(data, ['startDate', 'endDate']),
+  };
+
+  return createModel(AssignmentModel, dataWithActiveField, buildModelFields);
 }
 
 export async function updateAssignment(
   id: string,
   data: AssignmentFields
 ): Promise<AssignmentFields> {
-  return updateModel(AssignmentModel, data, buildModelFields, { id: Number(id) });
+  const dataWithActiveField = {
+    ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
+    ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
+    ...omit(data, ['startDate', 'endDate']),
+  };
+
+  return updateModel(AssignmentModel, dataWithActiveField, buildModelFields, {
+    id: Number(id),
+  });
 }
 
 export async function countAssignments(): Promise<number> {

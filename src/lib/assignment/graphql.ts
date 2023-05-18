@@ -1,5 +1,4 @@
 import {
-  GraphQLBoolean,
   GraphQLFieldConfigMap,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -27,7 +26,7 @@ export const AssignmentType = new GraphQLObjectType({
         }),
     },
     courseId: {
-      type: GraphQLString,
+      type: new GraphQLNonNull(GraphQLString),
       resolve: s =>
         toGlobalId({
           entityName: 'assignment',

@@ -1,8 +1,13 @@
-
 import { isNumber, type OrderingOptions } from '../utils';
 
 import type { Nullable } from '../types';
-import type { CreationAttributes, Model, ModelStatic, OrderItem, WhereOptions } from 'sequelize';
+import type {
+  CreationAttributes,
+  Model,
+  ModelStatic,
+  OrderItem,
+  WhereOptions,
+} from 'sequelize';
 
 export const findAllModels = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
@@ -24,12 +29,6 @@ export const findAllModels = async <T extends Model, U>(
 
   const models: T[] = await sequelizeModel.findAll({
     ...paginationOptions,
-
-    /*
-     * @ts-expect-error (Tomas): Parece que para tipar esto bien hay que hacer algo como
-     * keyof UserRole porque Sequelize (sus tipos para se exactos) no entiende
-     * que el primer elemento de la lista en realidad son las keys del modelo.
-     * */
     order: orderingOptions,
     where,
   });
