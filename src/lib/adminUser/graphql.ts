@@ -29,7 +29,7 @@ const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
 
 const AdminUserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'AdminUser',
-  description: 'A role within TeachHub',
+  description: 'An admin user within TeachHub',
   fields: getFields({ isUpdate: true }),
 });
 
@@ -40,20 +40,25 @@ const findAdminUserCallback = (id: string) => {
 const adminUserFields = buildEntityFields({
   type: AdminUserType,
   keyName: 'AdminUser',
-  typeName: 'user role',
   findCallback: findAdminUserCallback,
   findAllCallback: findAllAdminUsers,
   countCallback: countAdminUsers,
 });
 
 const adminUserMutations = buildEntityMutations({
-  type: AdminUserType,
-  keyName: 'AdminUser',
-  createFields: getFields({ isUpdate: false }),
-  updateFields: getFields({ isUpdate: true }),
-  createCallback: createAdminUser,
-  updateCallback: updateAdminUser,
-  findCallback: findAdminUserCallback,
+  entityGraphQLType: AdminUserType,
+  entityName: 'AdminUser',
+  createOptions: {
+    args: getFields({ isUpdate: false }),
+    callback: createAdminUser,
+  },
+  updateOptions: {
+    args: getFields({ isUpdate: true }),
+    callback: updateAdminUser,
+  },
+  deleteOptions: {
+    findCallback: findAdminUserCallback,
+  },
 });
 
 export { adminUserMutations, adminUserFields };

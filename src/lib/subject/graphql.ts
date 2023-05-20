@@ -40,20 +40,25 @@ const findSubjectCallback = (id: string) => {
 const subjectFields = buildEntityFields({
   type: SubjectType,
   keyName: 'Subject',
-  typeName: 'subject',
   findCallback: findSubjectCallback,
   findAllCallback: findAllSubjects,
   countCallback: countSubjects,
 });
 
 const subjectMutations = buildEntityMutations({
-  type: SubjectType,
-  keyName: 'Subject',
-  createFields: getFields({ addId: false }),
-  updateFields: getFields({ addId: true }),
-  createCallback: createSubject,
-  updateCallback: updateSubject,
-  findCallback: findSubjectCallback,
+  entityGraphQLType: SubjectType,
+  entityName: 'Subject',
+  createOptions: {
+    args: getFields({ addId: false }),
+    callback: createSubject,
+  },
+  updateOptions: {
+    args: getFields({ addId: true }),
+    callback: updateSubject,
+  },
+  deleteOptions: {
+    findCallback: findSubjectCallback,
+  },
 });
 
 export { subjectMutations, subjectFields };

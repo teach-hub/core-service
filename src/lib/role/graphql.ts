@@ -54,20 +54,25 @@ export const RoleType: GraphQLObjectType<unknown, Context> = new GraphQLObjectTy
 const roleFields = buildEntityFields({
   type: RoleType,
   keyName: 'Role',
-  typeName: 'role',
   findCallback: id => findRole({ roleId: id }),
   findAllCallback: findAllRoles,
   countCallback: countRoles,
 });
 
 const roleMutations = buildEntityMutations({
-  type: RoleType,
-  keyName: 'Role',
-  createFields: buildGraphQLFields({ includeId: false }),
-  updateFields: buildGraphQLFields({ includeId: true }),
-  createCallback: createRole,
-  updateCallback: updateRole,
-  findCallback: id => findRole({ roleId: id }),
+  entityName: 'Role',
+  entityGraphQLType: RoleType,
+  createOptions: {
+    callback: createRole,
+    args: buildGraphQLFields({ includeId: false }),
+  },
+  updateOptions: {
+    callback: updateRole,
+    args: buildGraphQLFields({ includeId: true }),
+  },
+  deleteOptions: {
+    findCallback: id => findRole({ roleId: id }),
+  },
 });
 
 export { roleMutations, roleFields };
