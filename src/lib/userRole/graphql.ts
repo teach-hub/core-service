@@ -44,23 +44,19 @@ const userRoleFields = buildEntityFields({
 });
 
 const userRoleMutations = buildEntityMutations({
-  type: UserRoleType,
-  keyName: 'UserRole',
+  entityGraphQLType: UserRoleType,
+  entityName: 'UserRole',
   createOptions: {
     args: getFields({ addId: false }),
-    callback: createUserRole
+    callback: createUserRole,
   },
   updateOptions: {
     args: getFields({ addId: true }),
-    callback: updateUserRole
+    callback: updateUserRole,
   },
   deleteOptions: {
     findCallback: findUserRoleCallback,
-  }
+  },
 });
 
-export {
-  userRoleFields,
-  userRoleMutations
-};
-
+export { userRoleFields, userRoleMutations };

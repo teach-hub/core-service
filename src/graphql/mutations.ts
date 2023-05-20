@@ -9,92 +9,70 @@ import {
 
 import type { Context } from 'src/types';
 
-const buildCreateTypeMutation = <T>(
-  type: GraphQLOutputType,
-  typeName: string,
-  mutationArgs: GraphQLFieldConfigArgumentMap,
-  createCallback: (args: T) => Promise<T>
-): GraphQLFieldConfig<unknown, Context> => ({
-  type,
-  description: `Creates a new ${typeName}`,
-  args: mutationArgs,
-  resolve: async (_, { ...rest }, ctx) => {
-    ctx.logger.info('Executing mutation create from ' + typeName);
-
-    return createCallback(rest as T);
-  },
-});
-
-const buildUpdateTypeMutation = <T>(
-  type: GraphQLOutputType,
-  typeName: string,
-  mutationArgs: GraphQLFieldConfigArgumentMap,
-  updateCallback: (id: string, args: T) => Promise<T>
-): GraphQLFieldConfig<unknown, Context> => {
-  return {
-    type,
-    description: `Updates a ${typeName}`,
-    args: mutationArgs,
-    resolve: async (_, { id, ...rest }, ctx) => {
-      ctx.logger.info('Executing mutation update from ' + typeName);
-
-      return updateCallback(id, rest as T);
-    },
-  };
+type CreateMutationOptions<T> = {
+  args: GraphQLFieldConfigArgumentMap;
+  callback: (args: T) => Promise<T>;
 };
 
-const buildDeleteTypeMutation = <T>(
-  type: GraphQLOutputType,
-  typeName: string,
-  findCallback: (id: string) => Promise<T>
-): GraphQLFieldConfig<unknown, Context> => {
-  return {
-    type,
-    args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-    resolve: async (_: unknown, { id }: any, ctx: Context) => {
-      ctx.logger.info(`Would delete ${typeName}`, { id });
+type UpdateMutationOptions<T> = {
+  args: GraphQLFieldConfigArgumentMap;
+  callback: (id: string, args: T) => Promise<T>;
+};
 
-      return findCallback(id);
-    },
-  };
+type DeleteOptions<T> = {
+  findCallback: (id: string) => Promise<T>;
 };
 
 type MutationsParams<T> = {
-  type: GraphQLOutputType;
-  keyName: string;
-  deleteOptions: {
-    findCallback: (id: string) => Promise<T>;
-  };
-  updateOptions: {
-    args: GraphQLFieldConfigArgumentMap;
-    callback: (id: string, args: T) => Promise<T>;
-  };
-  createOptions: {
-    args: GraphQLFieldConfigArgumentMap;
-    callback: (args: T) => Promise<T>;
-  };
+  entityName: string;
+  entityGraphQLType: GraphQLOutputType;
+  createOptions: CreateMutationOptions<T>;
+  updateOptions: UpdateMutationOptions<T>;
+  deleteOptions: DeleteOptions<T>;
 };
 
 export function buildEntityMutations<T>({
-  type,
-  keyName,
+  entityName,
+  entityGraphQLType,
   createOptions: { args: createArgs, callback: createCallback },
   updateOptions: { args: updateArgs, callback: updateCallback },
   deleteOptions: { findCallback },
 }: MutationsParams<T>): GraphQLFieldConfigMap<unknown, Context> {
+  const createMutation: GraphQLFieldConfig<unknown, Context> = {
+    type: entityGraphQLType,
+    args: createArgs,
+    description: `Creates ${entityName}`,
+    resolve: async (_, { ...rest }, ctx) => {
+      ctx.logger.info(`Executing mutation create from ${entityName}`);
+
+      return createCallback(rest as T);
+    },
+  };
+
+  const updateMutation: GraphQLFieldConfig<unknown, Context> = {
+    type: entityGraphQLType,
+    args: updateArgs,
+    description: `Updates a ${entityName}`,
+    resolve: async (_, { id, ...rest }, ctx) => {
+      ctx.logger.info(`Executing mutation update from ${entityName}`);
+
+      return updateCallback(id, rest as T);
+    },
+  };
+
+  const deleteMutation: GraphQLFieldConfig<unknown, Context> = {
+    type: entityGraphQLType,
+    args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+    resolve: async (_, { id }, ctx) => {
+      ctx.logger.info(`Would delete ${entityName}`, { id });
+
+      return findCallback(id);
+    },
+  };
+
   return {
-    [`create${keyName}`]: buildCreateTypeMutation<T>(
-      type,
-      keyName,
-      createArgs,
-      createCallback
-    ),
-    [`update${keyName}`]: buildUpdateTypeMutation<T>(
-      type,
-      keyName,
-      updateArgs,
-      updateCallback
-    ),
-    [`delete${keyName}`]: buildDeleteTypeMutation(type, keyName, findCallback),
+    [`create${entityName}`]: createMutation,
+    [`update${entityName}`]: updateMutation,
+    [`delete${entityName}`]: deleteMutation,
   };
 }

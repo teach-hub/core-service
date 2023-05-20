@@ -46,19 +46,19 @@ const subjectFields = buildEntityFields({
 });
 
 const subjectMutations = buildEntityMutations({
-  type: SubjectType,
-  keyName: 'Subject',
+  entityGraphQLType: SubjectType,
+  entityName: 'Subject',
   createOptions: {
     args: getFields({ addId: false }),
-    callback: createSubject
+    callback: createSubject,
   },
   updateOptions: {
     args: getFields({ addId: true }),
-    callback: updateSubject
+    callback: updateSubject,
   },
   deleteOptions: {
     findCallback: findSubjectCallback,
-  }
+  },
 });
 
 export { subjectMutations, subjectFields };

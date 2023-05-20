@@ -13,6 +13,7 @@ import {
   findCourse,
   updateCourse,
   countCourses,
+  type CourseFields,
 } from './courseService';
 
 import { buildEntityFields } from '../../graphql/fields';
@@ -60,10 +61,9 @@ const findCourseCallback = (id: string) => {
   return findCourse({ courseId: id });
 };
 
-
 const courseMutations = buildEntityMutations({
-  type: CourseType,
-  keyName: 'Course',
+  entityName: 'Course',
+  entityGraphQLType: CourseType,
   createOptions: {
     args: getFields({ isUpdate: false }),
     callback: createCourse,
@@ -73,7 +73,7 @@ const courseMutations = buildEntityMutations({
     callback: updateCourse,
   },
   deleteOptions: {
-    findCallback: findCourseCallback
+    findCallback: findCourseCallback,
   },
 });
 

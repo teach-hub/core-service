@@ -64,8 +64,8 @@ const adminAssignmentsFields = buildEntityFields<AssignmentFields>({
 });
 
 const adminAssignmentMutations = buildEntityMutations<AssignmentFields>({
-  type: InternalAssignmentType,
-  keyName: 'Assignment',
+  entityName: 'Assignment',
+  entityGraphQLType: InternalAssignmentType,
   createOptions: {
     args: getAssignmentFields({ addId: false }),
     callback: createAssignment,

@@ -53,8 +53,8 @@ const userFields = buildEntityFields<UserFields>({
 });
 
 const userMutations = buildEntityMutations<UserFields>({
-  type: UserType,
-  keyName: 'User',
+  entityGraphQLType: UserType,
+  entityName: 'User',
   createOptions: {
     callback: createUser,
     args: getFields({ addId: false }),
@@ -65,7 +65,7 @@ const userMutations = buildEntityMutations<UserFields>({
   },
   deleteOptions: {
     findCallback: findUserCallback,
-  }
+  },
 });
 
 export { userMutations, userFields };

@@ -46,8 +46,8 @@ const adminUserFields = buildEntityFields({
 });
 
 const adminUserMutations = buildEntityMutations({
-  type: AdminUserType,
-  keyName: 'AdminUser',
+  entityGraphQLType: AdminUserType,
+  entityName: 'AdminUser',
   createOptions: {
     args: getFields({ isUpdate: false }),
     callback: createAdminUser,

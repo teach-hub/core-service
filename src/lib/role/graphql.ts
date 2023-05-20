@@ -60,8 +60,8 @@ const roleFields = buildEntityFields({
 });
 
 const roleMutations = buildEntityMutations({
-  type: RoleType,
-  keyName: 'Role',
+  entityName: 'Role',
+  entityGraphQLType: RoleType,
   createOptions: {
     callback: createRole,
     args: buildGraphQLFields({ includeId: false }),
@@ -72,7 +72,7 @@ const roleMutations = buildEntityMutations({
   },
   deleteOptions: {
     findCallback: id => findRole({ roleId: id }),
-  }
+  },
 });
 
 export { roleMutations, roleFields };
