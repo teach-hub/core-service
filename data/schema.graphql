@@ -57,6 +57,7 @@ type RegisterType {
 type RoleType {
   active: Boolean!
   id: String!
+  isTeacher: Boolean!
   name: String!
   parent: RoleType
   permissions: [String]

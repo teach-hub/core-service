@@ -98,6 +98,6 @@ export async function findAllRoles(options: OrderingOptions): Promise<RoleFields
   return findAllModels(RoleModel, options, toRoleFields);
 }
 
-export async function isTeacherRole(role: RoleFields): Promise<boolean> {
+export function isTeacherRole(role: RoleFields): boolean {
   return role.isTeacher || false;
 }

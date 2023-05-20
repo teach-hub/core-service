@@ -27,6 +27,7 @@ export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
     name: { type: new GraphQLNonNull(GraphQLString) },
     permissions: { type: new GraphQLList(GraphQLString) },
     active: { type: new GraphQLNonNull(GraphQLBoolean) },
+    isTeacher: { type: new GraphQLNonNull(GraphQLBoolean) },
     parent: {
       type: RoleType,
       resolve: async (source, _, context) => {
