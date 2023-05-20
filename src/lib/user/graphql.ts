@@ -47,7 +47,6 @@ const findUserCallback = (id: string): Promise<UserFields> => {
 const userFields = buildEntityFields<UserFields>({
   type: UserType,
   keyName: 'User',
-  typeName: 'user',
   findCallback: findUserCallback,
   findAllCallback: findAllUsers,
   countCallback: countUsers,
@@ -56,11 +55,17 @@ const userFields = buildEntityFields<UserFields>({
 const userMutations = buildEntityMutations<UserFields>({
   type: UserType,
   keyName: 'User',
-  createFields: getFields({ addId: false }),
-  updateFields: getFields({ addId: true }),
-  createCallback: createUser,
-  updateCallback: updateUser,
-  findCallback: findUserCallback,
+  createOptions: {
+    callback: createUser,
+    args: getFields({ addId: false }),
+  },
+  updateOptions: {
+    callback: updateUser,
+    args: getFields({ addId: true }),
+  },
+  deleteOptions: {
+    findCallback: findUserCallback,
+  }
 });
 
 export { userMutations, userFields };

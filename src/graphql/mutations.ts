@@ -62,35 +62,39 @@ const buildDeleteTypeMutation = <T>(
 type MutationsParams<T> = {
   type: GraphQLOutputType;
   keyName: string;
-  createFields: GraphQLFieldConfigArgumentMap;
-  updateFields: GraphQLFieldConfigArgumentMap;
-  createCallback: (args: T) => Promise<T>;
-  updateCallback: (id: string, args: T) => Promise<T>;
-  findCallback: (id: string) => Promise<T>;
+  deleteOptions: {
+    findCallback: (id: string) => Promise<T>;
+  };
+  updateOptions: {
+    args: GraphQLFieldConfigArgumentMap;
+    callback: (id: string, args: T) => Promise<T>;
+  };
+  createOptions: {
+    args: GraphQLFieldConfigArgumentMap;
+    callback: (args: T) => Promise<T>;
+  };
 };
 
 export function buildEntityMutations<T>({
   type,
   keyName,
-  createFields,
-  updateFields,
-  createCallback,
-  updateCallback,
-  findCallback,
+  createOptions: { args: createArgs, callback: createCallback },
+  updateOptions: { args: updateArgs, callback: updateCallback },
+  deleteOptions: { findCallback },
 }: MutationsParams<T>): GraphQLFieldConfigMap<unknown, Context> {
   return {
     [`create${keyName}`]: buildCreateTypeMutation<T>(
       type,
       keyName,
-      createFields,
+      createArgs,
       createCallback
     ),
     [`update${keyName}`]: buildUpdateTypeMutation<T>(
       type,
       keyName,
-      updateFields,
+      updateArgs,
       updateCallback
     ),
-    [`delete${keyName}`]: buildDeleteTypeMutation<T>(type, keyName, findCallback),
+    [`delete${keyName}`]: buildDeleteTypeMutation(type, keyName, findCallback),
   };
 }

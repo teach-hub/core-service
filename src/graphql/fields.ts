@@ -33,7 +33,7 @@ const buildFindAllTypeObject = <T>(
 ): GraphQLFieldConfig<unknown, Context> => {
   return {
     type: new GraphQLList(type),
-    description: 'List of ' + typeName + ' on the whole application',
+    description: `List of ${typeName} on the whole application`,
     args: RAArgs,
     resolve: async (
       _: unknown,
@@ -50,8 +50,10 @@ const buildMetaTypeObject = (
 ): GraphQLFieldConfig<unknown, Context> => {
   return {
     type: new GraphQLObjectType({
-      name: keyName + 'ListMetadata',
-      fields: { count: { type: GraphQLInt } },
+      name: `${keyName}ListMetadata`,
+      fields: {
+        count: { type: GraphQLInt }
+      },
     }),
     args: RAArgs,
     resolve: async () => {
@@ -63,7 +65,6 @@ const buildMetaTypeObject = (
 type FieldParams<T> = {
   type: GraphQLOutputType;
   keyName: string;
-  typeName: string;
   countCallback: () => Promise<number>;
   findCallback: (id: string) => Promise<T>;
   findAllCallback: (args: OrderingOptions) => Promise<T[]>;
@@ -72,14 +73,13 @@ type FieldParams<T> = {
 export const buildEntityFields = <T>({
   type,
   keyName,
-  typeName,
   countCallback,
   findCallback,
   findAllCallback,
 }: FieldParams<T>): GraphQLFieldConfigMap<unknown, Context> => {
   return {
     [keyName]: buildFindTypeObject<T>(type, findCallback),
-    [`all${keyName}s`]: buildFindAllTypeObject<T>(type, typeName, findAllCallback),
+    [`all${keyName}s`]: buildFindAllTypeObject<T>(type, keyName, findAllCallback),
     [`_all${keyName}sMeta`]: buildMetaTypeObject(keyName, countCallback),
   };
 };

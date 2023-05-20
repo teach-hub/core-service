@@ -38,7 +38,6 @@ const findUserRoleCallback = (id: string) => {
 const userRoleFields = buildEntityFields({
   type: UserRoleType,
   keyName: 'UserRole',
-  typeName: 'user role',
   findCallback: findUserRoleCallback,
   findAllCallback: findAllUserRoles,
   countCallback: countUserRoles,
@@ -47,11 +46,21 @@ const userRoleFields = buildEntityFields({
 const userRoleMutations = buildEntityMutations({
   type: UserRoleType,
   keyName: 'UserRole',
-  createFields: getFields({ addId: false }),
-  updateFields: getFields({ addId: true }),
-  createCallback: createUserRole,
-  updateCallback: updateUserRole,
-  findCallback: findUserRoleCallback,
+  createOptions: {
+    args: getFields({ addId: false }),
+    callback: createUserRole
+  },
+  updateOptions: {
+    args: getFields({ addId: true }),
+    callback: updateUserRole
+  },
+  deleteOptions: {
+    findCallback: findUserRoleCallback,
+  }
 });
 
-export { userRoleMutations, userRoleFields };
+export {
+  userRoleFields,
+  userRoleMutations
+};
+
