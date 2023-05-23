@@ -99,13 +99,11 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
         },
         assignments: {
           type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(AssignmentType))),
-          description: 'Assignments within the course',
+          description: 'Active assignments within the course',
           resolve: async ({ id: courseId }) => {
-            const assignments = courseId
-              ? await findAllAssignments({ forCourseId: courseId })
+            return courseId
+              ? await findAllAssignments({ forCourseId: courseId, active: true })
               : [];
-
-            return assignments;
           },
         },
         findAssignment: {

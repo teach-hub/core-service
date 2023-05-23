@@ -42,6 +42,7 @@ const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFiel
 
 type FindAssignmentsFilter = OrderingOptions & {
   forCourseId?: UserRoleModel['courseId'];
+  active?: boolean;
 };
 
 export async function createAssignment(
@@ -51,6 +52,7 @@ export async function createAssignment(
     ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
     ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
     ...omit(data, ['startDate', 'endDate']),
+    active: true,
   };
 
   return createModel(AssignmentModel, dataWithActiveField, buildModelFields);
@@ -78,10 +80,11 @@ export async function countAssignments(): Promise<number> {
 export async function findAllAssignments(
   options: FindAssignmentsFilter
 ): Promise<AssignmentFields[]> {
-  const { forCourseId } = options;
+  const { forCourseId, active } = options;
 
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
+    ...(active ? { active: active } : {}),
   };
 
   return findAllModels(AssignmentModel, options, buildModelFields, whereClause);

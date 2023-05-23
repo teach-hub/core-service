@@ -18,7 +18,7 @@ type AssignmentType {
 type CourseType {
   active: Boolean!
 
-  """Assignments within the course"""
+  """Active assignments within the course"""
   assignments: [AssignmentType!]!
 
   """Finds an assignment for a specific course"""
