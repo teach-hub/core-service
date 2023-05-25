@@ -10,6 +10,7 @@ import {
 
 import type { OrderingOptions } from '../../utils';
 import type { WhereOptions } from 'sequelize';
+import { Op } from 'sequelize';
 import type { Nullable, Optional } from '../../types';
 
 export type CourseFields = {
@@ -47,6 +48,7 @@ const validate = async (data: CourseFields): Promise<void> => {
     year: data.year,
     period: String(data.period),
     subjectId: data.subjectId,
+    ...(data.id ? { id: { [Op.not]: data.id } } : {}),
   });
 
   if (courseAlreadyExists) {

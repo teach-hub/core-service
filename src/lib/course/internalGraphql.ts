@@ -24,6 +24,9 @@ import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
 import type { Context } from 'src/types';
 import type { CourseFields } from './courseService';
+import { findCourse, updateCourse } from './courseService';
+import { getGithubUserOrganizationNames } from '../../github/githubUser';
+import { getToken } from '../../utils/request';
 
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
@@ -46,7 +49,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
           },
         },
         name: { type: new GraphQLNonNull(GraphQLString) },
-        organization: { type: new GraphQLNonNull(GraphQLString) },
+        organization: { type: GraphQLString },
         period: { type: new GraphQLNonNull(GraphQLInt) },
         year: { type: new GraphQLNonNull(GraphQLInt) },
         active: { type: new GraphQLNonNull(GraphQLBoolean) },
@@ -124,3 +127,46 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
     },
   }
 );
+
+export const courseMutations = {
+  setOrganization: {
+    name: 'SetCourseOrganization',
+    type: CourseType,
+    description: 'Sets the github organization of a course',
+    args: {
+      organizationName: {
+        type: new GraphQLNonNull(GraphQLString),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLString),
+      },
+    },
+    resolve: async (_: unknown, args: any, context: Context) => {
+      const token = getToken(context);
+      if (!token) throw new Error('Token required');
+
+      const { organizationName, courseId: encodedCourseId } = args;
+
+      const { dbId: courseId } = fromGlobalId(encodedCourseId);
+
+      const availableOrganizations = await getGithubUserOrganizationNames(token);
+
+      if (availableOrganizations.indexOf(organizationName) === -1) {
+        throw new Error(
+          `Organization ${organizationName} does not belong to current user`
+        );
+      }
+
+      context.logger.info(
+        `Setting organization ${organizationName} for course ${courseId}`
+      );
+
+      const courseFields = {
+        ...(await findCourse({ courseId })),
+        organization: organizationName,
+      };
+
+      return await updateCourse(courseId, courseFields);
+    },
+  },
+};

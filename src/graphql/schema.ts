@@ -16,7 +16,7 @@ import { findAllRoles } from '../lib/role/roleService';
 import { getViewer, userMutations, UserType } from '../lib/user/internalGraphql';
 import { inviteMutations } from '../lib/invite/internalGraphql';
 import { authMutations } from '../lib/auth/graphql';
-import { CourseType } from '../lib/course/internalGraphql';
+import { courseMutations, CourseType } from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
 
 import { fromGlobalId, toGlobalId } from './utils';
@@ -24,12 +24,23 @@ import { fromGlobalId, toGlobalId } from './utils';
 import type { Context } from 'src/types';
 import { assignmentMutations, AssignmentType } from '../lib/assignment/graphql';
 import { findAssignment } from '../lib/assignment/assignmentService';
+import { getToken } from '../utils/request';
+import { getGithubUserOrganizationNames } from '../github/githubUser';
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,
   userType: UserType,
   courseType: CourseType,
 });
+
+const ViewerOrganizationsType: GraphQLObjectType<unknown, Context> =
+  new GraphQLObjectType({
+    name: 'ViewerOrganizations',
+    description: 'Viewer organizations data',
+    fields: {
+      names: { type: GraphQLList(new GraphQLNonNull(GraphQLString)) },
+    },
+  });
 
 const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
   name: 'ViewerType',
@@ -78,6 +89,18 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
         };
       },
     },
+    availableOrganizations: {
+      description: 'Get available github organizations for a user',
+      type: ViewerOrganizationsType,
+      resolve: async (viewer, args, ctx) => {
+        const token = getToken(ctx);
+        if (!token) throw new Error('Token required');
+
+        return {
+          names: await getGithubUserOrganizationNames(token),
+        };
+      },
+    },
   },
 });
 
@@ -122,6 +145,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...userMutations,
     ...authMutations,
     ...assignmentMutations,
+    ...courseMutations,
   },
 });
 
