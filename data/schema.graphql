@@ -35,6 +35,7 @@ type CourseType {
 
   """User roles within a course"""
   userRoles: [UserRoleType]
+  viewerRole: RoleType!
   year: Int!
 }
 

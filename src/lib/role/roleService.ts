@@ -13,8 +13,6 @@ import {
 
 import RoleModel from './roleModel';
 
-import type { UserFields } from '../user/userService';
-
 const encodePermissions = (permissions: string[]): string => permissions.join(',');
 const decodePermissions = (encoded: string): string[] => encoded.split(',');
 
@@ -100,4 +98,29 @@ export async function findAllRoles(options: OrderingOptions): Promise<RoleFields
 
 export function isTeacherRole(role: RoleFields): boolean {
   return role.isTeacher || false;
+}
+
+// Consolida una cadena de roles en uno solo
+// - Una sola lista de permisos
+// - Resuelve permisos de padres
+
+export async function consolidateRoles(
+  role: RoleFields
+): Promise<Omit<RoleFields, 'parentRoleId'>> {
+  const allPermissions: string[] = [...(role.permissions ? role.permissions : [])];
+
+  let targetRole = role;
+
+  while (targetRole.parentRoleId) {
+    const parent = await findRole({ roleId: String(role.parentRoleId) });
+
+    allPermissions.push(...(parent.permissions ? parent.permissions : []));
+
+    targetRole = parent;
+  }
+
+  return {
+    ...role,
+    permissions: allPermissions.filter(p => !isInvalidPermission(p)),
+  };
 }
