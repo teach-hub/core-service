@@ -26,4 +26,10 @@ export const DatabaseConstants = {
  * a falta de mejor opcion actualmente vive en ambos (backoffice + aca).
  */
 
-export const ALL_PERMISSIONS = ['view_home', 'view_user', 'edit_user', 'edit_subject'];
+export const ALL_PERMISSIONS = [
+  'viewHome',
+  'editSubject',
+  'inviteUser',
+  'createAssignment',
+  'submitAssignment',
+];

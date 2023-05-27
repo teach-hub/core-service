@@ -108,7 +108,7 @@ INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (17, 5, 13, 4, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (18, 5, 10, 4, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (19, 5, 10, 4, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (20, 5, 1, 3, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (21, 5, 1, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (20, 2, 1, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (21, 3, 1, 1, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (22, 5, 1, 4, true);
 
