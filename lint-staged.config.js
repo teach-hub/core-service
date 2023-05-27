@@ -1,13 +1,8 @@
 // lint-staged.config.js
 module.exports = {
-  "**/*.ts?(x)": (staged) => {
-
+  '**/*.ts?(x)': (staged) => {
     const fileNames = staged.join(' ');
 
-    return [
-      "tsc --noEmit --pretty",
-      `eslint $fileNames`,
-      `prettier -w $fileNames`
-    ];
-  }
+    return ['tsc --noEmit --pretty', `eslint ${fileNames}`, `prettier -w ${fileNames}`];
+  },
 };
