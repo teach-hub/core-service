@@ -14,11 +14,17 @@ import { RoleType } from '../role/internalGraphql';
 import { UserType } from '../user/internalGraphql';
 import { AssignmentType } from '../assignment/graphql';
 import { buildUserRoleType } from '../userRole/internalGraphql';
+import { getViewer } from '../user/internalGraphql';
 
 import { findSubject } from '../subject/subjectService';
 import { findAllAssignments, findAssignment } from '../assignment/assignmentService';
-import { findAllUserRoles } from '../userRole/userRoleService';
-import { findAllRoles } from '../role/roleService';
+import { findUserRoleInCourse, findAllUserRoles } from '../userRole/userRoleService';
+import {
+  consolidateRoles,
+  findRole,
+  isTeacherRole,
+  findAllRoles,
+} from '../role/roleService';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
@@ -50,6 +56,24 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
         period: { type: new GraphQLNonNull(GraphQLInt) },
         year: { type: new GraphQLNonNull(GraphQLInt) },
         active: { type: new GraphQLNonNull(GraphQLBoolean) },
+        viewerRole: {
+          type: new GraphQLNonNull(RoleType),
+          resolve: async (course, _args, context) => {
+            const viewer = await getViewer(context);
+
+            if (!course.id || !viewer.id) {
+              throw new Error('Course not found');
+            }
+
+            const userRole = await findUserRoleInCourse({
+              courseId: course.id,
+              userId: viewer.id,
+            });
+            const viewerRole = await findRole({ roleId: String(userRole.roleId) });
+
+            return consolidateRoles(viewerRole);
+          },
+        },
         teachersCount: {
           type: new GraphQLNonNull(GraphQLInt),
           resolve: async course => {
@@ -60,7 +84,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             const courseRoles = userRoles
               .map(userRole => allRolesById[userRole.roleId!])
-              .filter(role => role?.name !== 'Alumno');
+              .filter(role => isTeacherRole(role));
 
             return courseRoles.length;
           },
@@ -75,7 +99,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             const courseRoles = userRoles
               .map(userRole => allRolesById[userRole.roleId!])
-              .filter(role => role?.name === 'Alumno');
+              .filter(role => !isTeacherRole(role));
 
             return courseRoles.length;
           },

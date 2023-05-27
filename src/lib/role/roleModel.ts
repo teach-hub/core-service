@@ -8,6 +8,7 @@ interface RoleAttributes {
   readonly parentRoleId?: number;
   readonly permissions?: string;
   readonly active?: boolean;
+  readonly isTeacher?: boolean;
 }
 
 class Role extends Sequelize.Model<RoleAttributes> implements RoleAttributes {
@@ -16,6 +17,7 @@ class Role extends Sequelize.Model<RoleAttributes> implements RoleAttributes {
   readonly parentRoleId!: number;
   readonly permissions!: string;
   readonly active!: boolean;
+  readonly isTeacher!: boolean;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return Role.init(
@@ -35,6 +37,10 @@ class Role extends Sequelize.Model<RoleAttributes> implements RoleAttributes {
         },
         permissions: {
           type: Sequelize.STRING,
+        },
+        isTeacher: {
+          type: Sequelize.BOOLEAN,
+          field: 'is_teacher',
         },
         active: {
           type: Sequelize.BOOLEAN,

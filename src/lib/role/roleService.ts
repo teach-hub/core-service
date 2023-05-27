@@ -23,6 +23,7 @@ type RoleCommonFields = {
   name: Optional<string>;
   parentRoleId: Optional<number>;
   active: Optional<boolean>;
+  isTeacher: Optional<boolean>;
 };
 
 export type RoleFields = RoleCommonFields & {
@@ -40,6 +41,7 @@ const toRoleFields = (role: Nullable<RoleModel>): RoleFields => {
     permissions: role?.permissions ? decodePermissions(role?.permissions) : [],
     parentRoleId: role?.parentRoleId,
     active: role?.active,
+    isTeacher: role?.isTeacher,
   };
 };
 
@@ -50,6 +52,7 @@ const fixData = (data: RoleFields): RoleAttrs => {
     permissions: encodePermissions(data.permissions ?? []),
     parentRoleId: data.parentRoleId,
     active: data.active,
+    isTeacher: data.isTeacher,
   };
 };
 
@@ -91,4 +94,33 @@ export async function findRole({ roleId }: { roleId: string }): Promise<RoleFiel
 
 export async function findAllRoles(options: OrderingOptions): Promise<RoleFields[]> {
   return findAllModels(RoleModel, options, toRoleFields);
+}
+
+export function isTeacherRole(role: RoleFields): boolean {
+  return role.isTeacher || false;
+}
+
+// Consolida una cadena de roles en uno solo
+// - Una sola lista de permisos
+// - Resuelve permisos de padres
+
+export async function consolidateRoles(
+  role: RoleFields
+): Promise<Omit<RoleFields, 'parentRoleId'>> {
+  const allPermissions: string[] = [...(role.permissions ? role.permissions : [])];
+
+  let targetRole = role;
+
+  while (targetRole.parentRoleId) {
+    const parent = await findRole({ roleId: String(role.parentRoleId) });
+
+    allPermissions.push(...(parent.permissions ? parent.permissions : []));
+
+    targetRole = parent;
+  }
+
+  return {
+    ...role,
+    permissions: allPermissions.filter(p => !isInvalidPermission(p)),
+  };
 }
