@@ -25,7 +25,7 @@ type CourseType {
   findAssignment(id: String!): AssignmentType
   id: String!
   name: String!
-  organization: String!
+  organization: String
   period: Int!
   studentsCount: Int!
 
@@ -81,6 +81,9 @@ type RootMutationType {
   """Creates a user and authorizes it"""
   registerUser(file: String, lastName: String, name: String, notificationEmail: String): RegisterType
 
+  """Sets the github organization of a course"""
+  setOrganization(courseId: String!, organizationName: String!): CourseType
+
   """Updates an assignment in a course"""
   updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: String, description: String, endDate: String, id: ID, link: String, startDate: String, title: String): AssignmentType
 
@@ -133,8 +136,16 @@ type UserType {
   notificationEmail: String!
 }
 
+"""Viewer organizations data"""
+type ViewerOrganizations {
+  names: [String!]
+}
+
 type ViewerType {
   active: Boolean!
+
+  """Get available github organizations for a user"""
+  availableOrganizations: ViewerOrganizations
   file: String!
 
   """Finds a course for the viewer"""
