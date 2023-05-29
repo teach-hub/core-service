@@ -37,4 +37,4 @@ export const checkDB = async () => {
   await db.query('SELECT 1 FROM user;');
 };
 
-export { initializeDB } from './db';
+export { initializeModels } from './db';

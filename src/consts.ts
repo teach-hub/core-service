@@ -32,4 +32,5 @@ export const ALL_PERMISSIONS = [
   'inviteUser',
   'createAssignment',
   'submitAssignment',
+  'editAssignment',
 ];

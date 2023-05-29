@@ -17,8 +17,8 @@ const db = new Sequelize(DB_URL);
 
 logger.info('Connected to db!');
 
-const initializeDB = () => {
-  let models = {
+const initializeModels = () => {
+  const models = {
     CourseModel,
     SubjectModel,
     AdminModel,
@@ -41,4 +41,4 @@ const initializeDB = () => {
   logger.info('db models ready!');
 };
 
-export { db, initializeDB };
+export { db, initializeModels };
