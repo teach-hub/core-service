@@ -13,7 +13,7 @@ import logger from './logger';
 
 const DB_URL = process.env.DB_URL || 'postgres://postgres@localhost:5432/teachhub';
 
-const db = new Sequelize(DB_URL);
+const db = new Sequelize(DB_URL, { logging: false });
 
 logger.info('Connected to db!');
 

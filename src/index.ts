@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { applyMiddleware } from 'graphql-middleware';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
@@ -20,6 +21,7 @@ import { writeSchema, checkDB, initializeModels } from './utils';
 
 import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
+import permissionsMiddleware from './graphql/rules';
 
 const app = express();
 
@@ -49,7 +51,10 @@ writeSchema(schema, path.resolve(__dirname, '../../data/schema.graphql'));
 app.use(cors());
 
 // Agregamos como middleware a GraphQL
-mountSchemaOn({ endpoint: '/graphql', schema });
+mountSchemaOn({
+  endpoint: '/graphql',
+  schema: applyMiddleware(schema, permissionsMiddleware),
+});
 mountSchemaOn({ endpoint: '/admin/graphql', schema: adminSchema });
 
 app.get('/healthz', async (_, response) => {
