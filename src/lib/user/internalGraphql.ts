@@ -128,7 +128,7 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
 
       ctx.logger.info('Executing updateUser mutation with values', args);
 
-      // @ts-expect-error
+      // @ts-expect-error. FIXME
       return updateUser(dbId, rest);
     },
   },
@@ -147,7 +147,7 @@ export const getViewer = async (ctx: Context): Promise<UserFields> => {
     throw new Error('Internal server error');
   }
 
-  ctx.logger.info('Using viewer', viewer);
+  ctx.logger.info(`Found viewer with user ID ${viewer.id}`);
 
   return {
     id: viewer.id,

@@ -1,6 +1,9 @@
-import { shield, rule, deny } from 'graphql-shield';
+import { shield, rule, deny, allow } from 'graphql-shield';
 
 import { getViewer } from '../lib/user/internalGraphql';
+
+import { findRole } from '../lib/role/roleService';
+import { findAllUserRoles } from '../lib/userRole/userRoleService';
 
 import type { UserRoleFields } from '../lib/userRole/userRoleService';
 import type { CourseFields } from '../lib/course/courseService';
@@ -11,7 +14,7 @@ const isUserRoleOwner = rule({ cache: 'contextual' })(
   async (userRole: UserRoleFields, _, ctx: Context): Promise<boolean> => {
     const viewer = await getViewer(ctx);
 
-    ctx.logger.info('Checking viewer');
+    ctx.logger.info(`Checking if viewer is owner of user role with ID ${userRole.id}`);
 
     return userRole.userId === viewer.id;
   }
@@ -21,7 +24,18 @@ const isCourseTeacher = rule({ cache: 'contextual' })(
   async (course: CourseFields, _, ctx: Context): Promise<boolean> => {
     const viewer = await getViewer(ctx);
 
-    return true;
+    ctx.logger.info(`Checking if viewer is teacher in '${course.name}'`);
+
+    const viewerUserRoles = await findAllUserRoles({
+      forCourseId: course.id,
+      forUserId: viewer.id,
+    });
+
+    const viewerRoles = await Promise.all(
+      viewerUserRoles.map(ur => findRole({ roleId: String(ur.roleId) }))
+    );
+
+    return viewerRoles.some(r => r.isTeacher);
   }
 );
 
@@ -36,13 +50,13 @@ const userIsViewer = rule({ cache: 'contextual' })(
 );
 
 const permissionsMiddleware = shield<null, Context, unknown>({
-  ViewerType: rule()(() => true),
-  AssignmentType: rule()(() => true),
+  ViewerType: allow,
+  AssignmentType: allow,
   CourseType: isCourseTeacher,
-  RoleType: rule()(() => true),
+  RoleType: allow,
   UserRoleType: isUserRoleOwner,
   UserType: userIsViewer,
-  SubjectType: rule()(() => true),
+  SubjectType: allow,
   RootMutationType: {
     '*': deny,
   },
