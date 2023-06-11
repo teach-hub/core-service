@@ -26,6 +26,16 @@ export const DatabaseConstants = {
  * a falta de mejor opcion actualmente vive en ambos (backoffice + aca).
  */
 
+export enum Permission {
+  ViewHome = 'viewHome',
+  EditSubject = 'editSubject',
+  InviteUser = 'inviteUser',
+  CreateAssignment = 'createAssignment',
+  SubmitAssignment = 'submitAssignment',
+  EditAssignment = 'editAssignment',
+  SetOrganization = 'setOrganization',
+}
+
 export const ALL_PERMISSIONS = [
   'viewHome',
   'editSubject',
@@ -33,4 +43,5 @@ export const ALL_PERMISSIONS = [
   'createAssignment',
   'submitAssignment',
   'editAssignment',
+  'setOrganization',
 ];
