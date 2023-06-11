@@ -15,7 +15,7 @@ export const DatabaseConstants = {
 };
 
 /**
- * Lista de permisos que podemos setear en un rol. Esto podria vivir
+ * Permiso que podemos setear en un rol. Esto podria vivir
  * en el/los front tambien. Queremos hacerlo de esta forma para
  * despues poder asociar un permiso a una serie de acciones posibles.
  * Si estos permisos fuesen dinamicos despues tendriamos que
@@ -36,12 +36,4 @@ export enum Permission {
   SetOrganization = 'setOrganization',
 }
 
-export const ALL_PERMISSIONS = [
-  'viewHome',
-  'editSubject',
-  'inviteUser',
-  'createAssignment',
-  'submitAssignment',
-  'editAssignment',
-  'setOrganization',
-];
+export const ALL_PERMISSIONS: string[] = Object.values(Permission);

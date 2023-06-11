@@ -1,8 +1,8 @@
-import { IRule, shield, rule, deny, allow, or } from 'graphql-shield';
+import { shield, rule, deny, allow, or } from 'graphql-shield';
 
 import { getViewer } from '../lib/user/internalGraphql';
 
-import { findRole } from '../lib/role/roleService';
+import { findRole, consolidateRoles } from '../lib/role/roleService';
 import { findCourse } from '../lib/course/courseService';
 import { findAllUserRoles } from '../lib/userRole/userRoleService';
 
@@ -39,16 +39,33 @@ async function viewerIsCourseTeacher(
 ): Promise<boolean> {
   const viewer = await getViewer(ctx);
 
+  ctx.logger.info(`Checking if viewer is teacher in course ${courseId}`);
+
+  const [viewerUserRole] = await findAllUserRoles({
+    forCourseId: courseId,
+    forUserId: viewer.id,
+  });
+
+  const viewerRole = await findRole({ roleId: String(viewerUserRole.roleId) });
+
+  if (!viewerRole) {
+    return false;
+  }
+
+  return viewerRole.isTeacher!;
+}
+
+async function viewerBelongsToCourse(courseId: CourseFields['id'], context: Context) {
+  const viewer = await getViewer(context);
+
+  context.logger.info(`Checking if viewer belongs to course ${courseId}`);
+
   const viewerUserRoles = await findAllUserRoles({
     forCourseId: courseId,
     forUserId: viewer.id,
   });
 
-  const viewerRoles = await Promise.all(
-    viewerUserRoles.map(ur => findRole({ roleId: String(ur.roleId) }))
-  );
-
-  return viewerRoles.some(r => r.isTeacher);
+  return !!viewerUserRoles.length;
 }
 
 async function userHasPermissionInCourse({
@@ -60,18 +77,19 @@ async function userHasPermissionInCourse({
   course: CourseFields;
   permission: Permission;
 }): Promise<boolean> {
-  const userUserRoles = await findAllUserRoles({
+  const [userUserRole] = await findAllUserRoles({
     forCourseId: course.id,
     forUserId: user.id,
   });
 
-  const userRoles = await Promise.all(
-    userUserRoles.map(ur => findRole({ roleId: String(ur.roleId) }))
-  );
+  if (!userUserRole) {
+    return false;
+  }
 
-  return userRoles.some(
-    role => (role.permissions ?? []).includes(permission) || role.isTeacher
-  );
+  const userRole = await findRole({ roleId: String(userUserRole.roleId) });
+
+  const { permissions } = await consolidateRoles(userRole);
+  return (permissions ?? []).includes(permission);
 }
 
 const viewerHasPermissionInCourse = (permission: Permission) =>
@@ -102,15 +120,16 @@ export default shield<null, Context, unknown>({
   ViewerType: allow,
   UserRoleType: or(
     buildRule(viewerIsUserRoleOwner),
-    buildRule(async (userRole, _, ctx) => {
-      console.log(`Checking if viewer is user in ${userRole.courseId}`);
-
-      return await viewerIsCourseTeacher(userRole.courseId, ctx);
-    })
+    buildRule(
+      async (userRole, _, ctx) => await viewerIsCourseTeacher(userRole.courseId, ctx)
+    ),
+    buildRule(
+      async (userRole, _, ctx) => await viewerBelongsToCourse(userRole.courseId, ctx)
+    )
   ),
   AssignmentType: allow,
-  CourseType: buildRule((course, _, context) =>
-    viewerIsCourseTeacher(course.id, context)
+  CourseType: buildRule(
+    async (course, _, context) => await viewerBelongsToCourse(course.id, context)
   ),
   RoleType: allow,
   UserType: allow,

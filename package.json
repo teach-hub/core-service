@@ -20,7 +20,8 @@
   "scripts": {
     "start": "npx tsc && node dist/src/index.js",
     "db": "cd src/db && sqitch deploy development && sqitch verify development && cd -",
-    "test": "echo \"Error: no test to run\""
+    "test": "echo \"Error: no test to run\"",
+    "reset-db": "dropdb teachhub && createdb teachhub && npm run db"
   },
   "repository": {
     "type": "git",

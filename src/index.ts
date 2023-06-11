@@ -55,6 +55,9 @@ mountSchemaOn({
   endpoint: '/graphql',
   schema: applyMiddleware(schema, permissionsMiddleware),
 });
+
+// TODO. Permisos sobre el admin schema.
+// https://teachhub.atlassian.net/browse/TH-123
 mountSchemaOn({ endpoint: '/admin/graphql', schema: adminSchema });
 
 app.get('/healthz', async (_, response) => {

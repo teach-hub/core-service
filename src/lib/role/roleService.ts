@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 
 import { OrderingOptions } from '../../utils';
-import { ALL_PERMISSIONS } from '../../consts';
+import { Permission, ALL_PERMISSIONS } from '../../consts';
 import { Nullable, Optional } from '../../types';
 import {
   countModels,
@@ -13,10 +13,17 @@ import {
 
 import RoleModel from './roleModel';
 
-const encodePermissions = (permissions: string[]): string => permissions.join(',');
-const decodePermissions = (encoded: string): string[] => encoded.split(',');
+const encodePermissions = (permissions: Permission[]): string => permissions.join(',');
+const decodePermissions = (encoded: string): Permission[] => {
+  return encoded.split(',').map(x => {
+    const p = x.trim();
+    if (!isValidPermission(p)) throw new Error('Invalid permission');
+    return p;
+  });
+};
 
-const isInvalidPermission = (p: string) => !ALL_PERMISSIONS.includes(p);
+const isValidPermission = (p: Permission | string): p is Permission =>
+  ALL_PERMISSIONS.includes(p);
 
 type RoleCommonFields = {
   id: Optional<number>;
@@ -27,7 +34,7 @@ type RoleCommonFields = {
 };
 
 export type RoleFields = RoleCommonFields & {
-  permissions: Optional<string[]>;
+  permissions: Optional<Permission[]>;
 };
 
 export type RoleAttrs = RoleCommonFields & {
@@ -61,7 +68,7 @@ const buildQuery = (id: string): Sequelize.WhereOptions<RoleModel> => {
 };
 
 export async function createRole(data: RoleFields): Promise<RoleFields> {
-  if (data.permissions && data.permissions.some(isInvalidPermission)) {
+  if (data.permissions && data.permissions.some(x => !isValidPermission(x))) {
     throw new Error('Role has invalid permission(s)');
   }
 
@@ -75,7 +82,7 @@ export async function updateRole(id: string, data: RoleFields): Promise<RoleFiel
     throw new Error('Role cannot be parent of itself');
   }
 
-  if (data.permissions && data.permissions.some(isInvalidPermission)) {
+  if (data.permissions && data.permissions.some(x => !isValidPermission(x))) {
     throw new Error('Role has invalid permission(s)');
   }
 
@@ -121,6 +128,6 @@ export async function consolidateRoles(
 
   return {
     ...role,
-    permissions: allPermissions.filter(p => !isInvalidPermission(p)),
+    permissions: allPermissions.filter(isValidPermission),
   };
 }
