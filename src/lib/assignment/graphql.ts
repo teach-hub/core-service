@@ -44,7 +44,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<unknown, Context> = {
     resolve: async (_, args, ctx) => {
       const assignmentData: AssignmentFields = parseAssignmentData(args);
 
-      ctx.logger.info(`Creating assignment with data: ` + JSON.stringify(assignmentData));
+      ctx.logger.info('Creating assignment with data', assignmentData);
 
       return await createAssignment(assignmentData);
     },

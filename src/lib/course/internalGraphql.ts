@@ -175,7 +175,7 @@ export const courseMutations = {
 
       const availableOrganizations = await getGithubUserOrganizationNames(token);
 
-      if (availableOrganizations.indexOf(organizationName) === -1) {
+      if (!availableOrganizations.includes(organizationName)) {
         throw new Error(
           `Organization ${organizationName} does not belong to current user`
         );
