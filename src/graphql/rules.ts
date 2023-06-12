@@ -6,6 +6,8 @@ import { findRole, consolidateRoles } from '../lib/role/roleService';
 import { findCourse } from '../lib/course/courseService';
 import { findAllUserRoles } from '../lib/userRole/userRoleService';
 
+import { fromGlobalId } from './utils';
+
 import type { UserRoleFields } from '../lib/userRole/userRoleService';
 import type { CourseFields } from '../lib/course/courseService';
 import type { UserFields } from '../lib/user/userService';
@@ -13,9 +15,15 @@ import type { Context } from 'src/types';
 
 import { Permission } from '../consts';
 
-const buildRule: ReturnType<typeof rule> = fn => {
-  return rule({ cache: 'contextual' })(fn);
-};
+const buildRule: ReturnType<typeof rule> = fn =>
+  rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    try {
+      return await fn(parent, args, ctx, info);
+    } catch (e) {
+      ctx.logger.error('An error was raised while evaluating rule', e);
+      return false;
+    }
+  });
 
 async function viewerIsUserRoleOwner(
   userRole: UserRoleFields,
@@ -93,9 +101,13 @@ async function userHasPermissionInCourse({
 }
 
 const viewerHasPermissionInCourse = (permission: Permission) =>
-  rule({ cache: 'contextual' })(async (_, args, context) => {
-    const viewer = await getViewer(context);
-    const course = await findCourse({ courseId: args.courseId });
+  buildRule(async (_, args, context) => {
+    const { dbId: courseId } = fromGlobalId(args.courseId);
+
+    const [viewer, course] = await Promise.all([
+      getViewer(context),
+      findCourse({ courseId }),
+    ]);
 
     if (!course) {
       return false;
@@ -115,6 +127,9 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
  * los permisos que tenga la mutation `updateUser` tienen que ser
  * por lo menos los de `UserType`.
  *
+ * -- Atencion: Los argumentos que recibimos aca no pasan
+ * por las functiones `fromGlobalId` por lo que nos toca
+ * tener esa logica en las reglas que lo necesiten.
  */
 export default shield<null, Context, unknown>({
   ViewerType: allow,
