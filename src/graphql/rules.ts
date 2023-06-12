@@ -13,9 +13,16 @@ import type { Context } from 'src/types';
 
 import { Permission } from '../consts';
 
-const buildRule: ReturnType<typeof rule> = fn => {
-  return rule({ cache: 'contextual' })(fn);
-};
+const buildRule: ReturnType<typeof rule> = fn =>
+  rule({ cache: 'contextual' })
+    (async (parent, args, ctx, info) => {
+      try {
+        return await fn(parent, args, ctx, info)
+      } catch(e) {
+        ctx.logger.error('An error was raised while evaluating rule', e);
+        return false;
+      }
+    });
 
 async function viewerIsUserRoleOwner(
   userRole: UserRoleFields,
@@ -93,9 +100,10 @@ async function userHasPermissionInCourse({
 }
 
 const viewerHasPermissionInCourse = (permission: Permission) =>
-  rule({ cache: 'contextual' })(async (_, args, context) => {
-    const viewer = await getViewer(context);
-    const course = await findCourse({ courseId: args.courseId });
+  buildRule(async (_, args, context) => {
+    const [viewer, course] = await Promise.all([
+      getViewer(context), findCourse({ courseId: args.courseId })
+    ]);
 
     if (!course) {
       return false;
