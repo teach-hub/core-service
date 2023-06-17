@@ -6,8 +6,9 @@ BEGIN;
     id                    SERIAL PRIMARY KEY,
     user_id               INTEGER REFERENCES teachhub.users(id) NOT NULL,
     assignment_id         INTEGER REFERENCES teachhub.assignments(id) NOT NULL,
-    submitted_at          TIMESTAMP WITH TIME ZONE NOT NULL,
-    description           TEXT
+    description           TEXT,
+    created_at            TIMESTAMP WITH TIME ZONE,
+    updated_at            TIMESTAMP WITH TIME ZONE
   );
 
   -- ADD CONSTRAINT empty_link CHECK (link <> '');

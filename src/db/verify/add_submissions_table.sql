@@ -3,7 +3,7 @@
 BEGIN;
 
   SELECT
-    id, user_id, assignment_id, submitted_at, description
+    id, user_id, assignment_id, created_at, updated_at, description
   FROM teachhub.submissions
   WHERE false;
 

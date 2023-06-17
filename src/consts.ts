@@ -11,6 +11,7 @@ export const DatabaseConstants = {
     USER_ROLE: 'user_roles',
     ASSIGNMENT: 'assignments',
     INVITE: 'invites',
+    SUBMISSION: 'submissions'
   },
 };
 

@@ -2,7 +2,7 @@
 
 BEGIN;
 
-  DROP TABLE teachhub.assignments;
+  DROP TABLE teachhub.submissions;
 
 COMMIT;
 

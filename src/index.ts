@@ -23,6 +23,8 @@ import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
 import permissionsMiddleware from './graphql/rules';
 
+import SubmissionModel from './lib/submission/model';
+
 const app = express();
 
 (async () => {
@@ -72,7 +74,7 @@ app.get('/healthz', async (_, response) => {
 
 const port = process.env.PORT || 4000;
 
-app.get('/', (_, res) => {
+app.get('/', async (_, res) => {
   res.send('Welcome to TeachHub!');
 });
 

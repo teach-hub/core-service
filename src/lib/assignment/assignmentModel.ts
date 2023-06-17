@@ -64,7 +64,7 @@ class Assignment
           allowNull: false,
         },
         courseId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'course_id',
           allowNull: false,
         },

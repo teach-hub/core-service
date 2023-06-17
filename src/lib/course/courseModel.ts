@@ -40,7 +40,7 @@ class CourseModel extends Sequelize.Model<CourseAttributes> implements CourseAtt
           field: 'github_organization',
         },
         subjectId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'subject_id',
           allowNull: false,
         },
