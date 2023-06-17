@@ -36,6 +36,8 @@ ENV NODE_ENV=$NODE_ENV
 ENV GITHUB_APP_CLIENT_ID=$GITHUB_APP_CLIENT_ID
 ENV GITHUB_APP_CLIENT_SECRET=$GITHUB_APP_CLIENT_SECRET
 
+RUN echo "Using node_env $NODE_ENV"
+
 # Instalamos "de nuevo" las dependencias
 # (esta vez solo las de prod).
 
