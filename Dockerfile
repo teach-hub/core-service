@@ -41,7 +41,7 @@ RUN echo "Using node_env $NODE_ENV"
 # Instalamos "de nuevo" las dependencias
 # (esta vez solo las de prod).
 
-RUN npm ci
+RUN NODE_ENV=production npm ci
 
 # Entrypoint custom
 
