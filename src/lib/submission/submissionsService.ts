@@ -17,6 +17,8 @@ type SubmissionFields = {
   assignmentId: Optional<number>;
   userId: Optional<number>;
   description: Optional<string>;
+  createdAt: Optional<Date>;
+  updatedAt: Optional<Date>;
 };
 
 function buildModelFields(submission: Nullable<SubmissionModel>): SubmissionFields {
@@ -25,6 +27,8 @@ function buildModelFields(submission: Nullable<SubmissionModel>): SubmissionFiel
     assignmentId: submission?.assignmentId,
     userId: submission?.userId,
     description: submission?.description,
+    createdAt: submission?.createdAt,
+    updatedAt: submission?.updatedAt,
   };
 }
 

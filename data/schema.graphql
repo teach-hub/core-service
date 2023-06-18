@@ -12,6 +12,7 @@ type AssignmentType {
   id: ID!
   link: String
   startDate: String
+  submission(id: ID!): SubmissionType
   submissions: [SubmissionType!]!
   title: String
 }
@@ -117,6 +118,9 @@ type SubjectType {
 type SubmissionType {
   description: String
   id: String!
+
+  """Date when submission was created"""
+  submittedAt: String!
 
   """User who has made the submission"""
   user: UserType!

@@ -142,13 +142,14 @@ export default shield<null, Context, unknown>({
       async (userRole, _, ctx) => await viewerBelongsToCourse(userRole.courseId, ctx)
     )
   ),
-  AssignmentType: allow,
   CourseType: buildRule(
     async (course, _, context) => await viewerBelongsToCourse(course.id, context)
   ),
   RoleType: allow,
   UserType: allow,
   SubjectType: allow,
+  AssignmentType: allow,
+  SubmissionType: allow,
   RootMutationType: {
     registerUser: allow,
     /**
