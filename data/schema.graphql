@@ -98,9 +98,6 @@ type RootMutationType {
 
 """Root query"""
 type RootQueryType {
-  """Finds an assignment by id"""
-  assignment(id: ID!): AssignmentType
-
   """Logged in user"""
   availableRoles: [RoleType!]!
 
@@ -117,7 +114,7 @@ type SubjectType {
 
 type SubmissionType {
   description: String
-  id: String!
+  id: ID!
 
   """Date when submission was created"""
   submittedAt: String!
@@ -151,11 +148,14 @@ type UserType {
 
 """Viewer organizations data"""
 type ViewerOrganizations {
-  names: [String!]
+  names: [String!]!
 }
 
 type ViewerType {
   active: Boolean!
+
+  """Finds an assignment by id"""
+  assignment(id: ID!): AssignmentType
 
   """Get available github organizations for a user"""
   availableOrganizations: ViewerOrganizations

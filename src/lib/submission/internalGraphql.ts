@@ -1,4 +1,4 @@
-import { GraphQLNonNull, GraphQLString, GraphQLObjectType } from 'graphql';
+import { GraphQLID, GraphQLNonNull, GraphQLString, GraphQLObjectType } from 'graphql';
 
 import { toGlobalId } from '../../graphql/utils';
 
@@ -9,7 +9,7 @@ export const SubmissionType = new GraphQLObjectType({
   name: 'SubmissionType',
   fields: {
     id: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'submission',

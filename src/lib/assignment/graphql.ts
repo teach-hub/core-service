@@ -4,7 +4,6 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLList,
-  GraphQLID,
 } from 'graphql';
 import { getAssignmentFields } from './internalGraphql';
 import {
@@ -40,16 +39,17 @@ export const AssignmentType = new GraphQLObjectType({
         }),
     },
     submission: {
-      type: SubmissionType,
       args: {
         id: {
           type: new GraphQLNonNull(GraphQLID),
         },
       },
-      resolve: async (assignment, { id }, ctx) => {
-        const submission = await findSubmission({ submissionId: id });
+      type: SubmissionType,
+      resolve: async (_, { id }, ctx) => {
+        const submissionId = fromGlobalIdAsNumber(id);
+        const submission = await findSubmission({ submissionId });
 
-        ctx.logger.info('Requested submission with id', { id });
+        ctx.logger.info('Requested submission with id', { submission });
 
         return submission;
       },

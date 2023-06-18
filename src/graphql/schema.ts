@@ -39,7 +39,9 @@ const ViewerOrganizationsType: GraphQLObjectType<unknown, Context> =
     name: 'ViewerOrganizations',
     description: 'Viewer organizations data',
     fields: {
-      names: { type: GraphQLList(new GraphQLNonNull(GraphQLString)) },
+      names: {
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
+      },
     },
   });
 
@@ -90,6 +92,18 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
         };
       },
     },
+    assignment: {
+      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+      description: 'Finds an assignment by id',
+      type: AssignmentType,
+      resolve: async (_, args, { logger }) => {
+        const { dbId: assignmentId } = fromGlobalId(args.id);
+
+        logger.info('Finding assignment', { assignmentId });
+
+        return await findAssignment({ assignmentId });
+      },
+    },
     availableOrganizations: {
       description: 'Get available github organizations for a user',
       type: ViewerOrganizationsType,
@@ -121,18 +135,6 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
         const roles = await findAllRoles({});
 
         return roles;
-      },
-    },
-    assignment: {
-      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-      description: 'Finds an assignment by id',
-      type: AssignmentType,
-      resolve: async (course, args, { logger }) => {
-        const { dbId: assignmentId } = fromGlobalId(args.id);
-
-        logger.info('Finding assignment', { assignmentId });
-
-        return await findAssignment({ assignmentId });
       },
     },
   },
