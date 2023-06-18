@@ -21,7 +21,7 @@ export const getAssignmentFields = ({ addId }: { addId: boolean }) => ({
       }
     : {}),
   courseId: {
-    type: GraphQLString,
+    type: GraphQLID,
   },
   title: {
     type: GraphQLString,

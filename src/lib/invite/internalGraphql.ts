@@ -1,4 +1,4 @@
-import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
+import { GraphQLID, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
 
 import { buildInvite, markInviteAsUsed } from './inviteService';
 import { toGlobalId, fromGlobalId } from '../../graphql/utils';
@@ -14,10 +14,10 @@ export const inviteMutations = {
     description: 'Generates an invitation code',
     args: {
       roleId: {
-        type: new GraphQLNonNull(GraphQLString),
+        type: new GraphQLNonNull(GraphQLID),
       },
       courseId: {
-        type: new GraphQLNonNull(GraphQLString),
+        type: new GraphQLNonNull(GraphQLID),
       },
     },
     resolve: async (_: unknown, args: any, context: Context) => {
@@ -39,13 +39,13 @@ export const inviteMutations = {
       new GraphQLObjectType({
         name: 'UseInviteResponse',
         fields: {
-          courseId: { type: GraphQLString },
+          courseId: { type: GraphQLID },
         },
       })
     ),
     description: 'Marks an invite as used returning the course id',
     args: {
-      inviteId: { type: new GraphQLNonNull(GraphQLString) },
+      inviteId: { type: new GraphQLNonNull(GraphQLID) },
     },
     resolve: async (_: any, args: any, context: Context) => {
       const { inviteId: encodedInviteId } = args;

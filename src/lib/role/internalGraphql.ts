@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLString,
   GraphQLNonNull,
   GraphQLBoolean,
@@ -16,7 +17,7 @@ export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
   name: 'RoleType',
   fields: () => ({
     id: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLID),
       resolve: role => {
         return toGlobalId({
           entityName: 'role',

@@ -1,8 +1,8 @@
 import {
+  GraphQLID,
   GraphQLFieldConfigMap,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLString,
 } from 'graphql';
 import { getAssignmentFields } from './internalGraphql';
 import { Context } from '../../types';
@@ -18,7 +18,7 @@ export const AssignmentType = new GraphQLObjectType({
   fields: {
     ...getAssignmentFields({ addId: false }),
     id: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'assignment',
@@ -26,7 +26,7 @@ export const AssignmentType = new GraphQLObjectType({
         }),
     },
     courseId: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'assignment',

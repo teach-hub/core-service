@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLOutputType,
   GraphQLObjectType,
   GraphQLString,
@@ -29,7 +30,7 @@ export const buildUserRoleType = ({
         name: 'UserRoleType',
         fields: {
           id: {
-            type: new GraphQLNonNull(GraphQLString),
+            type: new GraphQLNonNull(GraphQLID),
             resolve: s =>
               toGlobalId({
                 entityName: 'userRole',

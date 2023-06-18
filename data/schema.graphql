@@ -6,10 +6,10 @@ schema {
 type AssignmentType {
   active: Boolean
   allowLateSubmissions: Boolean
-  courseId: String!
+  courseId: ID!
   description: String
   endDate: String
-  id: String!
+  id: ID!
   link: String
   startDate: String
   title: String
@@ -18,12 +18,12 @@ type AssignmentType {
 type CourseType {
   active: Boolean!
 
+  """Finds an assignment for a specific course"""
+  assignment(id: ID!): AssignmentType
+
   """Active assignments within the course"""
   assignments: [AssignmentType!]!
-
-  """Finds an assignment for a specific course"""
-  findAssignment(id: String!): AssignmentType
-  id: String!
+  id: ID!
   name: String!
   organization: String
   period: Int!
@@ -57,7 +57,7 @@ type RegisterType {
 
 type RoleType {
   active: Boolean!
-  id: String!
+  id: ID!
   isTeacher: Boolean!
   name: String!
   parent: RoleType
@@ -67,10 +67,10 @@ type RoleType {
 """Root mutation"""
 type RootMutationType {
   """Creates an assignment in a course"""
-  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: String, description: String, endDate: String, link: String, startDate: String, title: String): AssignmentType
+  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, link: String, startDate: String, title: String): AssignmentType
 
   """Generates an invitation code"""
-  generateInviteCode(courseId: String!, roleId: String!): String!
+  generateInviteCode(courseId: ID!, roleId: ID!): String!
 
   """Login user"""
   login(code: String): Login
@@ -82,25 +82,25 @@ type RootMutationType {
   registerUser(file: String, lastName: String, name: String, notificationEmail: String): RegisterType
 
   """Sets the github organization of a course"""
-  setOrganization(courseId: String!, organizationName: String!): CourseType
+  setOrganization(courseId: ID!, organizationName: String!): CourseType
 
   """Updates an assignment in a course"""
-  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: String, description: String, endDate: String, id: ID, link: String, startDate: String, title: String): AssignmentType
+  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, id: ID, link: String, startDate: String, title: String): AssignmentType
 
   """Updates a user"""
-  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: String!): UserType
+  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType
 
   """Marks an invite as used returning the course id"""
-  useInvite(inviteId: String!): UseInviteResponse!
+  useInvite(inviteId: ID!): UseInviteResponse!
 }
 
 """Root query"""
 type RootQueryType {
+  """Finds an assignment by id"""
+  assignment(id: ID!): AssignmentType
+
   """Logged in user"""
   availableRoles: [RoleType!]!
-
-  """Finds an assignment by id"""
-  findAssignment(id: String!): AssignmentType
 
   """Logged in user"""
   viewer: ViewerType
@@ -109,18 +109,18 @@ type RootQueryType {
 type SubjectType {
   active: Boolean!
   code: String!
-  id: String!
+  id: ID!
   name: String!
 }
 
 type UseInviteResponse {
-  courseId: String
+  courseId: ID
 }
 
 type UserRoleType {
   active: Boolean!
   course: CourseType!
-  id: String!
+  id: ID!
   role: RoleType!
   user: UserType!
 }
@@ -130,7 +130,7 @@ type UserType {
   active: Boolean!
   file: String!
   githubId: String!
-  id: String!
+  id: ID!
   lastName: String!
   name: String!
   notificationEmail: String!
@@ -146,10 +146,10 @@ type ViewerType {
 
   """Get available github organizations for a user"""
   availableOrganizations: ViewerOrganizations
-  file: String!
 
   """Finds a course for the viewer"""
-  findCourse(id: String!): CourseType
+  course(id: ID!): CourseType
+  file: String!
   githubId: String!
   id: String!
   lastName: String!

@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLBoolean,
   GraphQLInt,
   GraphQLList,
@@ -46,7 +47,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
       return {
         id: {
-          type: new GraphQLNonNull(GraphQLString),
+          type: new GraphQLNonNull(GraphQLID),
           resolve: s => {
             return toGlobalId({
               entityName: 'course',
@@ -133,8 +134,8 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
               : [];
           },
         },
-        findAssignment: {
-          args: { id: { type: new GraphQLNonNull(GraphQLString) } },
+        assignment: {
+          args: { id: { type: new GraphQLNonNull(GraphQLID) } },
           description: 'Finds an assignment for a specific course',
           type: AssignmentType,
           resolve: async (course, args, { logger }) => {
@@ -162,7 +163,7 @@ export const courseMutations = {
         type: new GraphQLNonNull(GraphQLString),
       },
       courseId: {
-        type: new GraphQLNonNull(GraphQLString),
+        type: new GraphQLNonNull(GraphQLID),
       },
     },
     resolve: async (_: unknown, args: any, context: Context) => {

@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLNonNull,
   GraphQLString,
   GraphQLBoolean,
@@ -11,7 +12,7 @@ export const SubjectType = new GraphQLObjectType({
   name: 'SubjectType',
   fields: {
     id: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'subject',

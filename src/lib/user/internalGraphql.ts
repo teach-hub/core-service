@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLBoolean,
   GraphQLFieldConfigMap,
   GraphQLNonNull,
@@ -39,7 +40,7 @@ export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjec
   description: 'A non-admin user within TeachHub',
   fields: {
     id: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'user',
@@ -115,7 +116,7 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
     type: UserType,
     description: 'Updates a user',
     args: {
-      userId: { type: new GraphQLNonNull(GraphQLString) },
+      userId: { type: new GraphQLNonNull(GraphQLID) },
       name: { type: GraphQLString },
       lastName: { type: GraphQLString },
       file: { type: GraphQLString },

@@ -41,7 +41,7 @@ const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
       type: GraphQLInt,
     },
     subjectId: {
-      type: GraphQLInt,
+      type: GraphQLID,
     },
     active: {
       type: GraphQLBoolean,

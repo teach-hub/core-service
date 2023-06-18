@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLBoolean,
   GraphQLList,
   GraphQLNonNull,
@@ -68,8 +69,8 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
         return response;
       },
     },
-    findCourse: {
-      args: { id: { type: new GraphQLNonNull(GraphQLString) } },
+    course: {
+      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       description: 'Finds a course for the viewer',
       type: CourseType,
       resolve: async (viewer, args, { logger }) => {
@@ -122,8 +123,8 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
         return roles;
       },
     },
-    findAssignment: {
-      args: { id: { type: new GraphQLNonNull(GraphQLString) } },
+    assignment: {
+      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       description: 'Finds an assignment by id',
       type: AssignmentType,
       resolve: async (course, args, { logger }) => {
