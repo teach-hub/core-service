@@ -12,6 +12,7 @@ type AssignmentType {
   id: ID!
   link: String
   startDate: String
+  submissions: [SubmissionType!]!
   title: String
 }
 
@@ -111,6 +112,14 @@ type SubjectType {
   code: String!
   id: ID!
   name: String!
+}
+
+type SubmissionType {
+  description: String
+  id: String!
+
+  """User who has made the submission"""
+  user: UserType!
 }
 
 type UseInviteResponse {

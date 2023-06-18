@@ -3,15 +3,20 @@ import {
   GraphQLFieldConfigMap,
   GraphQLNonNull,
   GraphQLObjectType,
+  GraphQLList,
 } from 'graphql';
 import { getAssignmentFields } from './internalGraphql';
-import { Context } from '../../types';
 import {
   AssignmentFields,
   createAssignment,
   updateAssignment,
 } from './assignmentService';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+
+import { SubmissionType } from '../submission/internalGraphql';
+import { findAllSubmissions } from '../submission/submissionsService';
+
+import type { Context } from '../../types';
 
 export const AssignmentType = new GraphQLObjectType({
   name: 'AssignmentType',
@@ -32,6 +37,14 @@ export const AssignmentType = new GraphQLObjectType({
           entityName: 'assignment',
           dbId: String(s.courseId) as string,
         }),
+    },
+    submissions: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SubmissionType))),
+      resolve: async assignment => {
+        const submissions = await findAllSubmissions({ forAssignmentId: assignment.id });
+
+        return submissions;
+      },
     },
   },
 });
@@ -65,6 +78,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<unknown, Context> = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseAssignmentData = (args: any): AssignmentFields => {
   const {
     courseId,
