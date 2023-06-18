@@ -18,11 +18,11 @@ type AssignmentType {
 type CourseType {
   active: Boolean!
 
+  """Finds an assignment for a specific course"""
+  assignment(id: String!): AssignmentType
+
   """Active assignments within the course"""
   assignments: [AssignmentType!]!
-
-  """Finds an assignment for a specific course"""
-  findAssignment(id: String!): AssignmentType
   id: String!
   name: String!
   organization: String
@@ -96,11 +96,11 @@ type RootMutationType {
 
 """Root query"""
 type RootQueryType {
+  """Finds an assignment by id"""
+  assignment(id: String!): AssignmentType
+
   """Logged in user"""
   availableRoles: [RoleType!]!
-
-  """Finds an assignment by id"""
-  findAssignment(id: String!): AssignmentType
 
   """Logged in user"""
   viewer: ViewerType
@@ -146,10 +146,10 @@ type ViewerType {
 
   """Get available github organizations for a user"""
   availableOrganizations: ViewerOrganizations
-  file: String!
 
   """Finds a course for the viewer"""
-  findCourse(id: String!): CourseType
+  course(id: String!): CourseType
+  file: String!
   githubId: String!
   id: String!
   lastName: String!

@@ -133,7 +133,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
               : [];
           },
         },
-        findAssignment: {
+        assignment: {
           args: { id: { type: new GraphQLNonNull(GraphQLString) } },
           description: 'Finds an assignment for a specific course',
           type: AssignmentType,

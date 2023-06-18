@@ -68,7 +68,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
         return response;
       },
     },
-    findCourse: {
+    course: {
       args: { id: { type: new GraphQLNonNull(GraphQLString) } },
       description: 'Finds a course for the viewer',
       type: CourseType,
@@ -122,7 +122,7 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
         return roles;
       },
     },
-    findAssignment: {
+    assignment: {
       args: { id: { type: new GraphQLNonNull(GraphQLString) } },
       description: 'Finds an assignment by id',
       type: AssignmentType,
