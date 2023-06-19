@@ -28,20 +28,12 @@ INSERT INTO teachhub.subjects (id, name, code, active) VALUES (3, 'Algoritmos y 
 INSERT INTO teachhub.subjects (id, name, code, active) VALUES (4, 'Introducción a Sistemas distribuídos', '51.21', true);
 INSERT INTO teachhub.subjects (id, name, code, active) VALUES (5, 'Estructura del computador', '13.21', true);
 
-
---
--- Data for Name: assignments; Type: TABLE DATA; Schema: teachhub; Owner: tomas
---
-
-
-
 --
 -- Data for Name: roles; Type: TABLE DATA; Schema: teachhub; Owner: tomas
 --
 
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (1, 'Usuario', NULL, '', false, false);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (2, 'Titular', NULL, 'createAssignment, inviteUser, editSubject', false, true);
-
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (3, 'JTP', NULL, '', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (4, 'Ayudante', NULL, '', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (5, 'Alumno', NULL, '', false, false);
@@ -112,4 +104,46 @@ INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (20, 2, 1, 3, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (21, 3, 1, 1, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (22, 5, 1, 4, true);
+
+--
+-- Data for Name: assignments; Type: TABLE DATA; Schema: teachhub; Owner: tomas
+--
+
+INSERT INTO teachhub.assignments
+    (id, course_id, start_date, end_date, link, title, allow_late_submissions, description)
+VALUES
+    (1, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Algoritmos simples', true, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (2, 3,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Estructuras de datos', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (3, 4,  '2023-01-15 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Almacenamiento dinamico', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (4, 1,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Concurrencia', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (5, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Transacciones', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (6, 3,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Lenguajes funcionales', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (7, 4,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Estadisticas y operaciones', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (8, 1,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Compiladores', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (9, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Operaciones binarias', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (10, 3, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Aritmetica de punteros', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+'),
+    (11, 4, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Manejo de memoria', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
+
+');
+
 

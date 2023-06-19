@@ -11,6 +11,7 @@ export const DatabaseConstants = {
     USER_ROLE: 'user_roles',
     ASSIGNMENT: 'assignments',
     INVITE: 'invites',
+    SUBMISSION: 'submissions',
   },
 };
 
@@ -34,6 +35,7 @@ export enum Permission {
   SubmitAssignment = 'submitAssignment',
   EditAssignment = 'editAssignment',
   SetOrganization = 'setOrganization',
+  ViewSubmission = 'viewSubmission',
 }
 
 export const ALL_PERMISSIONS: string[] = Object.values(Permission);

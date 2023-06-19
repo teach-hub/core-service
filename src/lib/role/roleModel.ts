@@ -32,7 +32,7 @@ class Role extends Sequelize.Model<RoleAttributes> implements RoleAttributes {
           allowNull: false,
         },
         parentRoleId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'parent_role_id',
         },
         permissions: {

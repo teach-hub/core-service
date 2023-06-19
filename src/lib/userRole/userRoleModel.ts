@@ -26,15 +26,15 @@ class UserRole extends Sequelize.Model<UserRoleAttributes> implements UserRoleAt
           autoIncrement: true,
         },
         roleId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'role_id',
         },
         userId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'user_id',
         },
         courseId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'course_id',
         },
         active: {

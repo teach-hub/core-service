@@ -24,12 +24,12 @@ class Invite extends Sequelize.Model<InviteAttributes> {
           autoIncrement: true,
         },
         courseId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'course_id',
           allowNull: false,
         },
         roleId: {
-          type: Sequelize.NUMBER,
+          type: Sequelize.INTEGER,
           field: 'role_id',
           allowNull: false,
         },
