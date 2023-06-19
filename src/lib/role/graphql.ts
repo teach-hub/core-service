@@ -1,17 +1,17 @@
 import {
+  GraphQLBoolean,
+  GraphQLID,
+  GraphQLList,
   GraphQLObjectType,
   GraphQLString,
-  GraphQLList,
-  GraphQLID,
-  GraphQLBoolean,
 } from 'graphql';
 
 import {
+  countRoles,
   createRole,
   findAllRoles,
   findRole,
   updateRole,
-  countRoles,
 } from './roleService';
 
 import { buildEntityFields } from '../../graphql/fields';
@@ -20,7 +20,7 @@ import { buildEntityMutations } from '../../graphql/mutations';
 import type { Context } from 'src/types';
 
 const buildGraphQLFields = ({ includeId }: { includeId: boolean }) => {
-  const fields = {
+  return {
     ...(includeId
       ? {
           id: {
@@ -40,9 +40,10 @@ const buildGraphQLFields = ({ includeId }: { includeId: boolean }) => {
     active: {
       type: GraphQLBoolean,
     },
+    isTeacher: {
+      type: GraphQLBoolean,
+    },
   };
-
-  return fields;
 };
 
 export const RoleType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({

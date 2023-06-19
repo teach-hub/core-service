@@ -27,6 +27,7 @@ import { assignmentMutations, AssignmentType } from '../lib/assignment/graphql';
 import { findAssignment } from '../lib/assignment/assignmentService';
 import { getToken } from '../utils/request';
 import { getGithubUserOrganizationNames } from '../github/githubUser';
+import { repositoryMutations } from '../lib/repository/internalGraphql';
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,
@@ -63,7 +64,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
     githubId: { type: new GraphQLNonNull(GraphQLString) },
     notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
     userRoles: {
-      type: new GraphQLList(UserRoleType),
+      type: new GraphQLList(new GraphQLNonNull(UserRoleType)),
       description: 'User user roles',
       resolve: async viewer => {
         const response = await findAllUserRoles({ forUserId: viewer.id });
@@ -149,6 +150,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...authMutations,
     ...assignmentMutations,
     ...courseMutations,
+    ...repositoryMutations,
   },
 });
 

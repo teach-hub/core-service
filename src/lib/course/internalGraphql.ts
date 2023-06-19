@@ -12,19 +12,18 @@ import { keyBy } from 'lodash';
 
 import { SubjectType } from '../subject/internalGraphql';
 import { RoleType } from '../role/internalGraphql';
-import { UserType } from '../user/internalGraphql';
+import { getViewer, UserType } from '../user/internalGraphql';
 import { AssignmentType } from '../assignment/graphql';
 import { buildUserRoleType } from '../userRole/internalGraphql';
-import { getViewer } from '../user/internalGraphql';
 
 import { findSubject } from '../subject/subjectService';
 import { findAllAssignments, findAssignment } from '../assignment/assignmentService';
-import { findUserRoleInCourse, findAllUserRoles } from '../userRole/userRoleService';
+import { findAllUserRoles, findUserRoleInCourse } from '../userRole/userRoleService';
 import {
   consolidateRoles,
+  findAllRoles,
   findRole,
   isTeacherRole,
-  findAllRoles,
 } from '../role/roleService';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
@@ -109,7 +108,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
           },
         },
         userRoles: {
-          type: new GraphQLList(UserRoleType),
+          type: new GraphQLList(new GraphQLNonNull(UserRoleType)),
           description: 'User roles within a course',
           resolve: course => {
             return findAllUserRoles({ forCourseId: course.id });

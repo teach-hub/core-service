@@ -1,15 +1,14 @@
-import { shield, rule, deny, allow, or } from 'graphql-shield';
+import { allow, deny, or, rule, shield } from 'graphql-shield';
 
 import { getViewer } from '../lib/user/internalGraphql';
 
-import { findRole, consolidateRoles } from '../lib/role/roleService';
+import { consolidateRoles, findRole } from '../lib/role/roleService';
+import type { CourseFields } from '../lib/course/courseService';
 import { findCourse } from '../lib/course/courseService';
+import type { UserRoleFields } from '../lib/userRole/userRoleService';
 import { findAllUserRoles } from '../lib/userRole/userRoleService';
 
 import { fromGlobalId } from './utils';
-
-import type { UserRoleFields } from '../lib/userRole/userRoleService';
-import type { CourseFields } from '../lib/course/courseService';
 import type { UserFields } from '../lib/user/userService';
 import type { Context } from 'src/types';
 
@@ -164,5 +163,6 @@ export default shield<null, Context, unknown>({
     updateAssignment: viewerHasPermissionInCourse(Permission.EditAssignment),
     setOrganization: viewerHasPermissionInCourse(Permission.SetOrganization),
     generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
+    createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
   },
 });
