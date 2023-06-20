@@ -7,6 +7,7 @@ interface SubmissionAttributes {
   readonly userId?: number;
   readonly assignmentId?: number;
   readonly description?: string;
+  readonly pullRequestUrl?: string;
   readonly createdAt?: Date;
   readonly updatedAt?: Date;
 }
@@ -19,6 +20,7 @@ class SubmissionModel
   readonly userId!: number;
   readonly assignmentId!: number;
   readonly description!: string;
+  readonly pullRequestUrl?: string;
   readonly createdAt!: Date;
   readonly updatedAt!: Date;
 
@@ -42,6 +44,10 @@ class SubmissionModel
         },
         description: {
           type: Sequelize.STRING,
+        },
+        pullRequestUrl: {
+          type: Sequelize.STRING,
+          field: 'pull_request_url',
         },
         createdAt: {
           field: 'created_at',
