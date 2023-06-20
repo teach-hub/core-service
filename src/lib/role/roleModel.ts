@@ -55,8 +55,6 @@ class Role extends Sequelize.Model<RoleAttributes> implements RoleAttributes {
       }
     );
   };
-
-  static associate = () => {};
 }
 
 export default Role;
