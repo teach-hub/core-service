@@ -50,8 +50,6 @@ class UserRole extends Sequelize.Model<UserRoleAttributes> implements UserRoleAt
       }
     );
   };
-
-  static associate = () => {};
 }
 
 export default UserRole;

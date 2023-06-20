@@ -46,8 +46,6 @@ class Invite extends Sequelize.Model<InviteAttributes> {
       }
     );
   };
-
-  static associate = () => {};
 }
 
 export default Invite;
