@@ -13,3 +13,4 @@ add_invites_table 2023-05-01T17:36:59Z System Administrator <root@canada> # Add 
 add_assignments_fields 2023-05-08T23:43:01Z Sebastian Penna <spenna@fi.uba.ar> # Add missing assignments fields
 add_is_teacher_to_roles 2023-05-16T22:49:03Z System Administrator <root@canada> # Add is_teacher to roles table
 add_submissions_table 2023-06-17T19:19:03Z Tomas Lopez Hidalg <tomas@canada> # Create submissions table
+create_repository_table 2023-06-20T16:24:23Z Sebastian Penna <spenna@fi.uba.ar> # Create repository table

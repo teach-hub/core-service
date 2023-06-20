@@ -12,6 +12,10 @@ import {
   adminAssignmentMutations,
   adminAssignmentsFields,
 } from '../lib/assignment/internalGraphql';
+import {
+  adminRepositoriesFields,
+  adminRepositoryMutations,
+} from '../lib/repository/graphql';
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType<null, Context>({
@@ -25,6 +29,7 @@ const schema = new GraphQLSchema({
       ...roleFields,
       ...userRoleFields,
       ...adminAssignmentsFields,
+      ...adminRepositoriesFields,
     },
   }),
   mutation: new GraphQLObjectType<null, Context>({
@@ -38,6 +43,7 @@ const schema = new GraphQLSchema({
       ...roleMutations,
       ...userRoleMutations,
       ...adminAssignmentMutations,
+      ...adminRepositoryMutations,
     },
   }),
 });
