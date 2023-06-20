@@ -1,6 +1,6 @@
 import {
-  GraphQLID,
   GraphQLBoolean,
+  GraphQLID,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
@@ -142,9 +142,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             logger.info('Finding assignment', { assignmentId });
 
-            const assignment = await findAssignment({ assignmentId });
-
-            return assignment;
+            return await findAssignment({ assignmentId });
           },
         },
       };

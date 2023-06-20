@@ -166,9 +166,6 @@ type ViewerOrganizations {
 type ViewerType {
   active: Boolean!
 
-  """Finds an assignment by id"""
-  assignment(id: ID!): AssignmentType
-
   """Get available github organizations for a user"""
   availableOrganizations: ViewerOrganizations
 
