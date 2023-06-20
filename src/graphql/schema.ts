@@ -1,6 +1,6 @@
 import {
-  GraphQLID,
   GraphQLBoolean,
+  GraphQLID,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -23,8 +23,7 @@ import { RoleType } from '../lib/role/internalGraphql';
 import { fromGlobalId, toGlobalId } from './utils';
 
 import type { Context } from 'src/types';
-import { assignmentMutations, AssignmentType } from '../lib/assignment/graphql';
-import { findAssignment } from '../lib/assignment/assignmentService';
+import { assignmentMutations } from '../lib/assignment/graphql';
 import { getToken } from '../utils/request';
 import { getGithubUserOrganizationNames } from '../github/githubUser';
 import { repositoryMutations } from '../lib/repository/internalGraphql';
@@ -91,18 +90,6 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
           ...course,
           roleId: userRole.roleId,
         };
-      },
-    },
-    assignment: {
-      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-      description: 'Finds an assignment by id',
-      type: AssignmentType,
-      resolve: async (_, args, { logger }) => {
-        const { dbId: assignmentId } = fromGlobalId(args.id);
-
-        logger.info('Finding assignment', { assignmentId });
-
-        return await findAssignment({ assignmentId });
       },
     },
     availableOrganizations: {
