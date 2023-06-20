@@ -36,9 +36,13 @@ type CourseType {
   teachersCount: Int!
 
   """User roles within a course"""
-  userRoles: [UserRoleType]
+  userRoles: [UserRoleType!]
   viewerRole: RoleType!
   year: Int!
+}
+
+type CreateRepositoriesResponse {
+  failedRepositoriesNames: [String!]
 }
 
 """Authenticated data"""
@@ -57,6 +61,11 @@ type RegisterType {
   token: String
 }
 
+input RepositoryStudentData {
+  name: String!
+  students: [String!]
+}
+
 type RoleType {
   active: Boolean!
   id: ID!
@@ -70,6 +79,9 @@ type RoleType {
 type RootMutationType {
   """Creates an assignment in a course"""
   createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, link: String, startDate: String, title: String): AssignmentType
+
+  """Creates repositories"""
+  createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
 
   """Generates an invitation code"""
   generateInviteCode(courseId: ID!, roleId: ID!): String!
@@ -170,5 +182,5 @@ type ViewerType {
   notificationEmail: String!
 
   """User user roles"""
-  userRoles: [UserRoleType]
+  userRoles: [UserRoleType!]
 }
