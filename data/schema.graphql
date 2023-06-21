@@ -139,6 +139,13 @@ type UseInviteResponse {
   courseId: ID
 }
 
+"""Pull request object has opened for a course"""
+type UserPullRequestType {
+  id: String!
+  title: String!
+  url: String!
+}
+
 type UserRoleType {
   active: Boolean!
   course: CourseType!
@@ -177,6 +184,7 @@ type ViewerType {
   lastName: String!
   name: String!
   notificationEmail: String!
+  openPullRequests(courseId: String!): [UserPullRequestType!]!
 
   """User user roles"""
   userRoles: [UserRoleType!]

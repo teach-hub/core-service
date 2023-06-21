@@ -20,7 +20,7 @@ class SubmissionModel
   readonly userId!: number;
   readonly assignmentId!: number;
   readonly description!: string;
-  readonly pullRequestUrl?: string;
+  readonly pullRequestUrl!: string;
   readonly createdAt!: Date;
   readonly updatedAt!: Date;
 

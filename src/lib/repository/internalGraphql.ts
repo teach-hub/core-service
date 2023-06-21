@@ -95,11 +95,7 @@ export const repositoryMutations = {
       };
 
       const fetchListGithubUsernames = async (globalIdList: string[]) =>
-        await Promise.all(
-          globalIdList.map(async (globalUserId: string) => {
-            return await fetchGithubUsername(globalUserId);
-          })
-        );
+        await Promise.all(globalIdList.map(fetchGithubUsername));
 
       /* Fetch admins and maintainers only one time, for every repo will be the same */
       const adminsGithubUsernames = await fetchListGithubUsernames(admins);

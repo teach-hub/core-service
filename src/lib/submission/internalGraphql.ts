@@ -34,3 +34,12 @@ export const SubmissionType = new GraphQLObjectType({
     },
   },
 });
+
+export const submissionMutations = {
+  createSubmission: {
+    name: 'CreateSubmissionMutation',
+    description: 'Creates a new submission',
+    type: SubmissionType,
+    args: {},
+  },
+};
