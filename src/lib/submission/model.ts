@@ -45,12 +45,12 @@ class SubmissionModel
         },
         createdAt: {
           field: 'created_at',
-          type: Sequelize.DATE
+          type: Sequelize.DATE,
         },
         updatedAt: {
-          field: 'created_at',
-          type: Sequelize.DATE
-        }
+          field: 'updated_at',
+          type: Sequelize.DATE,
+        },
       },
       {
         sequelize: db,

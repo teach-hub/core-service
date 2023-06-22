@@ -18,6 +18,20 @@ interface CollaboratorData {
   permission: string;
 }
 
+interface CreatedRepositoryData {
+  name: string;
+  id: number;
+}
+
+interface FailedRepositoryData {
+  name: string;
+}
+
+interface CreateRepositoriesResult {
+  failedRepositoriesData: FailedRepositoryData[];
+  createdRepositoriesData: CreatedRepositoryData[];
+}
+
 /**
  * Will try to create every repository, with every collaborator,
  * on best effort. If any error raises with any repository
@@ -25,7 +39,7 @@ interface CollaboratorData {
  *
  * A list of failed repositories names will be returned.
  * */
-export const createRepositories = ({
+export const createRepositories = async ({
   octokit,
   organization,
   repositoriesData,
@@ -37,8 +51,9 @@ export const createRepositories = ({
   adminsGithubUsernames: string[];
   maintainersGithubUsernames: string[];
   repositoriesData: RepositoryData[];
-}) => {
+}): Promise<CreateRepositoriesResult> => {
   const failedReposNames: string[] = [];
+  const createdReposData: CreatedRepositoryData[] = [];
 
   /* Admins and collaborators are the same for every repository, map their permissions */
   const adminsCollaboratorData = adminsGithubUsernames.map(username => {
@@ -69,7 +84,7 @@ export const createRepositories = ({
       }), // Map collaborators to their permissions
     ];
 
-    octokit.rest.repos
+    await octokit.rest.repos
       .createInOrg({
         org: organization,
         name,
@@ -105,8 +120,30 @@ export const createRepositories = ({
               );
             });
         }
+
+        if (
+          !createRepositoryResponse?.data?.name ||
+          !createRepositoryResponse?.data?.id
+        ) {
+          failedReposNames.push(name);
+          logger.error(
+            `Error creating repository ${name} in organization ${organization}, response data is not valid`
+          );
+        } else {
+          createdReposData.push({
+            name: createRepositoryResponse.data.name,
+            id: createRepositoryResponse.data.id,
+          });
+        }
       });
   }
 
-  return failedReposNames;
+  return {
+    createdRepositoriesData: createdReposData,
+    failedRepositoriesData: failedReposNames.map(name => {
+      return {
+        name,
+      };
+    }),
+  };
 };

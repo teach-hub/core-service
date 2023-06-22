@@ -3,7 +3,7 @@
 BEGIN;
 
 SELECT
-  id, course_id, user_id, name, githubId, active
+  id, course_id, user_id, name, github_id, active
 FROM teachhub.repositories
 WHERE false;
 

@@ -15,6 +15,7 @@ import { findUsersInCourse } from '../user/userService';
 import { getGithubUsernameFromGithubId } from '../../github/githubUser';
 import logger from '../../logger';
 import { initOctokit } from '../../github/config';
+import { bulkCreateRepository, RepositoryFields } from './repositoryService';
 
 interface RepositoryStudentsData {
   name: string;
@@ -114,7 +115,7 @@ export const repositoryMutations = {
         })
       );
 
-      const failedRepositoriesNames = createRepositories({
+      const createRepositoriesResult = await createRepositories({
         octokit,
         organization,
         repositoriesData,
@@ -122,8 +123,30 @@ export const repositoryMutations = {
         maintainersGithubUsernames,
       });
 
+      const repositoryFieldList: RepositoryFields[] =
+        createRepositoriesResult.createdRepositoriesData.map(repositoryData => {
+          // Recover user id from the first student in the list
+          const userId = fromGlobalIdAsNumber(
+            repositoriesStudentsData.find(
+              (data: RepositoryStudentsData) => data.name === repositoryData.name
+            )?.students[0] || ''
+          ); // todo: manejar el caso de vacio?
+
+          return {
+            courseId,
+            userId,
+            name: repositoryData.name,
+            githubId: repositoryData.id,
+            active: true,
+            id: undefined,
+          };
+        });
+      await bulkCreateRepository(repositoryFieldList);
+
       return {
-        failedRepositoriesNames,
+        failedRepositoriesNames: createRepositoriesResult.failedRepositoriesData.map(
+          x => x.name
+        ),
       };
     },
   },

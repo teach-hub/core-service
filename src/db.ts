@@ -11,6 +11,7 @@ import InviteModel from './lib/invite/model';
 import SubmissionModel from './lib/submission/model';
 
 import logger from './logger';
+import RepositoryModel from './lib/repository/repositoryModel';
 
 const DB_URL = process.env.DB_URL || 'postgres://postgres@localhost:5432/teachhub';
 
@@ -29,6 +30,7 @@ const initializeModels = () => {
     AssignmentModel,
     InviteModel,
     SubmissionModel,
+    RepositoryModel,
   };
 
   // Esta magia inicializa los modelos de la base de datos. Basicamente

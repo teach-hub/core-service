@@ -1,4 +1,5 @@
 import {
+  bulkCreateModel,
   countModels,
   createModel,
   findAllModels,
@@ -43,6 +44,19 @@ export async function createRepository(
   };
 
   return createModel(RepositoryModel, dataWithActiveField, buildModelFields);
+}
+
+export async function bulkCreateRepository(
+  dataList: RepositoryFields[]
+): Promise<RepositoryFields[]> {
+  const dataWithActiveFieldList = dataList.map(data => {
+    return {
+      ...data,
+      active: true,
+    };
+  });
+
+  return bulkCreateModel(RepositoryModel, dataWithActiveFieldList, buildModelFields);
 }
 
 export async function updateRepository(

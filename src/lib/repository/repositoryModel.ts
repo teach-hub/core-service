@@ -11,7 +11,7 @@ interface RepositoryAttributes {
   readonly active?: boolean;
 }
 
-class Repository
+class RepositoryModel
   extends Sequelize.Model<RepositoryAttributes>
   implements RepositoryAttributes
 {
@@ -23,7 +23,7 @@ class Repository
   readonly active!: boolean;
 
   static initialize = (db: Sequelize.Sequelize) => {
-    return Repository.init(
+    return RepositoryModel.init(
       {
         id: {
           type: Sequelize.INTEGER,
@@ -41,6 +41,7 @@ class Repository
           allowNull: false,
         },
         githubId: {
+          field: 'github_id',
           type: Sequelize.TEXT,
           allowNull: false,
         },
@@ -57,18 +58,10 @@ class Repository
         sequelize: db,
         schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
         tableName: DatabaseConstants.TABLES.REPOSITORY,
-        timestamps: true,
+        timestamps: false,
       }
     );
   };
-
-  static associate = (models: any) => {
-    const { CourseModel } = models;
-    const { UserModel } = models;
-
-    Repository.belongsTo(CourseModel, { foreignKey: 'course_id' });
-    Repository.belongsTo(UserModel, { foreignKey: 'user_id' });
-  };
 }
 
-export default Repository;
+export default RepositoryModel;
