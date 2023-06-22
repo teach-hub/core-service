@@ -124,23 +124,27 @@ export const repositoryMutations = {
       });
 
       const repositoryFieldList: RepositoryFields[] =
-        createRepositoriesResult.createdRepositoriesData.map(repositoryData => {
-          // Recover user id from the first student in the list
-          const userId = fromGlobalIdAsNumber(
-            repositoriesStudentsData.find(
+        createRepositoriesResult.createdRepositoriesData
+          .map(repositoryData => {
+            // Recover user id from the first student in the list
+            const student = repositoriesStudentsData.find(
               (data: RepositoryStudentsData) => data.name === repositoryData.name
-            )?.students[0] || ''
-          ); // todo: manejar el caso de vacio?
+            );
+            const userId = student
+              ? fromGlobalIdAsNumber(student.students[0] || '')
+              : undefined;
 
-          return {
-            courseId,
-            userId,
-            name: repositoryData.name,
-            githubId: repositoryData.id,
-            active: true,
-            id: undefined,
-          };
-        });
+            return {
+              courseId,
+              userId,
+              name: repositoryData.name,
+              githubId: repositoryData.id,
+              active: true,
+              id: undefined,
+            };
+          })
+          .filter(repositoryField => repositoryField.userId !== undefined);
+
       await bulkCreateRepository(repositoryFieldList);
 
       return {
