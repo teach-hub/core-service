@@ -66,6 +66,15 @@ input RepositoryStudentData {
   students: [String!]
 }
 
+type RepositoryType {
+  active: Boolean!
+  course: CourseType!
+  githubId: String!
+  id: ID!
+  name: String!
+  user: UserType!
+}
+
 type RoleType {
   active: Boolean!
   id: ID!
@@ -174,7 +183,7 @@ type ViewerType {
   active: Boolean!
 
   """Get available github organizations for a user"""
-  availableOrganizations: ViewerOrganizations
+  availableOrganizations: ViewerOrganizations!
 
   """Finds a course for the viewer"""
   course(id: ID!): CourseType
@@ -184,8 +193,14 @@ type ViewerType {
   lastName: String!
   name: String!
   notificationEmail: String!
-  openPullRequests(courseId: String!): [UserPullRequestType!]!
+  openPullRequests(courseId: ID!): [UserPullRequestType!]!
+
+  """Look for all the repositories associated to the viewer"""
+  repositories(
+    """Scope repositories down to this course"""
+    courseId: ID
+  ): [RepositoryType!]!
 
   """User user roles"""
-  userRoles: [UserRoleType!]
+  userRoles: [UserRoleType!]!
 }

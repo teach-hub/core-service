@@ -33,6 +33,8 @@ const buildModelFields = (repository: Nullable<RepositoryModel>): RepositoryFiel
 
 type FindRepositoriesFilter = OrderingOptions & {
   active?: boolean;
+  forUserId?: string;
+  forCourseId?: string;
 };
 
 export async function createRepository(
@@ -75,10 +77,12 @@ export async function countRepositories(): Promise<number> {
 export async function findAllRepositories(
   options: FindRepositoriesFilter
 ): Promise<RepositoryFields[]> {
-  const { active } = options;
+  const { active, forUserId, forCourseId } = options;
 
   const whereClause = {
-    ...(active ? { active: active } : {}),
+    ...(active ? { active } : {}),
+    ...(forUserId ? { userId: forUserId } : {}),
+    ...(forCourseId ? { courseId: forCourseId } : {}),
   };
 
   return findAllModels(RepositoryModel, options, buildModelFields, whereClause);

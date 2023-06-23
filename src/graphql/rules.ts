@@ -149,6 +149,8 @@ export default shield<null, Context, unknown>({
   SubjectType: allow,
   AssignmentType: allow,
   SubmissionType: allow,
+  // TODO..
+  RepositoryType: allow,
   RootMutationType: {
     registerUser: allow,
     /**

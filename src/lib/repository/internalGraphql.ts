@@ -1,5 +1,3 @@
-import { Context } from '../../types';
-import { fromGlobalIdAsNumber } from '../../graphql/utils';
 import {
   GraphQLBoolean,
   GraphQLID,
@@ -9,13 +7,22 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
+
+import { toGlobalId, fromGlobalIdAsNumber } from '../../graphql/utils';
 import { createRepositories, RepositoryData } from '../../github/repositories';
 import { getToken } from '../../utils/request';
-import { findUsersInCourse } from '../user/userService';
+
+import { findUser, findUsersInCourse } from '../user/userService';
+import { findCourse } from '../course/courseService';
+
 import { getGithubUsernameFromGithubId } from '../../github/githubUser';
-import logger from '../../logger';
 import { initOctokit } from '../../github/config';
 import { bulkCreateRepository, RepositoryFields } from './repositoryService';
+
+import { UserType } from '../user/internalGraphql';
+import { CourseType } from '../course/internalGraphql';
+
+import type { Context } from '../../types';
 
 interface RepositoryStudentsData {
   name: string;
@@ -30,6 +37,42 @@ const RepositoryStudentsDataInput = new GraphQLInputObjectType({
   }),
 });
 
+export const RepositoryType = new GraphQLObjectType({
+  name: 'RepositoryType',
+  fields: {
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: s => {
+        return toGlobalId({
+          entityName: 'repository',
+          dbId: String(s.id) as string,
+        });
+      },
+    },
+    course: {
+      type: new GraphQLNonNull(CourseType),
+      resolve: async repository => {
+        return findCourse({ courseId: repository.courseId });
+      },
+    },
+    user: {
+      type: new GraphQLNonNull(UserType),
+      resolve: async repository => {
+        return findUser({ userId: repository.userId });
+      },
+    },
+    githubId: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    name: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    active: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+    },
+  },
+});
+
 export const repositoryMutations = {
   createRepositories: {
     name: 'CreateRepositories',
@@ -37,7 +80,7 @@ export const repositoryMutations = {
       name: 'CreateRepositoriesResponse',
       fields: {
         failedRepositoriesNames: {
-          type: GraphQLList(new GraphQLNonNull(GraphQLString)),
+          type: new GraphQLList(new GraphQLNonNull(GraphQLString)),
         },
       },
     }),
@@ -89,7 +132,7 @@ export const repositoryMutations = {
         try {
           return await getGithubUsernameFromGithubId(octokit, user.githubId || '');
         } catch (e) {
-          logger.error(e);
+          context.logger.error(e);
           throw e;
         }
       };
