@@ -12,6 +12,7 @@ export const DatabaseConstants = {
     ASSIGNMENT: 'assignments',
     INVITE: 'invites',
     SUBMISSION: 'submissions',
+    REPOSITORY: 'repositories',
   },
 };
 

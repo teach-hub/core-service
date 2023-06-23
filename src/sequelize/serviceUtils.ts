@@ -74,6 +74,16 @@ export const createModel = async <T extends Model, U>(
   return buildModelObject(created);
 };
 
+export const bulkCreateModel = async <T extends Model, U>(
+  sequelizeModel: ModelStatic<T>,
+  values: CreationAttributes<T>[],
+  buildModelObject: (model: T) => U
+): Promise<U[]> => {
+  const created = await sequelizeModel.bulkCreate(values);
+
+  return created.map(buildModelObject);
+};
+
 export const updateModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   values: CreationAttributes<T>,

@@ -15,6 +15,7 @@ import { findUsersInCourse } from '../user/userService';
 import { getGithubUsernameFromGithubId } from '../../github/githubUser';
 import logger from '../../logger';
 import { initOctokit } from '../../github/config';
+import { bulkCreateRepository, RepositoryFields } from './repositoryService';
 
 interface RepositoryStudentsData {
   name: string;
@@ -114,7 +115,7 @@ export const repositoryMutations = {
         })
       );
 
-      const failedRepositoriesNames = createRepositories({
+      const createRepositoriesResult = await createRepositories({
         octokit,
         organization,
         repositoriesData,
@@ -122,8 +123,34 @@ export const repositoryMutations = {
         maintainersGithubUsernames,
       });
 
+      const repositoryFieldList: RepositoryFields[] =
+        createRepositoriesResult.createdRepositoriesData
+          .map(repositoryData => {
+            // Recover user id from the first student in the list
+            const student = repositoriesStudentsData.find(
+              (data: RepositoryStudentsData) => data.name === repositoryData.name
+            );
+            const userId = student
+              ? fromGlobalIdAsNumber(student.students[0] || '')
+              : undefined;
+
+            return {
+              courseId,
+              userId,
+              name: repositoryData.name,
+              githubId: repositoryData.id,
+              active: true,
+              id: undefined,
+            };
+          })
+          .filter(repositoryField => repositoryField.userId !== undefined);
+
+      await bulkCreateRepository(repositoryFieldList);
+
       return {
-        failedRepositoriesNames,
+        failedRepositoriesNames: createRepositoriesResult.failedRepositoriesData.map(
+          x => x.name
+        ),
       };
     },
   },

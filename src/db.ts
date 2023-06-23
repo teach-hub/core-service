@@ -9,6 +9,7 @@ import UserRoleModel from './lib/userRole/userRoleModel';
 import AssignmentModel from './lib/assignment/assignmentModel';
 import InviteModel from './lib/invite/model';
 import SubmissionModel from './lib/submission/model';
+import RepositoryModel from './lib/repository/repositoryModel';
 
 import logger from './logger';
 
@@ -29,6 +30,7 @@ const initializeModels = () => {
     AssignmentModel,
     InviteModel,
     SubmissionModel,
+    RepositoryModel,
   };
 
   // Esta magia inicializa los modelos de la base de datos. Basicamente
