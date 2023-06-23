@@ -9,10 +9,6 @@ import UserRoleModel from './lib/userRole/userRoleModel';
 import AssignmentModel from './lib/assignment/assignmentModel';
 import InviteModel from './lib/invite/model';
 import SubmissionModel from './lib/submission/model';
-
-import logger from './logger';
-import InviteModel from './lib/invite/model';
-import SubmissionModel from './lib/submission/model';
 import RepositoryModel from './lib/repository/repositoryModel';
 
 import logger from './logger';
