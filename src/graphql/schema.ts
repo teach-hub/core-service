@@ -106,14 +106,23 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
           return [];
         }
 
-        const repositoriesFilters = {
-          forUserId: String(viewer.id),
-          ...(courseId ? { forCourseId: fromGlobalId(courseId).dbId } : {}),
-        };
+        try {
+          const repositoriesFilters = {
+            forUserId: String(viewer.id),
+            ...(courseId ? { forCourseId: fromGlobalId(courseId).dbId } : {}),
+          };
 
-        context.logger.info('Searching repositories', { filters: repositoriesFilters });
+          context.logger.info('Searching repositories', { filters: repositoriesFilters });
 
-        return findAllRepositories(repositoriesFilters);
+          const result = await findAllRepositories(repositoriesFilters);
+
+          context.logger.info(`Returning ${result.length} repositories`);
+
+          return result;
+        } catch (e) {
+          context.logger.error('Failed fetching repositories', { error: e });
+          return [];
+        }
       },
     },
     userRoles: {
