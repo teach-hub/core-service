@@ -11,7 +11,11 @@ import InviteModel from './lib/invite/model';
 import SubmissionModel from './lib/submission/model';
 
 import logger from './logger';
+import InviteModel from './lib/invite/model';
+import SubmissionModel from './lib/submission/model';
 import RepositoryModel from './lib/repository/repositoryModel';
+
+import logger from './logger';
 
 const DB_URL = process.env.DB_URL || 'postgres://postgres@localhost:5432/teachhub';
 
