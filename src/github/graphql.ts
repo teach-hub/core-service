@@ -13,5 +13,8 @@ export const UserPullRequestType = new GraphQLObjectType({
     url: {
       type: new GraphQLNonNull(GraphQLString),
     },
+    repositoryName: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
   },
 });

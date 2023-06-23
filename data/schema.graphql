@@ -151,6 +151,7 @@ type UseInviteResponse {
 """Pull request object has opened for a course"""
 type UserPullRequestType {
   id: String!
+  repositoryName: String!
   title: String!
   url: String!
 }

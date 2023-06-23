@@ -10,6 +10,7 @@ type PullRequest = {
   id: string;
   title: string;
   url: string;
+  repositoryName: string;
 };
 
 export const listOpenPRs = async (
@@ -27,17 +28,21 @@ export const listOpenPRs = async (
   // TODO. Take the user repo from Repository model.
   const userRepos = await octoClient.rest.repos.listForOrg({ org: organization });
 
-  const pullRequestsByRepo = await Promise.all(
-    userRepos.data.map(repo =>
-      octoClient.rest.pulls.list({
+  const findPullRequestsForRepository = async (repositoryName: string) => {
+    return octoClient.rest.pulls
+      .list({
         owner: organization,
-        repo: repo.name,
+        repo: repositoryName,
         state: 'open',
       })
-    )
+      .then(prs => prs.data.map(pr => ({ ...pr, repositoryName })));
+  };
+
+  const pullRequestsByRepo = await Promise.all(
+    userRepos.data.map(({ name }) => findPullRequestsForRepository(name))
   );
 
-  const pullRequests = flatten(pullRequestsByRepo.map(x => x.data));
+  const pullRequests = flatten(pullRequestsByRepo);
 
   logger.info(`Found ${pullRequests.length} open pull requests for user ${viewer.id}`);
 
@@ -45,5 +50,6 @@ export const listOpenPRs = async (
     id: String(pr.id),
     url: pr.url,
     title: pr.title,
+    repositoryName: pr.repositoryName,
   }));
 };
