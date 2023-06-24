@@ -27,7 +27,7 @@ export const AssignmentType = new GraphQLObjectType({
       resolve: s =>
         toGlobalId({
           entityName: 'assignment',
-          dbId: String(s.id) as string,
+          dbId: String(s.id),
         }),
     },
     courseId: {
@@ -35,7 +35,7 @@ export const AssignmentType = new GraphQLObjectType({
       resolve: s =>
         toGlobalId({
           entityName: 'assignment',
-          dbId: String(s.courseId) as string,
+          dbId: String(s.courseId),
         }),
     },
     submission: {

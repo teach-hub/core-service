@@ -45,6 +45,11 @@ type CreateRepositoriesResponse {
   failedRepositoriesNames: [String!]
 }
 
+type CreateSubmissionResultType {
+  errors: [String!]!
+  success: Boolean
+}
+
 """Authenticated data"""
 type Login {
   token: String
@@ -91,6 +96,9 @@ type RootMutationType {
 
   """Creates repositories"""
   createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
+
+  """Creates a new submission for the viewer"""
+  createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): CreateSubmissionResultType
 
   """Generates an invitation code"""
   generateInviteCode(courseId: ID!, roleId: ID!): String!

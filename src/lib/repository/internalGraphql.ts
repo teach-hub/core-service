@@ -45,7 +45,7 @@ export const RepositoryType = new GraphQLObjectType({
       resolve: s => {
         return toGlobalId({
           entityName: 'repository',
-          dbId: String(s.id) as string,
+          dbId: String(s.id),
         });
       },
     },

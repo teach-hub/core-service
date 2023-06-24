@@ -34,7 +34,7 @@ export const buildUserRoleType = ({
             resolve: s =>
               toGlobalId({
                 entityName: 'userRole',
-                dbId: String(s.id) as string,
+                dbId: String(s.id),
               }),
           },
           active: { type: new GraphQLNonNull(GraphQLBoolean) },

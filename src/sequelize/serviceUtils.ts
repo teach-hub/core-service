@@ -50,6 +50,11 @@ export const findModel = async <M extends Model, U>(
     where: whereQuery,
   });
 
+  // FIXME
+  // TODO. No deberiamos llamar a buildModelObject si no encontramos el
+  // objeto. No tiene sentido.
+  // Deberiamos simplemente devolver null.
+
   return buildModelObject(model);
 };
 

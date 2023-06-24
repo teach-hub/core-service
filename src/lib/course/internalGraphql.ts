@@ -28,11 +28,13 @@ import {
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
-import type { Context } from 'src/types';
-import type { CourseFields } from './courseService';
 import { findCourse, updateCourse } from './courseService';
 import { getGithubUserOrganizationNames } from '../../github/githubUser';
 import { getToken } from '../../utils/request';
+
+import type { Context } from '../../../src/types';
+import type { CourseFields } from './courseService';
+import type { GraphQLFieldConfigMap } from 'graphql';
 
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
@@ -50,7 +52,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
           resolve: s => {
             return toGlobalId({
               entityName: 'course',
-              dbId: String(s.id) as string,
+              dbId: String(s.id),
             });
           },
         },
@@ -150,9 +152,8 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
   }
 );
 
-export const courseMutations = {
+export const courseMutations: GraphQLFieldConfigMap<null, Context> = {
   setOrganization: {
-    name: 'SetCourseOrganization',
     type: CourseType,
     description: 'Sets the github organization of a course',
     args: {
@@ -163,10 +164,11 @@ export const courseMutations = {
         type: new GraphQLNonNull(GraphQLID),
       },
     },
-    resolve: async (_: unknown, args: any, context: Context) => {
+    resolve: async (_: unknown, args: unknown, context: Context) => {
       const token = getToken(context);
       if (!token) throw new Error('Token required');
 
+      // @ts-expect-error: FIXME
       const { organizationName, courseId: encodedCourseId } = args;
 
       const { dbId: courseId } = fromGlobalId(encodedCourseId);

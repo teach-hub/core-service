@@ -20,9 +20,9 @@ import { inviteMutations } from '../lib/invite/internalGraphql';
 import { authMutations } from '../lib/auth/graphql';
 import { courseMutations, CourseType } from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
-import { repositoryMutations } from '../lib/repository/internalGraphql';
+import { RepositoryType, repositoryMutations } from '../lib/repository/internalGraphql';
 import { assignmentMutations } from '../lib/assignment/graphql';
-import { RepositoryType } from '../lib/repository/internalGraphql';
+import { submissionMutations } from '../lib/submission/internalGraphql';
 
 import { fromGlobalId, toGlobalId } from './utils';
 
@@ -61,7 +61,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
       resolve: s =>
         toGlobalId({
           entityName: 'viewer',
-          dbId: String(s.id) as string,
+          dbId: String(s.id),
         }),
     },
     name: { type: new GraphQLNonNull(GraphQLString) },
@@ -199,6 +199,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...userMutations,
     ...authMutations,
     ...assignmentMutations,
+    ...submissionMutations,
     ...courseMutations,
     ...repositoryMutations,
   },

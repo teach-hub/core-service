@@ -48,7 +48,7 @@ export const listOpenPRs = async (
 
   return pullRequests.map(pr => ({
     id: String(pr.id),
-    url: pr.url,
+    url: pr.html_url,
     title: pr.title,
     repositoryName: pr.repositoryName,
   }));

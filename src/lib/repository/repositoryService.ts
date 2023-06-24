@@ -49,9 +49,9 @@ export async function createRepository(
 }
 
 export async function bulkCreateRepository(
-  dataList: RepositoryFields[]
+  repositoriesData: RepositoryFields[]
 ): Promise<RepositoryFields[]> {
-  const dataWithActiveFieldList = dataList.map(data => {
+  const dataWithActiveFieldList = repositoriesData.map(data => {
     return {
       ...data,
       active: true,
