@@ -44,7 +44,7 @@ export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjec
       resolve: s =>
         toGlobalId({
           entityName: 'user',
-          dbId: String(s.id) as string,
+          dbId: String(s.id),
         }),
     },
     name: { type: new GraphQLNonNull(GraphQLString) },

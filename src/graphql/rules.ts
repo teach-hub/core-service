@@ -149,6 +149,9 @@ export default shield<null, Context, unknown>({
   SubjectType: allow,
   AssignmentType: allow,
   SubmissionType: allow,
+  // TODO..
+  RepositoryType: allow,
+  CreateSubmissionResultType: allow,
   RootMutationType: {
     registerUser: allow,
     /**
@@ -164,5 +167,6 @@ export default shield<null, Context, unknown>({
     setOrganization: viewerHasPermissionInCourse(Permission.SetOrganization),
     generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
     createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
+    createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
   },
 });

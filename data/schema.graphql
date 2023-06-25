@@ -45,6 +45,11 @@ type CreateRepositoriesResponse {
   failedRepositoriesNames: [String!]
 }
 
+type CreateSubmissionResultType {
+  errors: [String!]!
+  success: Boolean
+}
+
 """Authenticated data"""
 type Login {
   token: String
@@ -66,6 +71,15 @@ input RepositoryStudentData {
   students: [String!]
 }
 
+type RepositoryType {
+  active: Boolean!
+  course: CourseType!
+  githubId: String!
+  id: ID!
+  name: String!
+  user: UserType!
+}
+
 type RoleType {
   active: Boolean!
   id: ID!
@@ -82,6 +96,9 @@ type RootMutationType {
 
   """Creates repositories"""
   createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
+
+  """Creates a new submission for the viewer"""
+  createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): CreateSubmissionResultType
 
   """Generates an invitation code"""
   generateInviteCode(courseId: ID!, roleId: ID!): String!
@@ -139,6 +156,14 @@ type UseInviteResponse {
   courseId: ID
 }
 
+"""Pull request object has opened for a course"""
+type UserPullRequestType {
+  id: String!
+  repositoryName: String!
+  title: String!
+  url: String!
+}
+
 type UserRoleType {
   active: Boolean!
   course: CourseType!
@@ -167,7 +192,7 @@ type ViewerType {
   active: Boolean!
 
   """Get available github organizations for a user"""
-  availableOrganizations: ViewerOrganizations
+  availableOrganizations: ViewerOrganizations!
 
   """Finds a course for the viewer"""
   course(id: ID!): CourseType
@@ -177,7 +202,14 @@ type ViewerType {
   lastName: String!
   name: String!
   notificationEmail: String!
+  openPullRequests(courseId: ID!): [UserPullRequestType!]!
+
+  """Look for all the repositories associated to the viewer"""
+  repositories(
+    """Scope repositories down to this course"""
+    courseId: ID
+  ): [RepositoryType!]!
 
   """User user roles"""
-  userRoles: [UserRoleType!]
+  userRoles: [UserRoleType!]!
 }

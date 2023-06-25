@@ -2,13 +2,14 @@ import Sequelize from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface SubmissionAttributes {
+export interface SubmissionAttributes {
   readonly id?: number;
   readonly userId?: number;
   readonly assignmentId?: number;
-  readonly description?: string;
-  readonly createdAt?: Date;
-  readonly updatedAt?: Date;
+  readonly description?: string | null;
+  readonly pullRequestUrl?: string;
+  readonly createdAt?: Date | null;
+  readonly updatedAt?: Date | null;
 }
 
 class SubmissionModel
@@ -18,9 +19,10 @@ class SubmissionModel
   readonly id!: number;
   readonly userId!: number;
   readonly assignmentId!: number;
-  readonly description!: string;
-  readonly createdAt!: Date;
-  readonly updatedAt!: Date;
+  readonly description!: string | null;
+  readonly pullRequestUrl!: string;
+  readonly createdAt!: Date | null;
+  readonly updatedAt!: Date | null;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return SubmissionModel.init(
@@ -29,6 +31,7 @@ class SubmissionModel
           type: Sequelize.INTEGER,
           primaryKey: true,
           autoIncrement: true,
+          allowNull: false,
         },
         userId: {
           field: 'user_id',
@@ -42,6 +45,11 @@ class SubmissionModel
         },
         description: {
           type: Sequelize.STRING,
+        },
+        pullRequestUrl: {
+          type: Sequelize.STRING,
+          field: 'pull_request_url',
+          allowNull: false,
         },
         createdAt: {
           field: 'created_at',

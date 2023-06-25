@@ -1,4 +1,5 @@
 import type Sequelize from 'sequelize';
+import { isNil } from 'lodash';
 
 import SubmissionModel from './model';
 
@@ -10,41 +11,41 @@ import {
 } from '../../sequelize/serviceUtils';
 
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
 
-type SubmissionFields = {
-  id: Optional<number>;
-  assignmentId: Optional<number>;
-  userId: Optional<number>;
-  description: Optional<string>;
-  createdAt: Optional<Date>;
-  updatedAt: Optional<Date>;
+export type SubmissionFields = {
+  id: number;
+  assignmentId: number;
+  userId: number;
+  description: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  pullRequestUrl: string;
 };
 
-function buildModelFields(submission: Nullable<SubmissionModel>): SubmissionFields {
+const buildModelFields = (
+  submission: null | undefined | SubmissionModel
+): SubmissionFields => {
+  if (isNil(submission)) {
+    // @ts-expect-error: FIXME
+    return null;
+  }
+
   return {
-    id: submission?.id,
-    assignmentId: submission?.assignmentId,
-    userId: submission?.userId,
-    description: submission?.description,
-    createdAt: submission?.createdAt,
-    updatedAt: submission?.updatedAt,
+    id: submission.id,
+    assignmentId: submission.assignmentId,
+    userId: submission.userId,
+    description: submission.description || '',
+    createdAt: submission.createdAt,
+    updatedAt: submission.updatedAt,
+    pullRequestUrl: submission.pullRequestUrl,
   };
-}
-
-function buildQuery(id: number): Sequelize.WhereOptions<SubmissionModel> {
-  return { id };
-}
-
-export async function createSubject(data: SubmissionModel): Promise<SubmissionFields> {
-  return createModel(SubmissionModel, data, buildModelFields);
-}
+};
 
 export async function updateSubmission(
   id: number,
   data: SubmissionModel
 ): Promise<SubmissionFields> {
-  return updateModel(SubmissionModel, data, buildModelFields, buildQuery(id));
+  return updateModel(SubmissionModel, data, buildModelFields, { id });
 }
 
 export async function findSubmission({
@@ -52,7 +53,7 @@ export async function findSubmission({
 }: {
   submissionId: number;
 }): Promise<SubmissionFields> {
-  return findModel(SubmissionModel, buildModelFields, buildQuery(submissionId));
+  return findModel(SubmissionModel, buildModelFields, { id: submissionId });
 }
 
 type FindAllFilter = {
@@ -71,4 +72,10 @@ export async function findAllSubmissions(
   };
 
   return findAllModels(SubmissionModel, filter, buildModelFields, whereClause);
+}
+
+export async function createSubmission(
+  data: Partial<SubmissionFields>
+): Promise<SubmissionFields> {
+  return createModel(SubmissionModel, data, buildModelFields);
 }

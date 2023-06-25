@@ -13,20 +13,28 @@ import { UserFields } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
 import { findAllRoles } from '../lib/role/roleService';
+import { findAllRepositories } from '../lib/repository/repositoryService';
 
 import { getViewer, userMutations, UserType } from '../lib/user/internalGraphql';
 import { inviteMutations } from '../lib/invite/internalGraphql';
 import { authMutations } from '../lib/auth/graphql';
 import { courseMutations, CourseType } from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
+import { RepositoryType, repositoryMutations } from '../lib/repository/internalGraphql';
+import { assignmentMutations } from '../lib/assignment/graphql';
+import { submissionMutations } from '../lib/submission/internalGraphql';
 
 import { fromGlobalId, toGlobalId } from './utils';
 
-import type { Context } from 'src/types';
-import { assignmentMutations } from '../lib/assignment/graphql';
 import { getToken } from '../utils/request';
+
 import { getGithubUserOrganizationNames } from '../github/githubUser';
-import { repositoryMutations } from '../lib/repository/internalGraphql';
+import { listOpenPRs } from '../github/pullrequests';
+import { initOctokit } from '../github/config';
+
+import { UserPullRequestType } from '../github/graphql';
+
+import type { Context } from 'src/types';
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,
@@ -53,7 +61,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
       resolve: s =>
         toGlobalId({
           entityName: 'viewer',
-          dbId: String(s.id) as string,
+          dbId: String(s.id),
         }),
     },
     name: { type: new GraphQLNonNull(GraphQLString) },
@@ -62,8 +70,63 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
     active: { type: new GraphQLNonNull(GraphQLBoolean) },
     githubId: { type: new GraphQLNonNull(GraphQLString) },
     notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
+    openPullRequests: {
+      args: {
+        courseId: {
+          type: new GraphQLNonNull(GraphQLID),
+        },
+      },
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserPullRequestType))),
+      resolve: async (viewer, { courseId }, context) => {
+        try {
+          const githubToken = getToken(context);
+          if (!githubToken) {
+            throw new Error('Github token not found!');
+          }
+
+          const client = initOctokit(githubToken);
+          return listOpenPRs(viewer, fromGlobalId(courseId).dbId, client);
+        } catch (error) {
+          context.logger.error('Error while fetching open pull requests', { error });
+          return [];
+        }
+      },
+    },
+    repositories: {
+      description: 'Look for all the repositories associated to the viewer',
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(RepositoryType))),
+      args: {
+        courseId: {
+          type: GraphQLID,
+          description: 'Scope repositories down to this course',
+        },
+      },
+      resolve: async (viewer, { courseId }, context) => {
+        if (!viewer.id) {
+          return [];
+        }
+
+        try {
+          const repositoriesFilters = {
+            forUserId: String(viewer.id),
+            ...(courseId ? { forCourseId: fromGlobalId(courseId).dbId } : {}),
+          };
+
+          context.logger.info('Searching repositories', { filters: repositoriesFilters });
+
+          const result = await findAllRepositories(repositoriesFilters);
+
+          context.logger.info(`Returning ${result.length} repositories`);
+
+          return result;
+        } catch (e) {
+          context.logger.error('Failed fetching repositories', { error: e });
+          return [];
+        }
+      },
+    },
     userRoles: {
-      type: new GraphQLList(new GraphQLNonNull(UserRoleType)),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserRoleType))),
       description: 'User user roles',
       resolve: async viewer => {
         const response = await findAllUserRoles({ forUserId: viewer.id });
@@ -94,8 +157,8 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
     },
     availableOrganizations: {
       description: 'Get available github organizations for a user',
-      type: ViewerOrganizationsType,
-      resolve: async (viewer, args, ctx) => {
+      type: new GraphQLNonNull(ViewerOrganizationsType),
+      resolve: async (_, args, ctx) => {
         const token = getToken(ctx);
         if (!token) throw new Error('Token required');
 
@@ -136,6 +199,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...userMutations,
     ...authMutations,
     ...assignmentMutations,
+    ...submissionMutations,
     ...courseMutations,
     ...repositoryMutations,
   },
