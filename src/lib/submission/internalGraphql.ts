@@ -39,6 +39,9 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
         return submitter;
       },
     },
+    pullRequestUrl: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
     submittedAt: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when submission was created',
