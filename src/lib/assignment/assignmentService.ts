@@ -9,8 +9,6 @@ import {
 } from '../../sequelize/serviceUtils';
 
 import AssignmentModel from './assignmentModel';
-
-import type UserRoleModel from '../userRole/userRoleModel';
 import type { OrderingOptions } from '../../utils';
 import type { Nullable, Optional } from '../../types';
 
@@ -41,7 +39,7 @@ const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFiel
 };
 
 type FindAssignmentsFilter = OrderingOptions & {
-  forCourseId?: UserRoleModel['courseId'];
+  forCourseId?: AssignmentModel['courseId'];
   active?: boolean;
 };
 

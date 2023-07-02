@@ -15,3 +15,5 @@ add_is_teacher_to_roles 2023-05-16T22:49:03Z System Administrator <root@canada> 
 add_submissions_table 2023-06-17T19:19:03Z Tomas Lopez Hidalg <tomas@canada> # Create submissions table
 create_repository_table 2023-06-20T16:24:23Z Sebastian Penna <spenna@fi.uba.ar> # Create repository table
 add_pr_url_submissions 2023-06-20T15:42:20Z System Administrator <root@canada> # Add pull_request_url to submissions
+create_group_table 2023-07-02T19:28:51Z Sebastian Penna <spenna@fi.uba.ar> # Create group table
+create_group_participant_table 2023-07-02T19:29:06Z Sebastian Penna <spenna@fi.uba.ar> # Create group participant table
