@@ -11,6 +11,8 @@ type AssignmentType {
   endDate: String
   id: ID!
   link: String
+  previewReviewers: [ReviewerPreviewType!]!
+  reviewers: [ReviewerType!]!
   startDate: String
   submission(id: ID!): SubmissionType
   submissions: [SubmissionType!]!
@@ -78,6 +80,30 @@ type RepositoryType {
   id: ID!
   name: String!
   user: UserType!
+}
+
+"""Assignment reviewer."""
+type ReviewerPreviewType {
+  """The id of the reviewer."""
+  id: ID!
+
+  """The reviewee user."""
+  reviewee: UserType!
+
+  """The id of the reviewer user role."""
+  reviewer: UserType!
+}
+
+"""Assignment reviewer."""
+type ReviewerType {
+  """The id of the reviewer."""
+  id: ID!
+
+  """The reviewee user."""
+  reviewee: UserType!
+
+  """The id of the reviewer user role."""
+  reviewerUserRole: UserType!
 }
 
 type RoleType {

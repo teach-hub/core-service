@@ -149,7 +149,8 @@ export default shield<null, Context, unknown>({
   SubjectType: allow,
   AssignmentType: allow,
   SubmissionType: allow,
-  // TODO..
+  ReviewerPreviewType: allow,
+  ReviewerType: allow,
   RepositoryType: allow,
   CreateSubmissionResultType: allow,
   RootMutationType: {
