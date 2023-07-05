@@ -13,6 +13,8 @@ export const DatabaseConstants = {
     INVITE: 'invites',
     SUBMISSION: 'submissions',
     REPOSITORY: 'repositories',
+    GROUP: 'groups',
+    GROUP_PARTICIPANT: 'group_participants',
   },
 };
 
