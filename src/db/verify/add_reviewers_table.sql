@@ -2,7 +2,7 @@
 
 BEGIN;
 
-  SELECT id, reviewer_id, assignment_id
+  SELECT id, reviewer_id, assignment_id, reviewee_user_id
   FROM teachhub.reviewers
   WHERE false;
 

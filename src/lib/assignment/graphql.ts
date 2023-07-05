@@ -5,6 +5,7 @@ import {
   GraphQLObjectType,
   GraphQLList,
 } from 'graphql';
+import { keyBy } from 'lodash';
 import { getAssignmentFields } from './internalGraphql';
 import {
   AssignmentFields,
@@ -13,8 +14,12 @@ import {
 } from './assignmentService';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
+import { ReviewerPreviewType, ReviewerType } from '../reviewer/internalGraphql';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findSubmission, findAllSubmissions } from '../submission/submissionsService';
+import { findReviewers } from '../reviewer/service';
+import { findAllUserRoles } from '../userRole/userRoleService';
+import { findAllRoles } from '../role/roleService';
 
 import type { Context } from '../../types';
 
@@ -62,6 +67,51 @@ export const AssignmentType = new GraphQLObjectType({
         ctx.logger.info('Returning submissions', { submissions });
 
         return submissions;
+      },
+    },
+    reviewers: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
+      resolve: async (assignment, _, ctx: Context) => {
+        const reviewers = await findReviewers({ assignmentId: assignment.id });
+
+        ctx.logger.info('Returning reviewers', { reviewers });
+
+        return reviewers;
+      },
+    },
+    previewReviewers: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerPreviewType))),
+      resolve: async (assignment, _, ctx: Context) => {
+        try {
+          const courseUserRoles = await findAllUserRoles({
+            forCourseId: assignment.courseId,
+          });
+          const allRoles = await findAllRoles({});
+
+          const allRolesById = keyBy(allRoles, 'id');
+
+          const studentsUserRoles = courseUserRoles.filter(
+            userRole => !allRolesById[userRole.roleId!].isTeacher
+          );
+          const teachersUserRoles = courseUserRoles.filter(
+            userRole => allRolesById[userRole.roleId!].isTeacher
+          );
+
+          ctx.logger.info('Returning reviewers', {
+            studentsUserRoles,
+            teachersUserRoles,
+          });
+
+          return studentsUserRoles.map((user, i) => ({
+            id: i,
+            reviewerUserRoleId: teachersUserRoles[0].id,
+            assignmentId: assignment.id,
+            revieweeUserId: user.userId,
+          }));
+        } catch (error) {
+          ctx.logger.error('Error', { error });
+          return [];
+        }
       },
     },
   },
