@@ -66,7 +66,7 @@ export const createRepositories = async ({
   const handleRepositoryError = (
     name: string,
     errorMessage: string,
-    error: any
+    error: unknown
   ): FailedRepositoryData => {
     logger.error(errorMessage);
     logger.error(error);

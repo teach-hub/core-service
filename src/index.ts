@@ -64,6 +64,8 @@ app.get('/healthz', async (_, response) => {
   try {
     await checkDB();
     response.status(200).send('OK');
+    // FIXME. No copiar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: Error | any) {
     logger.error(e);
     response.status(500).send(e.message);
