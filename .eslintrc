@@ -5,6 +5,8 @@
   "parser": "@typescript-eslint/parser",
   "root": true,
   "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-redeclare": "error",
     "@typescript-eslint/no-extra-semi": "off"
   }
 }
