@@ -20,6 +20,9 @@ export const inviteMutations = {
         type: new GraphQLNonNull(GraphQLID),
       },
     },
+
+    // FIXME. No copiar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: async (_: unknown, args: any, context: Context) => {
       const { roleId: encodedRoleId, courseId: encodedCourseId } = args;
 
@@ -47,6 +50,9 @@ export const inviteMutations = {
     args: {
       inviteId: { type: new GraphQLNonNull(GraphQLID) },
     },
+
+    // FIXME. No copiar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: async (_: any, args: any, context: Context) => {
       const { inviteId: encodedInviteId } = args;
       const { dbId: inviteId } = fromGlobalId(encodedInviteId);

@@ -46,6 +46,8 @@ class Group extends Sequelize.Model<GroupAttributes> implements GroupAttributes 
     );
   };
 
+  // FIXME. No copiar
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static associate = (models: any) => {
     const { CourseModel } = models;
 

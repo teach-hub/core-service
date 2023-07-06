@@ -57,6 +57,8 @@ class GroupParticipant
     );
   };
 
+  // FIXME. No copiar
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static associate = (models: any) => {
     const { AssignmentModel, GroupModel, UserRoleModel } = models;
 
