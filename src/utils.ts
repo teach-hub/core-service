@@ -29,7 +29,7 @@ export async function writeSchema(
   console.timeEnd(`Done writing SDL Schema to Disk`);
 }
 
-export function isNumber(x: any): x is number {
+export function isNumber(x: unknown): x is number {
   return Number.isInteger(x);
 }
 

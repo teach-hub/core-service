@@ -66,6 +66,8 @@ class CourseModel extends Sequelize.Model<CourseAttributes> implements CourseAtt
     );
   };
 
+  // FIXME. No copiar
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static associate = (models: any) => {
     const { SubjectModel } = models;
 

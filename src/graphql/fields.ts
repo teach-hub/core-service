@@ -20,6 +20,8 @@ const buildFindTypeObject = <T>(
   return {
     type,
     args: { id: { type: GraphQLID } },
+    // FIXME. No copiar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: async (_: unknown, { id }: any) => {
       return findCallback(id);
     },
@@ -52,7 +54,7 @@ const buildMetaTypeObject = (
     type: new GraphQLObjectType({
       name: `${keyName}ListMetadata`,
       fields: {
-        count: { type: GraphQLInt }
+        count: { type: GraphQLInt },
       },
     }),
     args: RAArgs,

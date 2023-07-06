@@ -100,6 +100,9 @@ export const repositoryMutations = {
         type: new GraphQLList(new GraphQLNonNull(RepositoryStudentsDataInput)),
       },
     },
+
+    // FIXME. No copiar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: async (_: unknown, args: any, context: Context) => {
       const token = getToken(context);
       if (!token) throw new Error('Token required');

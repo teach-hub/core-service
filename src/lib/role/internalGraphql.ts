@@ -9,11 +9,11 @@ import {
 
 import type { Context } from 'src/types';
 
-import { findRole } from './roleService';
+import { RoleFields, findRole } from './roleService';
 
 import { toGlobalId } from '../../graphql/utils';
 
-export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
+export const RoleType: GraphQLObjectType<RoleFields, Context> = new GraphQLObjectType({
   name: 'RoleType',
   fields: () => ({
     id: {
@@ -41,7 +41,7 @@ export const RoleType: GraphQLObjectType<any, Context> = new GraphQLObjectType({
 
         logger.info(`Resolving parent role for role ${id}`);
 
-        const parentRole = await findRole({ roleId: parentRoleId });
+        const parentRole = await findRole({ roleId: String(parentRoleId) });
 
         return parentRole;
       },
