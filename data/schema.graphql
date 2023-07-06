@@ -3,6 +3,12 @@ schema {
   mutation: RootMutationType
 }
 
+input AssignReviewersInputType {
+  """ID of the assignment where assign the reviewers to."""
+  assignmentId: ID!
+  reviewers: [ReviewersAssignmentInputType!]!
+}
+
 type AssignmentType {
   active: Boolean
   allowLateSubmissions: Boolean
@@ -103,7 +109,15 @@ type ReviewerType {
   reviewee: UserType!
 
   """The id of the reviewer user role."""
-  reviewerUserRole: UserType!
+  reviewer: UserType!
+}
+
+input ReviewersAssignmentInputType {
+  """The id of the reviewer user."""
+  revieweeUserId: ID!
+
+  """The id of the reviewer user."""
+  reviewerUserId: ID!
 }
 
 type RoleType {
@@ -117,6 +131,8 @@ type RoleType {
 
 """Root mutation"""
 type RootMutationType {
+  assignReviewers(input: AssignReviewersInputType): [ReviewerType!]!
+
   """Creates an assignment in a course"""
   createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, link: String, startDate: String, title: String): AssignmentType
 

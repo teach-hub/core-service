@@ -1,8 +1,5 @@
-// Create function that finds a reviewer based on assignment id
-// using findModel function
-
 import ReviewerModel from './model';
-import { findAllModels } from '../../sequelize/serviceUtils';
+import { bulkCreateModel, findAllModels } from '../../sequelize/serviceUtils';
 import type { Nullable, Optional } from '../../types';
 
 export type ReviewerFields = {
@@ -27,3 +24,9 @@ export const findReviewers = async ({ assignmentId }: { assignmentId: number }) 
   });
   return reviewer;
 };
+
+export function createReviewers(
+  data: Omit<ReviewerFields, 'id'>[]
+): Promise<ReviewerFields[]> {
+  return bulkCreateModel(ReviewerModel, data, buildModelFields);
+}
