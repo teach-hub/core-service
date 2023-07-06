@@ -4,7 +4,7 @@ import type { Nullable, Optional } from '../../types';
 
 export type ReviewerFields = {
   id: Optional<number>;
-  reviewerUserRoleId: Optional<number>;
+  reviewerUserId: Optional<number>;
   assignmentId: Optional<number>;
   revieweeUserId: Optional<number>;
 };
@@ -12,17 +12,18 @@ export type ReviewerFields = {
 const buildModelFields = (reviewer: Nullable<ReviewerModel>): ReviewerFields => {
   return {
     id: reviewer?.id,
-    reviewerUserRoleId: reviewer?.reviewerUserRoleId,
+    reviewerUserId: reviewer?.reviewerUserId,
     assignmentId: reviewer?.assignmentId,
     revieweeUserId: reviewer?.revieweeUserId,
   };
 };
 
 export const findReviewers = async ({ assignmentId }: { assignmentId: number }) => {
-  const reviewer = await findAllModels(ReviewerModel, {}, buildModelFields, {
+  const reviewers = await findAllModels(ReviewerModel, { sortOrder: 'ASC', sortField: 'id' }, buildModelFields, {
     assignmentId,
   });
-  return reviewer;
+
+  return reviewers;
 };
 
 export function createReviewers(

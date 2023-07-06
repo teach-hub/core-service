@@ -5,7 +5,7 @@ import { DatabaseConstants } from '../../consts';
 interface ReviewerAttributes {
   readonly id?: number;
   readonly assignmentId?: number;
-  readonly reviewerUserRoleId?: number;
+  readonly reviewerUserId?: number;
   readonly revieweeUserId?: number;
 }
 
@@ -14,7 +14,7 @@ class ReviewerModel
   implements ReviewerAttributes
 {
   readonly id!: number;
-  readonly reviewerUserRoleId!: number;
+  readonly reviewerUserId!: number;
   readonly assignmentId!: number;
   readonly revieweeUserId!: number;
 
@@ -26,9 +26,9 @@ class ReviewerModel
           primaryKey: true,
           autoIncrement: true,
         },
-        reviewerUserRoleId: {
+        reviewerUserId: {
           type: Sequelize.NUMBER,
-          field: 'reviewer_id',
+          field: 'reviewer_user_id',
           allowNull: false,
         },
         assignmentId: {

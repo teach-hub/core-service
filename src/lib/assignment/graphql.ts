@@ -2,10 +2,11 @@ import {
   GraphQLID,
   GraphQLFieldConfigMap,
   GraphQLNonNull,
+  GraphQLBoolean,
   GraphQLObjectType,
   GraphQLList,
 } from 'graphql';
-import { keyBy } from 'lodash';
+import { flatten, chunk, keyBy } from 'lodash';
 import { getAssignmentFields } from './internalGraphql';
 import {
   AssignmentFields,
@@ -72,16 +73,26 @@ export const AssignmentType = new GraphQLObjectType({
     reviewers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
       resolve: async (assignment, _, ctx: Context) => {
-        const reviewers = await findReviewers({ assignmentId: assignment.id });
+        try {
+          const reviewers = await findReviewers({ assignmentId: assignment.id });
 
-        ctx.logger.info('Returning reviewers', { reviewers });
+          ctx.logger.info('Returning reviewers', { reviewers });
 
-        return reviewers;
+          return reviewers;
+        } catch (error) {
+          ctx.logger.error('An error happened while returning reviewers', { error })
+          return [];
+        }
       },
     },
     previewReviewers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerPreviewType))),
-      resolve: async (assignment, _, ctx: Context) => {
+      args: {
+        consecutive: {
+          type: new GraphQLNonNull(GraphQLBoolean),
+        }
+      },
+      resolve: async (assignment, args, ctx: Context) => {
         try {
           const courseUserRoles = await findAllUserRoles({
             forCourseId: assignment.courseId,
@@ -97,19 +108,39 @@ export const AssignmentType = new GraphQLObjectType({
             userRole => allRolesById[userRole.roleId!].isTeacher
           );
 
-          ctx.logger.info('Returning reviewers', {
+          ctx.logger.info('Returning reviewers preview', {
             studentsUserRoles,
             teachersUserRoles,
+            args
           });
 
-          return studentsUserRoles.map((user, i) => ({
-            id: i,
-            reviewerUserRoleId: teachersUserRoles[0].id,
-            assignmentId: assignment.id,
-            revieweeUserId: user.userId,
-          }));
+          // Consecutive
+          if (args.consecutive) {
+            const result = chunk(studentsUserRoles, teachersUserRoles.length).map((chunk, i) =>
+              chunk.map((user, j) => ({
+                id: `${assignment.id}-${user.userId}-${teachersUserRoles[i].userId}`,
+                reviewerUserId: teachersUserRoles[i].userId,
+                assignmentId: assignment.id,
+                revieweeUserId: user.userId,
+              }))
+            );
+
+            return flatten(result);
+          }
+
+          // Alternate
+          return studentsUserRoles.map((user, i) => {
+            const reviewerUserId = teachersUserRoles[i % teachersUserRoles.length].userId;
+
+            return {
+              id: `${assignment.id}-${user.userId}-${reviewerUserId}`,
+              reviewerUserId,
+              assignmentId: assignment.id,
+              revieweeUserId: user.userId,
+            }
+          });
         } catch (error) {
-          ctx.logger.error('Error', { error });
+          ctx.logger.error('Error', error);
           return [];
         }
       },

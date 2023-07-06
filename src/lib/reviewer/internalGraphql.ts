@@ -10,7 +10,7 @@ import {
 import { findUser } from '../user/userService';
 import { getViewer, UserType } from '../user/internalGraphql';
 import { findUserRole } from '../userRole/userRoleService';
-import { toGlobalId } from '../../graphql/utils';
+import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 import { createReviewers } from '../reviewer/service';
 
 import type { ReviewerFields } from '../reviewer/service';
@@ -34,14 +34,14 @@ export const ReviewerPreviewType = new GraphQLObjectType<ReviewerFields, Context
       type: new GraphQLNonNull(UserType),
       description: 'The id of the reviewer user role.',
       resolve: async reviewer => {
-        if (!reviewer.reviewerUserRoleId) {
+        if (!reviewer.reviewerUserId) {
           throw new Error();
         }
 
-        const reviewerUserRole = await findUserRole({
-          id: String(reviewer.reviewerUserRoleId),
-        });
-        return findUser({ userId: String(reviewerUserRole.userId) });
+        const r = await findUser({ userId: String(reviewer.reviewerUserId) });
+
+        return r;
+
       },
     },
     reviewee: {
@@ -72,14 +72,11 @@ export const ReviewerType = new GraphQLObjectType<ReviewerFields, Context>({
       type: new GraphQLNonNull(UserType),
       description: 'The id of the reviewer user role.',
       resolve: async reviewer => {
-        if (!reviewer.reviewerUserRoleId) {
+        if (!reviewer.reviewerUserId) {
           throw new Error();
         }
 
-        const reviewerUserRole = await findUserRole({
-          id: String(reviewer.reviewerUserRoleId),
-        });
-        return findUser({ userId: String(reviewerUserRole.userId) });
+        return findUser({ userId: String(reviewer.reviewerUserId) });
       },
     },
     reviewee: {
@@ -132,24 +129,32 @@ export const reviewerMutations: GraphQLFieldConfigMap<null, Context> = {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
     args: assignReviewerArgs,
     resolve: async (_, args, context) => {
-      const {
-        input: { assignmentId, reviewers },
-      } = args;
+      try {
+        const {
+          input: { assignmentId: encodedAssignmentId, reviewers },
+        } = args;
 
-      const viewer = getViewer(context);
+        const viewer = getViewer(context);
 
-      if (!viewer) {
-        throw new Error('Viewer not found!');
+        if (!viewer) {
+          throw new Error('Viewer not found!');
+        }
+
+        const reviewerFields: ReviewerFields[] = reviewers.map((reviewer: { reviewerUserId: string, revieweeUserId: string }) => {
+          return {
+            reviewerUserId: fromGlobalId(reviewer.reviewerUserId).dbId,
+            revieweeUserId: fromGlobalId(reviewer.revieweeUserId).dbId,
+            assignmentId: fromGlobalId(encodedAssignmentId).dbId,
+          }
+        });
+
+        context.logger.info('Assigning reviewers in assignment', { encodedAssignmentId, reviewerFields });
+
+        return await createReviewers(reviewerFields);
+      } catch(e) {
+        context.logger.error('Error on assignReviewers mutation', { error: String(e) });
+        return [];
       }
-
-      // @ts-expect-error. FIXME
-      const reviewerFields = reviewers.map(reviewer => ({
-        reviewerUserRoleId: reviewer.reviewerUserId,
-        revieweeUserId: reviewer.revieweeUserId,
-        assignmentId,
-      }));
-
-      return createReviewers(reviewerFields);
-    },
-  },
-};
+    }
+  }
+}
