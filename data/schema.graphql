@@ -17,7 +17,7 @@ type AssignmentType {
   endDate: String
   id: ID!
   link: String
-  previewReviewers(consecutive: Boolean!): [ReviewerPreviewType!]!
+  previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
   startDate: String
   submission(id: ID!): SubmissionType
@@ -43,6 +43,9 @@ type CourseType {
   subject: SubjectType!
   teachersCount: Int!
 
+  """Teacher user roles within a course"""
+  teachersUserRoles: [UserRoleType!]!
+
   """User roles within a course"""
   userRoles: [UserRoleType!]
   viewerRole: RoleType!
@@ -67,6 +70,11 @@ type Login {
 """Logout data"""
 type Logout {
   token: String
+}
+
+input PreviewReviewersFilterInputType {
+  consecutive: Boolean!
+  teachersUserIds: [String]!
 }
 
 """Registered user data"""

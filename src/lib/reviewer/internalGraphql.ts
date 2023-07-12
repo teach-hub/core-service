@@ -9,7 +9,6 @@ import {
 
 import { findUser } from '../user/userService';
 import { getViewer, UserType } from '../user/internalGraphql';
-import { findUserRole } from '../userRole/userRoleService';
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 import { createReviewers } from '../reviewer/service';
 
@@ -41,7 +40,6 @@ export const ReviewerPreviewType = new GraphQLObjectType<ReviewerFields, Context
         const r = await findUser({ userId: String(reviewer.reviewerUserId) });
 
         return r;
-
       },
     },
     reviewee: {
@@ -140,21 +138,26 @@ export const reviewerMutations: GraphQLFieldConfigMap<null, Context> = {
           throw new Error('Viewer not found!');
         }
 
-        const reviewerFields: ReviewerFields[] = reviewers.map((reviewer: { reviewerUserId: string, revieweeUserId: string }) => {
-          return {
-            reviewerUserId: fromGlobalId(reviewer.reviewerUserId).dbId,
-            revieweeUserId: fromGlobalId(reviewer.revieweeUserId).dbId,
-            assignmentId: fromGlobalId(encodedAssignmentId).dbId,
+        const reviewerFields: ReviewerFields[] = reviewers.map(
+          (reviewer: { reviewerUserId: string; revieweeUserId: string }) => {
+            return {
+              reviewerUserId: fromGlobalId(reviewer.reviewerUserId).dbId,
+              revieweeUserId: fromGlobalId(reviewer.revieweeUserId).dbId,
+              assignmentId: fromGlobalId(encodedAssignmentId).dbId,
+            };
           }
+        );
+
+        context.logger.info('Assigning reviewers in assignment', {
+          encodedAssignmentId,
+          reviewerFields,
         });
 
-        context.logger.info('Assigning reviewers in assignment', { encodedAssignmentId, reviewerFields });
-
         return await createReviewers(reviewerFields);
-      } catch(e) {
+      } catch (e) {
         context.logger.error('Error on assignReviewers mutation', { error: String(e) });
         return [];
       }
-    }
-  }
-}
+    },
+  },
+};
