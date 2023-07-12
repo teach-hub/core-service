@@ -79,6 +79,29 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
             return consolidateRoles(viewerRole);
           },
         },
+        teachersUserRoles: {
+          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserRoleType))),
+          description: 'Teacher user roles within a course',
+          resolve: async (course, _, context) => {
+            try {
+              const courseUserRoles = await findAllUserRoles({
+                forCourseId: course.id,
+              });
+
+              const allRoles = await findAllRoles({});
+              const allRolesById = keyBy(allRoles, 'id');
+
+              const teachersUserRoles = courseUserRoles.filter(
+                userRole => allRolesById[userRole.roleId!].isTeacher
+              );
+
+              return teachersUserRoles;
+            } catch (error) {
+              context.logger.error('Failed finding teachers', error);
+              return [];
+            }
+          },
+        },
         teachersCount: {
           type: new GraphQLNonNull(GraphQLInt),
           resolve: async course => {

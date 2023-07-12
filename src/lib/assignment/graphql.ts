@@ -1,12 +1,14 @@
 import {
   GraphQLID,
   GraphQLFieldConfigMap,
+  GraphQLString,
   GraphQLNonNull,
   GraphQLBoolean,
   GraphQLObjectType,
+  GraphQLInputObjectType,
   GraphQLList,
 } from 'graphql';
-import { flatten, chunk, keyBy } from 'lodash';
+import { difference, flatten, chunk, keyBy } from 'lodash';
 import { getAssignmentFields } from './internalGraphql';
 import {
   AssignmentFields,
@@ -23,6 +25,22 @@ import { findAllUserRoles } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
 
 import type { Context } from '../../types';
+
+const previewReviewersFilter = {
+  input: {
+    type: new GraphQLInputObjectType({
+      name: 'PreviewReviewersFilterInputType',
+      fields: {
+        consecutive: {
+          type: new GraphQLNonNull(GraphQLBoolean),
+        },
+        teachersUserIds: {
+          type: new GraphQLNonNull(new GraphQLList(GraphQLString)),
+        },
+      },
+    }),
+  },
+};
 
 export const AssignmentType = new GraphQLObjectType({
   name: 'AssignmentType',
@@ -80,50 +98,75 @@ export const AssignmentType = new GraphQLObjectType({
 
           return reviewers;
         } catch (error) {
-          ctx.logger.error('An error happened while returning reviewers', { error })
+          ctx.logger.error('An error happened while returning reviewers', { error });
           return [];
         }
       },
     },
     previewReviewers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerPreviewType))),
-      args: {
-        consecutive: {
-          type: new GraphQLNonNull(GraphQLBoolean),
-        }
-      },
+      args: previewReviewersFilter,
       resolve: async (assignment, args, ctx: Context) => {
         try {
+          const { consecutive, teachersUserIds: encodedTeacherUserIds } = args.input;
+          const teachersUserIds: number[] =
+            encodedTeacherUserIds.map(fromGlobalIdAsNumber);
+
+          const alreadySetRevieweesIds = (
+            await findReviewers({ assignmentId: assignment.id })
+          ).map(r => r.revieweeUserId);
+
+          // Mover esto a una function: Buscar profesores y alumnos
+          // es bastante comun para cualquier flujo.
+
           const courseUserRoles = await findAllUserRoles({
             forCourseId: assignment.courseId,
           });
+
+          // Filtramos a los que ya tienen seteado el reviewer.
+          const pendingUserRoles = courseUserRoles.filter(
+            x => !alreadySetRevieweesIds.includes(x.userId)
+          );
+
           const allRoles = await findAllRoles({});
 
           const allRolesById = keyBy(allRoles, 'id');
 
-          const studentsUserRoles = courseUserRoles.filter(
+          const studentsUserRoles = pendingUserRoles.filter(
             userRole => !allRolesById[userRole.roleId!].isTeacher
           );
+
           const teachersUserRoles = courseUserRoles.filter(
-            userRole => allRolesById[userRole.roleId!].isTeacher
+            userRole =>
+              userRole.userId &&
+              teachersUserIds.includes(userRole.userId) &&
+              allRolesById[userRole.roleId!].isTeacher
           );
 
           ctx.logger.info('Returning reviewers preview', {
             studentsUserRoles,
             teachersUserRoles,
-            args
+            args: { args: args.input },
           });
 
+          if (!teachersUserRoles.length) {
+            ctx.logger.info('No teachers matched the filters, returning empty last');
+            return [];
+          }
+
           // Consecutive
-          if (args.consecutive) {
-            const result = chunk(studentsUserRoles, teachersUserRoles.length).map((chunk, i) =>
-              chunk.map((user, j) => ({
+          if (consecutive) {
+            const result = chunk(
+              studentsUserRoles,
+              Math.ceil(studentsUserRoles.length / teachersUserRoles.length)
+            ).map((chunk, i) => {
+              return chunk.map(user => ({
                 id: `${assignment.id}-${user.userId}-${teachersUserRoles[i].userId}`,
                 reviewerUserId: teachersUserRoles[i].userId,
                 assignmentId: assignment.id,
                 revieweeUserId: user.userId,
-              }))
-            );
+              }));
+            });
 
             return flatten(result);
           }
@@ -137,7 +180,7 @@ export const AssignmentType = new GraphQLObjectType({
               reviewerUserId,
               assignmentId: assignment.id,
               revieweeUserId: user.userId,
-            }
+            };
           });
         } catch (error) {
           ctx.logger.error('Error', error);
