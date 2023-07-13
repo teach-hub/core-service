@@ -3,6 +3,12 @@ schema {
   mutation: RootMutationType
 }
 
+input AssignReviewersInputType {
+  """ID of the assignment where assign the reviewers to."""
+  assignmentId: ID!
+  reviewers: [ReviewersAssignmentInputType!]!
+}
+
 type AssignmentType {
   active: Boolean
   allowLateSubmissions: Boolean
@@ -11,6 +17,8 @@ type AssignmentType {
   endDate: String
   id: ID!
   link: String
+  previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
+  reviewers: [ReviewerType!]!
   startDate: String
   submission(id: ID!): SubmissionType
   submissions: [SubmissionType!]!
@@ -34,6 +42,9 @@ type CourseType {
   """Subject the course belongs to"""
   subject: SubjectType!
   teachersCount: Int!
+
+  """Teacher user roles within a course"""
+  teachersUserRoles: [UserRoleType!]!
 
   """User roles within a course"""
   userRoles: [UserRoleType!]
@@ -61,6 +72,11 @@ type Logout {
   token: String
 }
 
+input PreviewReviewersFilterInputType {
+  consecutive: Boolean!
+  teachersUserIds: [String]!
+}
+
 """Registered user data"""
 type RegisterType {
   token: String
@@ -80,6 +96,38 @@ type RepositoryType {
   user: UserType!
 }
 
+"""Assignment reviewer."""
+type ReviewerPreviewType {
+  """The id of the reviewer."""
+  id: ID!
+
+  """The reviewee user."""
+  reviewee: UserType!
+
+  """The id of the reviewer user role."""
+  reviewer: UserType!
+}
+
+"""Assignment reviewer."""
+type ReviewerType {
+  """The id of the reviewer."""
+  id: ID!
+
+  """The reviewee user."""
+  reviewee: UserType!
+
+  """The id of the reviewer user role."""
+  reviewer: UserType!
+}
+
+input ReviewersAssignmentInputType {
+  """The id of the reviewer user."""
+  revieweeUserId: ID!
+
+  """The id of the reviewer user."""
+  reviewerUserId: ID!
+}
+
 type RoleType {
   active: Boolean!
   id: ID!
@@ -91,6 +139,8 @@ type RoleType {
 
 """Root mutation"""
 type RootMutationType {
+  assignReviewers(input: AssignReviewersInputType): [ReviewerType!]!
+
   """Creates an assignment in a course"""
   createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, link: String, startDate: String, title: String): AssignmentType
 
@@ -144,6 +194,7 @@ type SubjectType {
 type SubmissionType {
   description: String
   id: ID!
+  pullRequestUrl: String!
 
   """Date when submission was created"""
   submittedAt: String!

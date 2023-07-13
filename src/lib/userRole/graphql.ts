@@ -32,7 +32,7 @@ export const UserRoleType: GraphQLObjectType<unknown, Context> = new GraphQLObje
 });
 
 const findUserRoleCallback = (id: string) => {
-  return findUserRole({ roleId: id });
+  return findUserRole({ id });
 };
 
 const userRoleFields = buildEntityFields({

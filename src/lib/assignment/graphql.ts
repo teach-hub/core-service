@@ -1,10 +1,14 @@
 import {
   GraphQLID,
   GraphQLFieldConfigMap,
+  GraphQLString,
   GraphQLNonNull,
+  GraphQLBoolean,
   GraphQLObjectType,
+  GraphQLInputObjectType,
   GraphQLList,
 } from 'graphql';
+import { flatten, chunk, keyBy } from 'lodash';
 import { getAssignmentFields } from './internalGraphql';
 import {
   AssignmentFields,
@@ -13,10 +17,31 @@ import {
 } from './assignmentService';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
+import { ReviewerPreviewType, ReviewerType } from '../reviewer/internalGraphql';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findSubmission, findAllSubmissions } from '../submission/submissionsService';
+import { findReviewers } from '../reviewer/service';
+import { findAllUserRoles } from '../userRole/userRoleService';
+import { findAllRoles } from '../role/roleService';
+import { getViewer } from '../user/internalGraphql';
 
 import type { Context } from '../../types';
+
+const previewReviewersFilter = {
+  input: {
+    type: new GraphQLInputObjectType({
+      name: 'PreviewReviewersFilterInputType',
+      fields: {
+        consecutive: {
+          type: new GraphQLNonNull(GraphQLBoolean),
+        },
+        teachersUserIds: {
+          type: new GraphQLNonNull(new GraphQLList(GraphQLString)),
+        },
+      },
+    }),
+  },
+};
 
 export const AssignmentType = new GraphQLObjectType({
   name: 'AssignmentType',
@@ -62,6 +87,105 @@ export const AssignmentType = new GraphQLObjectType({
         ctx.logger.info('Returning submissions', { submissions });
 
         return submissions;
+      },
+    },
+    reviewers: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
+      resolve: async (assignment, _, ctx: Context) => {
+        try {
+          const reviewers = await findReviewers({ assignmentId: assignment.id });
+
+          ctx.logger.info('Returning reviewers', { reviewers });
+
+          return reviewers;
+        } catch (error) {
+          ctx.logger.error('An error happened while returning reviewers', { error });
+          return [];
+        }
+      },
+    },
+    previewReviewers: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerPreviewType))),
+      args: previewReviewersFilter,
+      resolve: async (assignment, args, ctx: Context) => {
+        try {
+          const { consecutive, teachersUserIds: encodedTeacherUserIds } = args.input;
+          const teachersUserIds: number[] =
+            encodedTeacherUserIds.map(fromGlobalIdAsNumber);
+
+          const alreadySetRevieweesIds = await findReviewers({
+            assignmentId: assignment.id,
+          }).then(reviewers => reviewers.map(r => r.revieweeUserId));
+
+          // Mover esto a una function: Buscar profesores y alumnos
+          // es bastante comun para cualquier flujo.
+
+          const courseUserRoles = await findAllUserRoles({
+            forCourseId: assignment.courseId,
+          });
+
+          // Filtramos a los que ya tienen seteado el reviewer.
+          const pendingUserRoles = courseUserRoles.filter(
+            x => !alreadySetRevieweesIds.includes(x.userId)
+          );
+
+          const allRoles = await findAllRoles({});
+
+          const allRolesById = keyBy(allRoles, 'id');
+
+          const studentsUserRoles = pendingUserRoles.filter(
+            userRole => !allRolesById[userRole.roleId!].isTeacher
+          );
+
+          const teachersUserRoles = courseUserRoles.filter(userRole => {
+            const roleIsTeacher = allRolesById[userRole.roleId!].isTeacher;
+
+            if (!teachersUserIds.length) {
+              ctx.logger.info('No teachers matched the filters, using all as default');
+              return roleIsTeacher;
+            }
+
+            return roleIsTeacher && teachersUserIds.includes(userRole.userId!);
+          });
+
+          ctx.logger.info('Returning reviewers preview', {
+            studentsUserRoles,
+            teachersUserRoles,
+            args: { args: args.input },
+          });
+
+          // Consecutive
+          if (consecutive) {
+            const result = chunk(
+              studentsUserRoles,
+              Math.ceil(studentsUserRoles.length / teachersUserRoles.length)
+            ).map((chunk, i) => {
+              return chunk.map(user => ({
+                id: `${assignment.id}-${user.userId}-${teachersUserRoles[i].userId}`,
+                reviewerUserId: teachersUserRoles[i].userId,
+                assignmentId: assignment.id,
+                revieweeUserId: user.userId,
+              }));
+            });
+
+            return flatten(result);
+          }
+
+          // Alternate
+          return studentsUserRoles.map((user, i) => {
+            const reviewerUserId = teachersUserRoles[i % teachersUserRoles.length].userId;
+
+            return {
+              id: `${assignment.id}-${user.userId}-${reviewerUserId}`,
+              reviewerUserId,
+              assignmentId: assignment.id,
+              revieweeUserId: user.userId,
+            };
+          });
+        } catch (error) {
+          ctx.logger.error('Error', error);
+          return [];
+        }
       },
     },
   },

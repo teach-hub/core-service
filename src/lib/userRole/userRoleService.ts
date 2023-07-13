@@ -68,12 +68,8 @@ export async function countUserRoles(): Promise<number> {
   return countModels<UserRoleModel>(UserRoleModel);
 }
 
-export async function findUserRole({
-  roleId,
-}: {
-  roleId: string;
-}): Promise<UserRoleFields> {
-  return findModel(UserRoleModel, buildModelFields, buildQuery(roleId));
+export async function findUserRole({ id }: { id: string }): Promise<UserRoleFields> {
+  return findModel(UserRoleModel, buildModelFields, buildQuery(id));
 }
 
 export async function findUserRoleInCourse({
