@@ -8,7 +8,7 @@ import {
   GraphQLInputObjectType,
   GraphQLList,
 } from 'graphql';
-import { difference, flatten, chunk, keyBy } from 'lodash';
+import { flatten, chunk, keyBy } from 'lodash';
 import { getAssignmentFields } from './internalGraphql';
 import {
   AssignmentFields,
@@ -23,6 +23,7 @@ import { findSubmission, findAllSubmissions } from '../submission/submissionsSer
 import { findReviewers } from '../reviewer/service';
 import { findAllUserRoles } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
+import { getViewer } from '../user/internalGraphql';
 
 import type { Context } from '../../types';
 
@@ -112,9 +113,9 @@ export const AssignmentType = new GraphQLObjectType({
           const teachersUserIds: number[] =
             encodedTeacherUserIds.map(fromGlobalIdAsNumber);
 
-          const alreadySetRevieweesIds = (
-            await findReviewers({ assignmentId: assignment.id })
-          ).map(r => r.revieweeUserId);
+          const alreadySetRevieweesIds = await findReviewers({
+            assignmentId: assignment.id,
+          }).then(reviewers => reviewers.map(r => r.revieweeUserId));
 
           // Mover esto a una function: Buscar profesores y alumnos
           // es bastante comun para cualquier flujo.
@@ -136,23 +137,22 @@ export const AssignmentType = new GraphQLObjectType({
             userRole => !allRolesById[userRole.roleId!].isTeacher
           );
 
-          const teachersUserRoles = courseUserRoles.filter(
-            userRole =>
-              userRole.userId &&
-              teachersUserIds.includes(userRole.userId) &&
-              allRolesById[userRole.roleId!].isTeacher
-          );
+          const teachersUserRoles = courseUserRoles.filter(userRole => {
+            const roleIsTeacher = allRolesById[userRole.roleId!].isTeacher;
+
+            if (!teachersUserIds.length) {
+              ctx.logger.info('No teachers matched the filters, using all as default');
+              return roleIsTeacher;
+            }
+
+            return roleIsTeacher && teachersUserIds.includes(userRole.userId!);
+          });
 
           ctx.logger.info('Returning reviewers preview', {
             studentsUserRoles,
             teachersUserRoles,
             args: { args: args.input },
           });
-
-          if (!teachersUserRoles.length) {
-            ctx.logger.info('No teachers matched the filters, returning empty last');
-            return [];
-          }
 
           // Consecutive
           if (consecutive) {
