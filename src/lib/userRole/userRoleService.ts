@@ -87,6 +87,7 @@ export async function findUserRoleInCourse({
 }
 
 type FindCoursesFilter = OrderingOptions & {
+  id?: UserRoleModel['id'][];
   forUserId?: UserRoleModel['userId'];
   forCourseId?: UserRoleModel['courseId'];
 };
@@ -94,11 +95,12 @@ type FindCoursesFilter = OrderingOptions & {
 export async function findAllUserRoles(
   filter: FindCoursesFilter
 ): Promise<UserRoleFields[]> {
-  const { forUserId, forCourseId } = filter;
+  const { id, forUserId, forCourseId } = filter;
 
   const whereClause = {
     ...(forUserId ? { userId: forUserId } : {}),
     ...(forCourseId ? { courseId: forCourseId } : {}),
+    ...(id ? { id: id } : {}),
   };
 
   return findAllModels(UserRoleModel, filter, buildModelFields, whereClause);

@@ -8,7 +8,7 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-import { WhereOptions, Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 
 import { findAllUserRoles } from '../userRole/userRoleService';
 import { isDefinedAndNotEmpty } from '../../utils/object';
@@ -116,5 +116,16 @@ export const findUsersInCourse = async ({
   return findAllModels(UserModel, {}, buildModelFields, { id: { [Op.in]: userIds } });
 };
 
-export const findAllUsers = async (options: OrderingOptions): Promise<UserFields[]> =>
-  findAllModels(UserModel, options, buildModelFields);
+type FindUsersFilter = OrderingOptions & {
+  id?: UserModel['id'][];
+};
+
+export const findAllUsers = async (filter: FindUsersFilter): Promise<UserFields[]> => {
+  const { id } = filter;
+
+  const whereClause = {
+    ...(id ? { id: id } : {}),
+  };
+
+  return findAllModels(UserModel, filter, buildModelFields, whereClause);
+};
