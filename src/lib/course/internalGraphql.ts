@@ -1,3 +1,4 @@
+import type { GraphQLFieldConfigMap } from 'graphql';
 import {
   GraphQLBoolean,
   GraphQLID,
@@ -28,13 +29,14 @@ import {
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
+import type { CourseFields } from './courseService';
 import { findCourse, updateCourse } from './courseService';
 import { getGithubUserOrganizationNames } from '../../github/githubUser';
 import { getToken } from '../../utils/request';
 
-import type { Context } from '../../../src/types';
-import type { CourseFields } from './courseService';
-import type { GraphQLFieldConfigMap } from 'graphql';
+import type { Context } from '../../types';
+import { findAllGroupParticipants } from '../groupParticipant/service';
+import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
@@ -168,6 +170,24 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
             logger.info('Finding assignment', { assignmentId });
 
             return await findAssignment({ assignmentId });
+          },
+        },
+        viewerGroups: {
+          type: new GraphQLNonNull(
+            new GraphQLList(new GraphQLNonNull(InternalGroupParticipantType))
+          ),
+          description: 'Viewer groups within the course',
+          resolve: async (course, args, context) => {
+            const viewer = await getViewer(context);
+
+            const userRole = await findUserRoleInCourse({
+              courseId: Number(course.id),
+              userId: Number(viewer.id),
+            });
+
+            return await findAllGroupParticipants({
+              forUserRoleId: userRole.id,
+            });
           },
         },
       };

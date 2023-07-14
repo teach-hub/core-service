@@ -20,7 +20,7 @@ import { inviteMutations } from '../lib/invite/internalGraphql';
 import { authMutations } from '../lib/auth/graphql';
 import { courseMutations, CourseType } from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
-import { RepositoryType, repositoryMutations } from '../lib/repository/internalGraphql';
+import { repositoryMutations, RepositoryType } from '../lib/repository/internalGraphql';
 import { assignmentMutations } from '../lib/assignment/graphql';
 import { submissionMutations } from '../lib/submission/internalGraphql';
 import { reviewerMutations } from '../lib/reviewer/internalGraphql';
@@ -36,6 +36,7 @@ import { initOctokit } from '../github/config';
 import { UserPullRequestType } from '../github/graphql';
 
 import type { Context } from 'src/types';
+import { groupParticipantMutations } from '../lib/groupParticipant/internalGraphql';
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,
@@ -204,6 +205,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...courseMutations,
     ...repositoryMutations,
     ...reviewerMutations,
+    ...groupParticipantMutations,
   },
 });
 

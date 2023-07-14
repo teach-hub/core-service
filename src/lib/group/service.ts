@@ -29,6 +29,7 @@ const buildModelFields = (group: Nullable<GroupModel>): GroupFields => {
 type FindGroupsFilter = OrderingOptions & {
   forCourseId?: GroupModel['courseId'];
   active?: boolean;
+  name?: string;
 };
 
 export async function createGroup(data: GroupFields): Promise<GroupFields> {
@@ -51,11 +52,12 @@ export async function countGroups(): Promise<number> {
 }
 
 export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFields[]> {
-  const { forCourseId, active } = options;
+  const { forCourseId, active, name } = options;
 
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
     ...(active ? { active: active } : {}),
+    ...(name ? { name: name } : {}),
   };
 
   return findAllModels(GroupModel, options, buildModelFields, whereClause);
