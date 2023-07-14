@@ -95,6 +95,8 @@ export const groupParticipantMutations = {
         type: new GraphQLNonNull(GraphQLID),
       },
     },
+    // FIXME. No copiar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: async (_: unknown, args: any, context: Context) => {
       const viewer = await getViewer(context);
 

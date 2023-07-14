@@ -36,7 +36,7 @@ export enum Permission {
   EditSubject = 'editSubject',
   InviteUser = 'inviteUser',
   CreateAssignment = 'createAssignment',
-  CreateGroupWithParticipant = 'createGroupWithParticipant',
+  ManageOwnGroups = 'manageOwnGroups',
   SubmitAssignment = 'submitAssignment',
   EditAssignment = 'editAssignment',
   SetOrganization = 'setOrganization',
