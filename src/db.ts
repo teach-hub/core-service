@@ -12,7 +12,7 @@ import SubmissionModel from './lib/submission/model';
 import RepositoryModel from './lib/repository/repositoryModel';
 import ReviewerModel from './lib/reviewer/model';
 import GroupModel from './lib/group/model';
-import GroupParticipantModel from './lib/group/model';
+import GroupParticipantModel from './lib/groupParticipant/model';
 
 import logger from './logger';
 

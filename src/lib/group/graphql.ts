@@ -37,7 +37,7 @@ export const getGroupFields = ({ addId }: { addId: boolean }) => ({
   },
 });
 
-export const InternalGroupType = new GraphQLObjectType({
+export const GroupType = new GraphQLObjectType({
   name: 'GroupType',
   description: 'A group within TeachHub',
   fields: getGroupFields({ addId: true }),
@@ -47,7 +47,7 @@ const findGroupCallback = (id: string): Promise<GroupFields> =>
   findGroup({ groupId: id });
 
 const adminGroupsFields = buildEntityFields<GroupFields>({
-  type: InternalGroupType,
+  type: GroupType,
   keyName: 'Group',
   findCallback: findGroupCallback,
   findAllCallback: findAllGroups,
@@ -56,7 +56,7 @@ const adminGroupsFields = buildEntityFields<GroupFields>({
 
 const adminGroupMutations = buildEntityMutations<GroupFields>({
   entityName: 'Group',
-  entityGraphQLType: InternalGroupType,
+  entityGraphQLType: GroupType,
   createOptions: {
     args: getGroupFields({ addId: false }),
     callback: createGroup,

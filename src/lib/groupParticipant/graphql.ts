@@ -2,6 +2,7 @@ import {
   GraphQLBoolean,
   GraphQLID,
   GraphQLInt,
+  GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
@@ -40,17 +41,19 @@ export const getGroupParticipantFields = ({ addId }: { addId: boolean }) => ({
   },
 });
 
-export const InternalGroupParticipantType = new GraphQLObjectType({
+export const GroupParticipantType = new GraphQLObjectType({
   name: 'GroupParticipantType',
   description: 'A group participant within TeachHub',
-  fields: getGroupParticipantFields({ addId: true }),
+  fields: {
+    ...getGroupParticipantFields({ addId: true }),
+  },
 });
 
 const findGroupParticipantCallback = (id: string): Promise<GroupParticipantFields> =>
   findGroupParticipant({ groupParticipantId: id });
 
 const adminGroupParticipantsFields = buildEntityFields<GroupParticipantFields>({
-  type: InternalGroupParticipantType,
+  type: GroupParticipantType,
   keyName: 'GroupParticipant',
   findCallback: findGroupParticipantCallback,
   findAllCallback: findAllGroupParticipants,
@@ -59,7 +62,7 @@ const adminGroupParticipantsFields = buildEntityFields<GroupParticipantFields>({
 
 const adminGroupParticipantMutations = buildEntityMutations<GroupParticipantFields>({
   entityName: 'GroupParticipant',
-  entityGraphQLType: InternalGroupParticipantType,
+  entityGraphQLType: GroupParticipantType,
   createOptions: {
     args: getGroupParticipantFields({ addId: false }),
     callback: createGroupParticipant,
