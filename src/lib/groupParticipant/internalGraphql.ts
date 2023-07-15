@@ -135,7 +135,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
     },
   },
   joinGroup: {
-    name: 'JoinGroup',
     type: new GraphQLNonNull(InternalGroupParticipantType),
     description: 'Joins viewer to a group',
     args: {
@@ -149,9 +148,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
         type: new GraphQLNonNull(GraphQLID),
       },
     },
-    // FIXME. No copiar
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolve: async (_: unknown, args: any, context: Context) => {
+    resolve: async (_, args, context) => {
       const viewer = await getViewer(context);
 
       const {
