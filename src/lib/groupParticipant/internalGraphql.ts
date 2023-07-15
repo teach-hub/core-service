@@ -134,6 +134,54 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
       });
     },
   },
+  joinGroup: {
+    name: 'JoinGroup',
+    type: new GraphQLNonNull(InternalGroupParticipantType),
+    description: 'Joins viewer to a group',
+    args: {
+      groupId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    // FIXME. No copiar
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolve: async (_: unknown, args: any, context: Context) => {
+      const viewer = await getViewer(context);
+
+      const {
+        assignmentId: encodedAssignmentId,
+        groupId: encodedGroupId,
+        courseId: encodedCourseId,
+      } = args;
+
+      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+      const groupId = fromGlobalIdAsNumber(encodedGroupId);
+      const courseId = fromGlobalIdAsNumber(encodedCourseId);
+
+      const userRole = await findUserRoleInCourse({
+        courseId,
+        userId: Number(viewer.id),
+      });
+
+      context.logger.info(
+        `Joining group ${groupId} for assignment ${assignmentId} for user ${viewer.id}`
+      );
+
+      return await createGroupParticipant({
+        id: undefined,
+        assignmentId: assignmentId,
+        groupId: groupId,
+        userRoleId: userRole.id,
+        active: true,
+      });
+    },
+  },
 };
 
 const validateGroupOnCreation = async ({

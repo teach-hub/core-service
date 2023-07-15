@@ -37,6 +37,8 @@ import { getToken } from '../../utils/request';
 import type { Context } from '../../types';
 import { findAllGroupParticipants } from '../groupParticipant/service';
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
+import { InternalGroupType } from '../group/internalGraphql';
+import { findAllGroups } from '../group/service';
 
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
@@ -187,6 +189,17 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             return await findAllGroupParticipants({
               forUserRoleId: userRole.id,
+            });
+          },
+        },
+        groups: {
+          type: new GraphQLNonNull(
+            new GraphQLList(new GraphQLNonNull(InternalGroupType))
+          ),
+          description: 'Groups within a course',
+          resolve: async (course, _, __) => {
+            return await findAllGroups({
+              forCourseId: Number(course.id),
             });
           },
         },
