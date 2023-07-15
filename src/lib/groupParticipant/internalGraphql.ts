@@ -1,4 +1,5 @@
 import {
+  GraphQLFieldConfigMap,
   GraphQLID,
   GraphQLList,
   GraphQLNonNull,
@@ -30,7 +31,7 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
         }),
     },
     assignmentId: {
-      type: GraphQLID,
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'assignment',
@@ -38,7 +39,7 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
         }),
     },
     userRoleId: {
-      type: GraphQLID,
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'userRole',
@@ -46,7 +47,7 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
         }),
     },
     groupId: {
-      type: GraphQLID,
+      type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
           entityName: 'group',
@@ -79,9 +80,8 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
   },
 });
 
-export const groupParticipantMutations = {
+export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
   createGroupWithParticipant: {
-    name: 'CreateGroupWithParticipant',
     type: new GraphQLNonNull(InternalGroupParticipantType),
     description: 'Creates a group and adds a participant to it',
     args: {
@@ -95,9 +95,7 @@ export const groupParticipantMutations = {
         type: new GraphQLNonNull(GraphQLID),
       },
     },
-    // FIXME. No copiar
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolve: async (_: unknown, args: any, context: Context) => {
+    resolve: async (_, args, context) => {
       const viewer = await getViewer(context);
 
       const {

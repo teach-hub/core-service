@@ -67,12 +67,12 @@ type CreateSubmissionResultType {
 """A group participant within TeachHub"""
 type InternalGroupParticipantType {
   active: Boolean
-  assignmentId: ID
+  assignmentId: ID!
   group: InternalGroupType!
-  groupId: ID
+  groupId: ID!
   id: ID!
   otherParticipants: [UserType!]!
-  userRoleId: ID
+  userRoleId: ID!
 }
 
 """A group within TeachHub"""
