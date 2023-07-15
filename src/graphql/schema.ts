@@ -13,7 +13,7 @@ import { UserFields } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
 import { findAllRoles } from '../lib/role/roleService';
-import { findAllRepositories } from '../lib/repository/repositoryService';
+import { findAllRepositories } from '../lib/repository/service';
 
 import { getViewer, userMutations, UserType } from '../lib/user/internalGraphql';
 import { inviteMutations } from '../lib/invite/internalGraphql';

@@ -6,6 +6,7 @@ interface RepositoryAttributes {
   readonly id?: number;
   readonly courseId?: number;
   readonly userId?: number;
+  readonly groupId?: number;
   readonly githubId?: number;
   readonly name?: string;
   readonly active?: boolean;
@@ -18,6 +19,7 @@ class RepositoryModel
   readonly id!: number;
   readonly courseId!: number;
   readonly userId!: number;
+  readonly groupId!: number;
   readonly githubId!: number;
   readonly name!: string;
   readonly active!: boolean;
@@ -38,7 +40,10 @@ class RepositoryModel
         userId: {
           type: Sequelize.INTEGER,
           field: 'user_id',
-          allowNull: false,
+        },
+        groupId: {
+          type: Sequelize.INTEGER,
+          field: 'group_id',
         },
         githubId: {
           field: 'github_id',

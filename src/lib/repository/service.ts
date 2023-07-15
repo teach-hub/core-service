@@ -7,7 +7,7 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-import RepositoryModel from './repositoryModel';
+import RepositoryModel from './model';
 import type { OrderingOptions } from '../../utils';
 import type { Nullable, Optional } from '../../types';
 
@@ -15,6 +15,7 @@ export type RepositoryFields = {
   id: Optional<number>;
   courseId: Optional<number>;
   userId: Optional<number>;
+  groupId: Optional<number>;
   name: Optional<string>;
   githubId: Optional<number>;
   active: Optional<boolean>;
@@ -25,6 +26,7 @@ const buildModelFields = (repository: Nullable<RepositoryModel>): RepositoryFiel
     id: repository?.id,
     courseId: repository?.courseId,
     userId: repository?.courseId,
+    groupId: repository?.groupId,
     name: repository?.name,
     githubId: repository?.githubId,
     active: repository?.active,
@@ -34,6 +36,7 @@ const buildModelFields = (repository: Nullable<RepositoryModel>): RepositoryFiel
 type FindRepositoriesFilter = OrderingOptions & {
   active?: boolean;
   forUserId?: string;
+  forGroupId?: string;
   forCourseId?: string;
 };
 
@@ -77,12 +80,13 @@ export async function countRepositories(): Promise<number> {
 export async function findAllRepositories(
   options: FindRepositoriesFilter
 ): Promise<RepositoryFields[]> {
-  const { active, forUserId, forCourseId } = options;
+  const { active, forUserId, forCourseId, forGroupId } = options;
 
   const whereClause = {
     ...(active ? { active } : {}),
     ...(forUserId ? { userId: forUserId } : {}),
     ...(forCourseId ? { courseId: forCourseId } : {}),
+    ...(forGroupId ? { courseId: forGroupId } : {}),
   };
 
   return findAllModels(RepositoryModel, options, buildModelFields, whereClause);

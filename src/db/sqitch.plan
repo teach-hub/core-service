@@ -20,3 +20,4 @@ create_group_participant_table 2023-07-02T19:29:06Z Sebastian Penna <spenna@fi.u
 add_reviewers_table 2023-07-02T02:19:53Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # Add reviewers table
 add_group_property_to_assignment 2023-07-15T03:57:30Z Sebastian Penna <spenna@fi.uba.ar> # Add group property to assignments
 add_group_id_reviewers 2023-07-15T22:31:10Z System Administrator <root@canada> # Add group_id to reviewers table
+update_repositories_for_groups 2023-07-15T15:44:39Z Sebastian Penna <spenna@fi.uba.ar> # Update repositories for groups

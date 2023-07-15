@@ -21,7 +21,6 @@
   "scripts": {
     "start": "npx tsc && node dist/src/index.js",
     "db": "cd src/db && sqitch deploy development && sqitch verify development && cd -",
-    "revert": "cd src/db && sqitch revert --to create_group_table development && sqitch verify development && cd -",
     "test": "echo \"Error: no test to run\"",
     "reset-db": "dropdb teachhub && createdb teachhub && npm run db && cd src/db && psql teachhub < seeds.sql && cd -"
   },

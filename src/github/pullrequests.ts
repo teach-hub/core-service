@@ -1,8 +1,8 @@
-import { isNil, flatten } from 'lodash';
+import { flatten, isNil } from 'lodash';
 import logger from '../logger';
 
 import { findCourse } from '../lib/course/courseService';
-import { findAllRepositories } from '../lib/repository/repositoryService';
+import { findAllRepositories } from '../lib/repository/service';
 
 import type { Octokit } from '@octokit/rest';
 import type { UserFields } from '../lib/user/userService';

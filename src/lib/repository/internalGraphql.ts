@@ -8,7 +8,7 @@ import {
   GraphQLString,
 } from 'graphql';
 
-import { toGlobalId, fromGlobalIdAsNumber } from '../../graphql/utils';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { createRepositories, RepositoryData } from '../../github/repositories';
 import { getToken } from '../../utils/request';
 
@@ -17,7 +17,7 @@ import { findCourse } from '../course/courseService';
 
 import { getGithubUsernameFromGithubId } from '../../github/githubUser';
 import { initOctokit } from '../../github/config';
-import { bulkCreateRepository, RepositoryFields } from './repositoryService';
+import { bulkCreateRepository, RepositoryFields } from './service';
 
 import { UserType } from '../user/internalGraphql';
 import { CourseType } from '../course/internalGraphql';
@@ -179,6 +179,7 @@ export const repositoryMutations = {
             return {
               courseId,
               userId,
+              groupId: undefined, // todo: TH-129 Create group repositories
               name: repositoryData.name,
               githubId: repositoryData.id,
               active: true,
