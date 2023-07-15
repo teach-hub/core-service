@@ -171,5 +171,6 @@ export default shield<null, Context, unknown>({
     createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
     // TODO
     assignReviewers: allow,
+    createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
   },
 });

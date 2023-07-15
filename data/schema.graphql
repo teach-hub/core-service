@@ -48,6 +48,9 @@ type CourseType {
 
   """User roles within a course"""
   userRoles: [UserRoleType!]
+
+  """Viewer groups within the course"""
+  viewerGroups: [InternalGroupParticipantType!]!
   viewerRole: RoleType!
   year: Int!
 }
@@ -59,6 +62,25 @@ type CreateRepositoriesResponse {
 type CreateSubmissionResultType {
   errors: [String!]!
   success: Boolean
+}
+
+"""A group participant within TeachHub"""
+type InternalGroupParticipantType {
+  active: Boolean
+  assignmentId: ID!
+  group: InternalGroupType!
+  groupId: ID!
+  id: ID!
+  otherParticipants: [UserType!]!
+  userRoleId: ID!
+}
+
+"""A group within TeachHub"""
+type InternalGroupType {
+  active: Boolean
+  courseId: ID!
+  id: ID!
+  name: String
 }
 
 """Authenticated data"""
@@ -143,6 +165,9 @@ type RootMutationType {
 
   """Creates an assignment in a course"""
   createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, link: String, startDate: String, title: String): AssignmentType
+
+  """Creates a group and adds a participant to it"""
+  createGroupWithParticipant(assignmentId: ID!, courseId: ID!, groupName: String!): InternalGroupParticipantType!
 
   """Creates repositories"""
   createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
