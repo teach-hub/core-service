@@ -12,6 +12,7 @@ interface AssignmentAttributes {
   readonly description?: string;
   readonly allowLateSubmissions?: boolean;
   readonly active?: boolean;
+  readonly isGroup?: boolean;
 }
 
 class Assignment
@@ -27,6 +28,7 @@ class Assignment
   readonly description!: string;
   readonly allowLateSubmissions!: boolean;
   readonly active!: boolean;
+  readonly isGroup!: boolean;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return Assignment.init(
@@ -62,6 +64,11 @@ class Assignment
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
+        },
+        isGroup: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          field: 'is_group',
         },
         courseId: {
           type: Sequelize.INTEGER,

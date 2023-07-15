@@ -1,12 +1,12 @@
 import { GraphQLBoolean, GraphQLID, GraphQLObjectType, GraphQLString } from 'graphql';
 
 import {
+  type AssignmentFields,
   countAssignments,
   createAssignment,
   findAllAssignments,
   findAssignment,
   updateAssignment,
-  type AssignmentFields,
 } from './assignmentService';
 
 import { buildEntityFields } from '../../graphql/fields';
@@ -42,6 +42,9 @@ export const getAssignmentFields = ({ addId }: { addId: boolean }) => ({
     type: GraphQLBoolean,
   },
   active: {
+    type: GraphQLBoolean,
+  },
+  isGroup: {
     type: GraphQLBoolean,
   },
 });

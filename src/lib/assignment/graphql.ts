@@ -1,14 +1,14 @@
 import {
-  GraphQLID,
-  GraphQLFieldConfigMap,
-  GraphQLString,
-  GraphQLNonNull,
   GraphQLBoolean,
-  GraphQLObjectType,
+  GraphQLFieldConfigMap,
+  GraphQLID,
   GraphQLInputObjectType,
   GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
 } from 'graphql';
-import { flatten, chunk, keyBy } from 'lodash';
+import { chunk, flatten, keyBy } from 'lodash';
 import { getAssignmentFields } from './internalGraphql';
 import {
   AssignmentFields,
@@ -19,11 +19,10 @@ import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import { ReviewerPreviewType, ReviewerType } from '../reviewer/internalGraphql';
 import { SubmissionType } from '../submission/internalGraphql';
-import { findSubmission, findAllSubmissions } from '../submission/submissionsService';
+import { findAllSubmissions, findSubmission } from '../submission/submissionsService';
 import { findReviewers } from '../reviewer/service';
 import { findAllUserRoles } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
-import { getViewer } from '../user/internalGraphql';
 
 import type { Context } from '../../types';
 
@@ -231,6 +230,7 @@ const parseAssignmentData = (args: any): AssignmentFields => {
     allowLateSubmissions,
     id,
     active,
+    isGroup,
     description,
   } = args;
 
@@ -243,6 +243,7 @@ const parseAssignmentData = (args: any): AssignmentFields => {
     endDate,
     link,
     active,
+    isGroup,
     allowLateSubmissions,
     description,
     courseId: fixedCourseId,

@@ -16,6 +16,7 @@ import { getViewer, UserType } from '../user/internalGraphql';
 import { findAllUserRoles, findUserRoleInCourse } from '../userRole/userRoleService';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findAllUsers } from '../user/userService';
+import { findAssignment } from '../assignment/assignmentService';
 
 export const InternalGroupParticipantType = new GraphQLObjectType({
   name: 'InternalGroupParticipantType',
@@ -107,7 +108,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
       const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
       const courseId = fromGlobalIdAsNumber(encodedCourseId);
 
-      await validateGroupOnCreation({ groupName, courseId });
+      await validateGroupOnCreation({ groupName, courseId, assignmentId });
 
       const userRole = await findUserRoleInCourse({
         courseId,
@@ -161,6 +162,8 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
       const groupId = fromGlobalIdAsNumber(encodedGroupId);
       const courseId = fromGlobalIdAsNumber(encodedCourseId);
 
+      await validateGroupOnJoin({ assignmentId });
+
       const userRole = await findUserRoleInCourse({
         courseId,
         userId: Number(viewer.id),
@@ -184,9 +187,11 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
 const validateGroupOnCreation = async ({
   groupName,
   courseId,
+  assignmentId,
 }: {
   groupName: string;
   courseId: number;
+  assignmentId: number;
 }) => {
   /* Group name must be available in course */
   const existingGroup = await findAllGroups({
@@ -196,5 +201,17 @@ const validateGroupOnCreation = async ({
 
   if (existingGroup.length > 0) {
     throw new Error('Group name not available');
+  }
+
+  const assignment = await findAssignment({ assignmentId: String(assignmentId) });
+  if (assignment?.isGroup !== true) {
+    throw new Error('Assignment is not a group assignment');
+  }
+};
+
+const validateGroupOnJoin = async ({ assignmentId }: { assignmentId: number }) => {
+  const assignment = await findAssignment({ assignmentId: String(assignmentId) });
+  if (assignment?.isGroup !== true) {
+    throw new Error('Assignment is not a group assignment');
   }
 };

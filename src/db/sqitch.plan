@@ -18,3 +18,4 @@ add_pr_url_submissions 2023-06-20T15:42:20Z Tomas Lopez Hidalgo <root@canada> # 
 create_group_table 2023-07-02T19:28:51Z Sebastian Penna <spenna@fi.uba.ar> # Create group table
 create_group_participant_table 2023-07-02T19:29:06Z Sebastian Penna <spenna@fi.uba.ar> # Create group participant table
 add_reviewers_table 2023-07-02T02:19:53Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # Add reviewers table
+add_group_property_to_assignment 2023-07-15T03:57:30Z Sebastian Penna <spenna@fi.uba.ar> # Add group property to assignments
