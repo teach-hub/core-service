@@ -22,6 +22,7 @@ export type AssignmentFields = {
   description: Optional<string>;
   allowLateSubmissions: Optional<boolean>;
   active: Optional<boolean>;
+  isGroup: Optional<boolean>;
 };
 
 const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFields => {
@@ -35,12 +36,14 @@ const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFiel
     allowLateSubmissions: assignment?.allowLateSubmissions,
     courseId: assignment?.courseId,
     active: assignment?.active,
+    isGroup: assignment?.isGroup,
   };
 };
 
 type FindAssignmentsFilter = OrderingOptions & {
   forCourseId?: AssignmentModel['courseId'];
   active?: boolean;
+  isGroup?: boolean;
 };
 
 export async function createAssignment(
@@ -78,11 +81,12 @@ export async function countAssignments(): Promise<number> {
 export async function findAllAssignments(
   options: FindAssignmentsFilter
 ): Promise<AssignmentFields[]> {
-  const { forCourseId, active } = options;
+  const { forCourseId, active, isGroup } = options;
 
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
     ...(active ? { active: active } : {}),
+    ...(isGroup ? { isGroup: isGroup } : {}),
   };
 
   return findAllModels(AssignmentModel, options, buildModelFields, whereClause);

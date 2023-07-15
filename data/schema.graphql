@@ -16,6 +16,7 @@ type AssignmentType {
   description: String
   endDate: String
   id: ID!
+  isGroup: Boolean
   link: String
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
@@ -167,7 +168,7 @@ type RootMutationType {
   assignReviewers(input: AssignReviewersInputType): [ReviewerType!]!
 
   """Creates an assignment in a course"""
-  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, link: String, startDate: String, title: String): AssignmentType
+  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
 
   """Creates a group and adds a participant to it"""
   createGroupWithParticipant(assignmentId: ID!, courseId: ID!, groupName: String!): InternalGroupParticipantType!
@@ -197,7 +198,7 @@ type RootMutationType {
   setOrganization(courseId: ID!, organizationName: String!): CourseType
 
   """Updates an assignment in a course"""
-  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, id: ID, link: String, startDate: String, title: String): AssignmentType
+  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, id: ID, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
 
   """Updates a user"""
   updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType
