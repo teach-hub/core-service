@@ -45,13 +45,13 @@ export const getAssignmentFields = ({ addId }: { addId: boolean }) => ({
     type: GraphQLString,
   },
   allowLateSubmissions: {
-    type: new GraphQLNonNull(GraphQLBoolean),
+    type: GraphQLBoolean,
   },
   active: {
-    type: new GraphQLNonNull(GraphQLBoolean),
+    type: GraphQLBoolean,
   },
   isGroup: {
-    type: new GraphQLNonNull(GraphQLBoolean),
+    type: GraphQLBoolean,
   },
 });
 

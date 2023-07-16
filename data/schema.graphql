@@ -68,14 +68,6 @@ type CreateSubmissionResultType {
   success: Boolean
 }
 
-"""A group within TeachHub"""
-type GroupType {
-  active: Boolean
-  courseId: ID
-  id: ID
-  name: String
-}
-
 """A group participant within TeachHub"""
 type InternalGroupParticipantType {
   active: Boolean
@@ -130,7 +122,7 @@ type RepositoryType {
   user: UserType!
 }
 
-union RevieweeUnionType = GroupType | UserType
+union RevieweeUnionType = InternalGroupType | UserType
 
 """Assignment reviewer."""
 type ReviewerPreviewType {
@@ -150,7 +142,7 @@ type ReviewerType {
   id: ID!
 
   """The reviewee user."""
-  reviewee: UserType!
+  reviewee: RevieweeUnionType!
 
   """The id of the reviewer user role."""
   reviewer: UserType!
@@ -178,7 +170,7 @@ type RootMutationType {
   assignReviewers(input: AssignReviewersInputType): [ReviewerType!]!
 
   """Creates an assignment in a course"""
-  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
+  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
 
   """Creates a group and adds a participant to it"""
   createGroupWithParticipant(assignmentId: ID!, courseId: ID!, groupName: String!): InternalGroupParticipantType!
@@ -208,7 +200,7 @@ type RootMutationType {
   setOrganization(courseId: ID!, organizationName: String!): CourseType
 
   """Updates an assignment in a course"""
-  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID, description: String, endDate: String, id: ID, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
+  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, id: ID!, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
 
   """Updates a user"""
   updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType

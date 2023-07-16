@@ -6,7 +6,7 @@ export const InternalGroupType = new GraphQLObjectType({
   name: 'InternalGroupType',
   description: 'A group within TeachHub',
   fields: {
-    ...getGroupFields({ addId: true }),
+    ...getGroupFields({ addId: false }),
     id: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
