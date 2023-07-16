@@ -7,6 +7,7 @@ export type ReviewerFields = {
   reviewerUserId: Optional<number>;
   assignmentId: Optional<number>;
   revieweeUserId: Optional<number>;
+  revieweeGroupId: Optional<number>;
 };
 
 const buildModelFields = (reviewer: Nullable<ReviewerModel>): ReviewerFields => {
@@ -15,13 +16,19 @@ const buildModelFields = (reviewer: Nullable<ReviewerModel>): ReviewerFields => 
     reviewerUserId: reviewer?.reviewerUserId,
     assignmentId: reviewer?.assignmentId,
     revieweeUserId: reviewer?.revieweeUserId,
+    revieweeGroupId: reviewer?.revieweeGroupId,
   };
 };
 
 export const findReviewers = async ({ assignmentId }: { assignmentId: number }) => {
-  const reviewers = await findAllModels(ReviewerModel, { sortOrder: 'ASC', sortField: 'id' }, buildModelFields, {
-    assignmentId,
-  });
+  const reviewers = await findAllModels(
+    ReviewerModel,
+    { sortOrder: 'ASC', sortField: 'id' },
+    buildModelFields,
+    {
+      assignmentId,
+    }
+  );
 
   return reviewers;
 };

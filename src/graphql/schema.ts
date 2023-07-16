@@ -184,7 +184,7 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     availableRoles: {
       description: 'Logged in user',
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(RoleType))),
-      resolve: async (_source, _args, ctx) => {
+      resolve: async () => {
         const roles = await findAllRoles({});
 
         return roles;

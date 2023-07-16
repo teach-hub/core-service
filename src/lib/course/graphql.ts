@@ -13,7 +13,6 @@ import {
   findCourse,
   updateCourse,
   countCourses,
-  type CourseFields,
 } from './courseService';
 
 import { buildEntityFields } from '../../graphql/fields';

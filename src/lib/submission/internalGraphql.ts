@@ -94,7 +94,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
           userId: viewer.id,
         });
 
-        const submission = await createSubmission({
+        await createSubmission({
           userId: viewer.id,
           assignmentId: Number(assignmentId),
           description,

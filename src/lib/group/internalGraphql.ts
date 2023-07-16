@@ -1,4 +1,4 @@
-import { GraphQLID, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
+import { GraphQLID, GraphQLNonNull, GraphQLObjectType } from 'graphql';
 import { getGroupFields } from './graphql';
 import { toGlobalId } from '../../graphql/utils';
 
@@ -6,7 +6,7 @@ export const InternalGroupType = new GraphQLObjectType({
   name: 'InternalGroupType',
   description: 'A group within TeachHub',
   fields: {
-    ...getGroupFields({ addId: true }),
+    ...getGroupFields({ addId: false }),
     id: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: s =>

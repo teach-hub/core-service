@@ -39,8 +39,6 @@ const buildQuery = (id: string): WhereOptions<UserRoleModel> => {
 export async function createUserRole(
   data: Omit<UserRoleFields, 'id'>
 ): Promise<UserRoleFields> {
-  const dataWithActiveField = { ...data, active: true };
-
   if (!data.courseId || !data.userId) {
     throw new Error('Missing user or course');
   }

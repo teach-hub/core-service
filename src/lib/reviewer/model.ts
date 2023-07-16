@@ -3,10 +3,11 @@ import Sequelize from 'sequelize';
 import { DatabaseConstants } from '../../consts';
 
 interface ReviewerAttributes {
-  readonly id?: number;
-  readonly assignmentId?: number;
-  readonly reviewerUserId?: number;
-  readonly revieweeUserId?: number;
+  id?: number;
+  assignmentId?: number;
+  reviewerUserId?: number;
+  revieweeUserId?: number;
+  revieweeGroupId?: number;
 }
 
 class ReviewerModel
@@ -17,6 +18,7 @@ class ReviewerModel
   readonly reviewerUserId!: number;
   readonly assignmentId!: number;
   readonly revieweeUserId!: number;
+  readonly revieweeGroupId!: number;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return ReviewerModel.init(
@@ -39,7 +41,10 @@ class ReviewerModel
         revieweeUserId: {
           type: Sequelize.NUMBER,
           field: 'reviewee_user_id',
-          allowNull: false,
+        },
+        revieweeGroupId: {
+          type: Sequelize.NUMBER,
+          field: 'reviewee_group_id',
         },
       },
       {

@@ -1,4 +1,10 @@
-import { GraphQLBoolean, GraphQLID, GraphQLObjectType, GraphQLString } from 'graphql';
+import {
+  GraphQLNonNull,
+  GraphQLBoolean,
+  GraphQLID,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql';
 
 import {
   type AssignmentFields,
@@ -16,12 +22,12 @@ export const getAssignmentFields = ({ addId }: { addId: boolean }) => ({
   ...(addId
     ? {
         id: {
-          type: GraphQLID,
+          type: new GraphQLNonNull(GraphQLID),
         },
       }
     : {}),
   courseId: {
-    type: GraphQLID,
+    type: new GraphQLNonNull(GraphQLID),
   },
   title: {
     type: GraphQLString,
