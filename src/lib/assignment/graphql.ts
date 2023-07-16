@@ -26,7 +26,7 @@ import { findAllRoles } from '../role/roleService';
 
 import type { Context } from '../../types';
 
-const previewReviewersFilter = {
+const PreviewReviewersFilterType = {
   input: {
     type: new GraphQLInputObjectType({
       name: 'PreviewReviewersFilterInputType',
@@ -105,7 +105,7 @@ export const AssignmentType = new GraphQLObjectType({
     },
     previewReviewers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerPreviewType))),
-      args: previewReviewersFilter,
+      args: PreviewReviewersFilterType,
       resolve: async (assignment, args, ctx: Context) => {
         try {
           const { consecutive, teachersUserIds: encodedTeacherUserIds } = args.input;

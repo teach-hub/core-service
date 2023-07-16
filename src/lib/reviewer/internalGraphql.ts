@@ -103,7 +103,7 @@ export const ReviewerType = new GraphQLObjectType<ReviewerFields, Context>({
   },
 });
 
-const assignReviewerArgs = {
+const AssignReviewersInputType = {
   input: {
     type: new GraphQLInputObjectType({
       name: 'AssignReviewersInputType',
@@ -141,7 +141,7 @@ const assignReviewerArgs = {
 export const reviewerMutations: GraphQLFieldConfigMap<null, Context> = {
   assignReviewers: {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
-    args: assignReviewerArgs,
+    args: AssignReviewersInputType,
     resolve: async (_, args, context) => {
       try {
         const {
