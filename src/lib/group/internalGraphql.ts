@@ -1,4 +1,4 @@
-import { GraphQLID, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
+import { GraphQLID, GraphQLNonNull, GraphQLObjectType } from 'graphql';
 import { getGroupFields } from './graphql';
 import { toGlobalId } from '../../graphql/utils';
 

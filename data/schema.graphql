@@ -68,6 +68,14 @@ type CreateSubmissionResultType {
   success: Boolean
 }
 
+"""A group within TeachHub"""
+type GroupType {
+  active: Boolean
+  courseId: ID
+  id: ID
+  name: String
+}
+
 """A group participant within TeachHub"""
 type InternalGroupParticipantType {
   active: Boolean
@@ -122,13 +130,15 @@ type RepositoryType {
   user: UserType!
 }
 
+union RevieweeUnionType = GroupType | UserType
+
 """Assignment reviewer."""
 type ReviewerPreviewType {
   """The id of the reviewer."""
   id: ID!
 
   """The reviewee user."""
-  reviewee: UserType!
+  reviewee: RevieweeUnionType!
 
   """The id of the reviewer user role."""
   reviewer: UserType!

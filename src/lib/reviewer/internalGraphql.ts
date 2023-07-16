@@ -5,15 +5,27 @@ import {
   GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
+  GraphQLUnionType,
 } from 'graphql';
 
 import { findUser } from '../user/userService';
+import { findGroup } from '../group/service';
 import { getViewer, UserType } from '../user/internalGraphql';
+import { GroupType } from '../group/graphql';
+
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 import { createReviewers } from '../reviewer/service';
 
 import type { ReviewerFields } from '../reviewer/service';
 import type { Context } from '../../types';
+
+export const RevieweeUnionType = new GraphQLUnionType({
+  name: 'RevieweeUnionType',
+  types: [UserType, GroupType],
+  resolveType: obj => {
+    return 'file' in obj ? UserType : GroupType;
+  },
+});
 
 export const ReviewerPreviewType = new GraphQLObjectType<ReviewerFields, Context>({
   name: 'ReviewerPreviewType',
@@ -43,10 +55,14 @@ export const ReviewerPreviewType = new GraphQLObjectType<ReviewerFields, Context
       },
     },
     reviewee: {
-      type: new GraphQLNonNull(UserType),
+      type: new GraphQLNonNull(RevieweeUnionType),
       description: 'The reviewee user.',
       resolve: async reviewer => {
-        return findUser({ userId: String(reviewer.revieweeUserId) });
+        if (reviewer.revieweeUserId) {
+          return findUser({ userId: String(reviewer.revieweeUserId) });
+        } else {
+          return findGroup({ groupId: String(reviewer.revieweeGroupId) });
+        }
       },
     },
   },
