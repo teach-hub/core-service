@@ -35,6 +35,9 @@ type CourseType {
   """Active assignments within the course"""
   assignments: [AssignmentType!]!
 
+  """Group participants within a course"""
+  groupParticipants: [InternalGroupParticipantType!]!
+
   """Groups within a course"""
   groups: [InternalGroupType!]!
   id: ID!

@@ -9,6 +9,7 @@ import {
 import GroupParticipantModel from './model';
 import type { OrderingOptions } from '../../utils';
 import type { Nullable, Optional } from '../../types';
+import { Op } from 'sequelize';
 
 export type GroupParticipantFields = {
   id: Optional<number>;
@@ -33,6 +34,7 @@ const buildModelFields = (
 type FindGroupParticipantsFilter = OrderingOptions & {
   forAssignmentId?: GroupParticipantModel['assignmentId'];
   forGroupId?: GroupParticipantModel['groupId'];
+  forGroupIds?: GroupParticipantModel['groupId'][];
   forUserRoleId?: GroupParticipantModel['userRoleId'];
   active?: boolean;
 };
@@ -64,11 +66,12 @@ export async function countGroupParticipants(): Promise<number> {
 export async function findAllGroupParticipants(
   options: FindGroupParticipantsFilter
 ): Promise<GroupParticipantFields[]> {
-  const { forGroupId, forUserRoleId, forAssignmentId, active } = options;
+  const { forGroupId, forGroupIds, forUserRoleId, forAssignmentId, active } = options;
 
   const whereClause = {
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
     ...(forGroupId ? { groupId: forGroupId } : {}),
+    ...(forGroupIds ? { groupId: { [Op.in]: forGroupIds } } : {}),
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
     ...(active ? { active: active } : {}),
   };
