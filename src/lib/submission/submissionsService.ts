@@ -1,4 +1,3 @@
-import type Sequelize from 'sequelize';
 import { isNil } from 'lodash';
 
 import SubmissionModel from './model';

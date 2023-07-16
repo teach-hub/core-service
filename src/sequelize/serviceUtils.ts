@@ -95,7 +95,7 @@ export const updateModel = async <T extends Model, U>(
   buildModelObject: (model: T) => U,
   whereQuery: WhereOptions<T>
 ): Promise<U> => {
-  const [_, [updated]] = await sequelizeModel.update(values, {
+  const [, [updated]] = await sequelizeModel.update(values, {
     where: whereQuery,
     returning: true,
   });

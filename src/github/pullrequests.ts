@@ -1,4 +1,4 @@
-import { negate, isNil, flatten } from 'lodash';
+import { isNil, flatten } from 'lodash';
 import logger from '../logger';
 
 import { findCourse } from '../lib/course/courseService';

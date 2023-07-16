@@ -1,10 +1,4 @@
-import {
-  GraphQLBoolean,
-  GraphQLID,
-  GraphQLInt,
-  GraphQLObjectType,
-  GraphQLString,
-} from 'graphql';
+import { GraphQLBoolean, GraphQLID, GraphQLObjectType, GraphQLString } from 'graphql';
 
 import {
   countGroups,
