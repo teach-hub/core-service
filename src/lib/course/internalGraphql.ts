@@ -203,22 +203,6 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
             });
           },
         },
-        groupParticipants: {
-          type: new GraphQLNonNull(
-            new GraphQLList(new GraphQLNonNull(InternalGroupParticipantType))
-          ),
-          description: 'Group participants within a course',
-          resolve: async (course, _, __) => {
-            const groups = await findAllGroups({
-              forCourseId: Number(course.id),
-            });
-            return await findAllGroupParticipants({
-              forGroupIds: groups
-                .map(group => group.id)
-                .filter(id => id !== null) as number[],
-            });
-          },
-        },
       };
     },
   }

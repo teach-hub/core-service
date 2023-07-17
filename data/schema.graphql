@@ -35,9 +35,6 @@ type CourseType {
   """Active assignments within the course"""
   assignments: [AssignmentType!]!
 
-  """Group participants within a course"""
-  groupParticipants: [InternalGroupParticipantType!]!
-
   """Groups within a course"""
   groups: [InternalGroupType!]!
   id: ID!
@@ -88,6 +85,15 @@ type InternalGroupType {
   courseId: ID!
   id: ID!
   name: String
+
+  """Users withing a group by assignments"""
+  usersByAssignments: [InternalGroupUsersByAssignments!]!
+}
+
+"""Users withing a group by assignments"""
+type InternalGroupUsersByAssignments {
+  assignments: [AssignmentType!]!
+  users: [UserType!]!
 }
 
 """Authenticated data"""
