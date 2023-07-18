@@ -174,6 +174,8 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
             return await findAssignment({ assignmentId });
           },
         },
+        // Ojo porque esto en realidad es un InternalGroupParticipantType.
+        // Tal vez viewerGroupParticipants ?
         viewerGroups: {
           type: new GraphQLNonNull(
             new GraphQLList(new GraphQLNonNull(InternalGroupParticipantType))

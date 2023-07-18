@@ -62,7 +62,7 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
       },
     },
     otherParticipants: {
-      type: new GraphQLNonNull(GraphQLList(new GraphQLNonNull(UserType))),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
       resolve: async groupParticipant => {
         const groupParticipants = await findAllGroupParticipants({
           forGroupId: groupParticipant.groupId,

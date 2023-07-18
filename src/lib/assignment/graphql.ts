@@ -8,7 +8,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { chunk, flatten, keyBy } from 'lodash';
+import { uniq, chunk, flatten, keyBy } from 'lodash';
 import { getAssignmentFields } from './internalGraphql';
 import {
   AssignmentFields,
@@ -21,8 +21,10 @@ import { ReviewerPreviewType, ReviewerType } from '../reviewer/internalGraphql';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findAllSubmissions, findSubmission } from '../submission/submissionsService';
 import { findReviewers } from '../reviewer/service';
-import { findAllUserRoles } from '../userRole/userRoleService';
+import { UserRoleFields, findAllUserRoles } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
+import { GroupFields, findAllGroups } from '../group/service';
+import { findAllGroupParticipants } from '../groupParticipant/service';
 
 import type { Context } from '../../types';
 
@@ -63,11 +65,7 @@ export const AssignmentType = new GraphQLObjectType({
         }),
     },
     submission: {
-      args: {
-        id: {
-          type: new GraphQLNonNull(GraphQLID),
-        },
-      },
+      args: { id: { type: new GraphQLNonNull(GraphQLID) }},
       type: SubmissionType,
       resolve: async (_, { id }, ctx) => {
         const submissionId = fromGlobalIdAsNumber(id);
@@ -123,18 +121,43 @@ export const AssignmentType = new GraphQLObjectType({
             forCourseId: assignment.courseId,
           });
 
-          // Filtramos a los que ya tienen seteado el reviewer.
-          const pendingUserRoles = courseUserRoles.filter(
-            x => !alreadySetRevieweesIds.includes(x.userId)
-          );
+          const allRolesById = await findAllRoles({}).then(allRoles => keyBy(allRoles, 'id'));
 
-          const allRoles = await findAllRoles({});
+          let revieweeIds: (GroupFields['id'][] | UserRoleFields['userId'][]) = [];
 
-          const allRolesById = keyBy(allRoles, 'id');
+          if (assignment.isGroup) {
 
-          const studentsUserRoles = pendingUserRoles.filter(
-            userRole => !allRolesById[userRole.roleId!].isTeacher
-          );
+            // -- Manejo de grupos. -- 
+            const allGroups = await findAllGroups({ forCourseId: assignment.courseId });
+
+            const uniqParticipantGroupIds = await findAllGroupParticipants({
+              forAssignmentId: assignment.id,
+            }).then(allParticipants => {
+              console.log('allParticipants', allParticipants)
+              return uniq(allParticipants.map(p => p.groupId))
+            });
+
+            console.log('allgroups', allGroups)
+            console.log('uniqparticipants', uniqParticipantGroupIds)
+
+            // Filtramos a los que ya tienen seteado el reviewer.
+            revieweeIds = allGroups
+              .filter(group => uniqParticipantGroupIds.includes(group.id) && !alreadySetRevieweesIds.includes(group.id))
+              .map(g => g.id);
+
+            console.log('Groups reviewees', revieweeIds);
+
+          } else {
+
+            // Filtramos a los que ya tienen seteado el reviewer.
+            const pendingUserRoles = courseUserRoles.filter(
+              x => !alreadySetRevieweesIds.includes(x.userId)
+            );
+
+            revieweeIds = pendingUserRoles
+              .filter(userRole => !allRolesById[userRole.roleId!].isTeacher)
+              .map(student => student.userId);
+          }
 
           const teachersUserRoles = courseUserRoles.filter(userRole => {
             const roleIsTeacher = allRolesById[userRole.roleId!].isTeacher;
@@ -148,22 +171,25 @@ export const AssignmentType = new GraphQLObjectType({
           });
 
           ctx.logger.info('Returning reviewers preview', {
-            studentsUserRoles,
+            studentsUserRoles: revieweeIds,
             teachersUserRoles,
             args: { args: args.input },
           });
 
           // Consecutive
           if (consecutive) {
-            const result = chunk(
-              studentsUserRoles,
-              Math.ceil(studentsUserRoles.length / teachersUserRoles.length)
-            ).map((chunk, i) => {
-              return chunk.map(user => ({
-                id: `${assignment.id}-${user.userId}-${teachersUserRoles[i].userId}`,
-                reviewerUserId: teachersUserRoles[i].userId,
+
+            const chunksAmount = Math.ceil(revieweeIds.length / teachersUserRoles.length)
+
+            const result = chunk(revieweeIds, chunksAmount).map((chunk, i) => {
+              const reviewerUserId = teachersUserRoles[i].userId;
+
+              return chunk.map(revieweeId => ({
+                id: `${assignment.id}-${revieweeId}-${reviewerUserId}`,
+                reviewerUserId,
                 assignmentId: assignment.id,
-                revieweeUserId: user.userId,
+                revieweeUserId: revieweeId,
+                isGroup: assignment.isGroup,
               }));
             });
 
@@ -171,14 +197,15 @@ export const AssignmentType = new GraphQLObjectType({
           }
 
           // Alternate
-          return studentsUserRoles.map((user, i) => {
+          return revieweeIds.map((revieweeId, i) => {
             const reviewerUserId = teachersUserRoles[i % teachersUserRoles.length].userId;
 
             return {
-              id: `${assignment.id}-${user.userId}-${reviewerUserId}`,
+              id: `${assignment.id}-${revieweeId}-${reviewerUserId}`,
               reviewerUserId,
               assignmentId: assignment.id,
-              revieweeUserId: user.userId,
+              revieweeUserId: revieweeId,
+              isGroup: assignment.isGroup,
             };
           });
         } catch (error) {

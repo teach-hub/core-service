@@ -27,7 +27,7 @@ export const RevieweeUnionType = new GraphQLUnionType({
   },
 });
 
-export const ReviewerPreviewType = new GraphQLObjectType<ReviewerFields, Context>({
+export const ReviewerPreviewType = new GraphQLObjectType<{ revieweeUserId: number, reviewerUserId: number, isGroup?: boolean, id: string }, Context>({
   name: 'ReviewerPreviewType',
   description: 'Assignment reviewer.',
   fields: {
@@ -58,10 +58,10 @@ export const ReviewerPreviewType = new GraphQLObjectType<ReviewerFields, Context
       type: new GraphQLNonNull(RevieweeUnionType),
       description: 'The reviewee user.',
       resolve: async reviewer => {
-        if (reviewer.revieweeUserId) {
-          return findUser({ userId: String(reviewer.revieweeUserId) });
+        if (reviewer.isGroup) {
+          return findGroup({ groupId: String(reviewer.reviewerUserId) });
         } else {
-          return findGroup({ groupId: String(reviewer.revieweeGroupId) });
+          return findUser({ userId: String(reviewer.revieweeUserId) });
         }
       },
     },
