@@ -118,6 +118,7 @@ type RegisterType {
 }
 
 input RepositoryStudentData {
+  groupId: String
   name: String!
   students: [String!]
 }
