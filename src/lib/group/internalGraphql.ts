@@ -57,71 +57,23 @@ export const InternalGroupType = new GraphQLObjectType({
       ),
       description: 'Users withing a group by assignments',
       resolve: async (group, _, __) => {
+        // Find every assignment for the course of the group
         const assignments = await findAllAssignments({
           forCourseId: group.courseId,
         });
 
+        // Find all participants from the group, independent of the assignment
         const groupParticipants = await findAllGroupParticipants({
           forGroupId: group.id,
         });
 
-        interface GroupParticipantsByAssignment {
-          [key: number]: GroupParticipantFields[];
-        }
-
-        const groupParticipantsByAssignment: GroupParticipantsByAssignment =
-          groupParticipants.reduce(
-            (
-              grouped: GroupParticipantsByAssignment,
-              groupParticipant: GroupParticipantFields
-            ) => {
-              if (groupParticipant.assignmentId) {
-                if (!grouped[groupParticipant.assignmentId]) {
-                  grouped[groupParticipant.assignmentId] = [];
-                }
-                grouped[groupParticipant.assignmentId].push(groupParticipant);
-              }
-
-              return grouped;
-            },
-            {}
-          );
-
-        interface Result {
-          assignments: AssignmentFields[];
-          participants: GroupParticipantFields[];
-          users: UserFields[];
-        }
-
-        const groupedParticipants: Result[] = Object.values(
-          groupParticipantsByAssignment
-        ).reduce((result: Result[], participants: GroupParticipantFields[]) => {
-          const currentAssignmentId = participants[0].assignmentId;
-
-          const existingResult = result.find(grouped => {
-            const groupedIds = grouped.participants.map(p => p.userRoleId);
-            return participants.every(p => groupedIds.includes(p.userRoleId));
+        const assignmentsWithMatchingParticipantsArray: AssignmentsWithMatchingParticipants[] =
+          joinAssignmentsWithMatchingParticipants({
+            assignments,
+            groupParticipants,
           });
 
-          const assignment = assignments.find(
-            assignment => assignment.id === currentAssignmentId
-          );
-
-          if (assignment) {
-            if (existingResult) {
-              existingResult.assignments.push(assignment);
-            } else {
-              result.push({
-                assignments: [assignment],
-                participants: participants,
-                users: [],
-              });
-            }
-          }
-
-          return result;
-        }, []);
-
+        // Find user roles for every participant, and then the users for each of them
         const userRoles = await findAllUserRoles({
           id: groupParticipants
             .map(groupParticipant => groupParticipant.userRoleId)
@@ -132,21 +84,105 @@ export const InternalGroupType = new GraphQLObjectType({
           id: userRoles.map(userRole => userRole.userId).filter(id => id) as number[],
         });
 
-        groupedParticipants.forEach(grouped => {
-          const userRolesFiltered = userRoles.filter(user => {
-            return grouped.participants.some(participant => {
-              return participant.userRoleId === user.id;
+        assignmentsWithMatchingParticipantsArray.forEach(
+          assignmentsWithMatchingParticipants => {
+            // Search for user roles of the participants
+            const userRolesFiltered = userRoles.filter(user => {
+              return assignmentsWithMatchingParticipants.participants.some(
+                participant => {
+                  return participant.userRoleId === user.id;
+                }
+              );
             });
-          });
-          grouped.users = users.filter(user => {
-            return userRolesFiltered.some(userRole => {
-              return userRole.userId === user.id;
-            });
-          });
-        });
 
-        return groupedParticipants;
+            // Add the user data related to the participants from the assignments
+            assignmentsWithMatchingParticipants.users = users.filter(user => {
+              return userRolesFiltered.some(userRole => {
+                return userRole.userId === user.id;
+              });
+            });
+          }
+        );
+
+        return assignmentsWithMatchingParticipantsArray;
       },
     },
   },
 });
+
+/**
+ * Contains in a same object the assignments that share
+ * the same participants, and the user data related to them
+ * */
+interface AssignmentsWithMatchingParticipants {
+  assignments: AssignmentFields[];
+  participants: GroupParticipantFields[];
+  users: UserFields[];
+}
+
+// Interface to group participants by assignment id
+interface GroupParticipantsByAssignment {
+  [key: number]: GroupParticipantFields[];
+}
+
+const joinAssignmentsWithMatchingParticipants = ({
+  groupParticipants,
+  assignments,
+}: {
+  groupParticipants: GroupParticipantFields[];
+  assignments: AssignmentFields[];
+}) => {
+  const groupParticipantsByAssignment =
+    buildGroupParticipantsByAssignment(groupParticipants);
+  return Object.values(groupParticipantsByAssignment).reduce(
+    (
+      result: AssignmentsWithMatchingParticipants[],
+      participants: GroupParticipantFields[]
+    ) => {
+      const currentAssignmentId = participants[0].assignmentId;
+
+      const existingResult = result.find(grouped => {
+        const groupedIds = grouped.participants.map(p => p.userRoleId);
+        return participants.every(p => groupedIds.includes(p.userRoleId));
+      });
+
+      const assignment = assignments.find(
+        assignment => assignment.id === currentAssignmentId
+      );
+
+      if (assignment) {
+        if (existingResult) {
+          existingResult.assignments.push(assignment);
+        } else {
+          result.push({
+            assignments: [assignment],
+            participants: participants,
+            users: [],
+          });
+        }
+      }
+
+      return result;
+    },
+    []
+  );
+};
+
+const buildGroupParticipantsByAssignment = (
+  groupParticipants: GroupParticipantFields[]
+): GroupParticipantsByAssignment => {
+  return groupParticipants.reduce(
+    (acc: GroupParticipantsByAssignment, groupParticipant: GroupParticipantFields) => {
+      if (groupParticipant.assignmentId) {
+        // If assigment already in result, add participant to the list
+        if (!acc[groupParticipant.assignmentId]) {
+          acc[groupParticipant.assignmentId] = [];
+        }
+        acc[groupParticipant.assignmentId].push(groupParticipant);
+      }
+
+      return acc;
+    },
+    {}
+  );
+};
