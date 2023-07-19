@@ -1,5 +1,4 @@
 import {
-  GraphQLFieldConfigMap,
   GraphQLInputObjectType,
   GraphQLList,
   GraphQLID,
@@ -10,13 +9,11 @@ import {
 
 import { findUser } from '../user/userService';
 import { findGroup } from '../group/service';
-import { getViewer, UserType } from '../user/internalGraphql';
+import { UserType } from '../user/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
 
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
-import { createReviewers } from '../reviewer/service';
+import { toGlobalId } from '../../graphql/utils';
 
-import type { ReviewerFields } from '../reviewer/service';
 import type { Context } from '../../types';
 
 export const RevieweeUnionType = new GraphQLUnionType({
@@ -27,7 +24,10 @@ export const RevieweeUnionType = new GraphQLUnionType({
   },
 });
 
-export const ReviewerPreviewType = new GraphQLObjectType<{ revieweeUserId: number, reviewerUserId: number, isGroup?: boolean, id: string }, Context>({
+export const ReviewerPreviewType = new GraphQLObjectType<
+  { revieweeUserId: number; reviewerUserId: number; isGroup?: boolean; id: string },
+  Context
+>({
   name: 'ReviewerPreviewType',
   description: 'Assignment reviewer.',
   fields: {
@@ -59,7 +59,7 @@ export const ReviewerPreviewType = new GraphQLObjectType<{ revieweeUserId: numbe
       description: 'The reviewee user.',
       resolve: async reviewer => {
         if (reviewer.isGroup) {
-          return findGroup({ groupId: String(reviewer.reviewerUserId) });
+          return findGroup({ groupId: String(reviewer.revieweeUserId) });
         } else {
           return findUser({ userId: String(reviewer.revieweeUserId) });
         }
@@ -68,7 +68,10 @@ export const ReviewerPreviewType = new GraphQLObjectType<{ revieweeUserId: numbe
   },
 });
 
-export const ReviewerType = new GraphQLObjectType<ReviewerFields, Context>({
+export const ReviewerType = new GraphQLObjectType<
+  { revieweeUserId: number; reviewerUserId: number; isGroup?: boolean; id: string },
+  Context
+>({
   name: 'ReviewerType',
   description: 'Assignment reviewer.',
   fields: {
@@ -96,14 +99,20 @@ export const ReviewerType = new GraphQLObjectType<ReviewerFields, Context>({
     reviewee: {
       type: new GraphQLNonNull(RevieweeUnionType),
       description: 'The reviewee user.',
-      resolve: async reviewer => {
-        return findUser({ userId: String(reviewer.revieweeUserId) });
+      resolve: async (reviewer, _, ctx) => {
+        ctx.logger.info('Resolving reviewee for', reviewer);
+
+        if (reviewer.isGroup) {
+          return findGroup({ groupId: String(reviewer.revieweeUserId) });
+        } else {
+          return findUser({ userId: String(reviewer.revieweeUserId) });
+        }
       },
     },
   },
 });
 
-const AssignReviewersInputType = {
+export const AssignReviewersInputType = {
   input: {
     type: new GraphQLInputObjectType({
       name: 'AssignReviewersInputType',
@@ -123,9 +132,9 @@ const AssignReviewersInputType = {
                       type: new GraphQLNonNull(GraphQLID),
                       description: 'The id of the reviewer user.',
                     },
-                    revieweeUserId: {
+                    revieweeId: {
                       type: new GraphQLNonNull(GraphQLID),
-                      description: 'The id of the reviewer user.',
+                      description: 'ID of the reviewee user or group.',
                     },
                   },
                 })
@@ -135,45 +144,5 @@ const AssignReviewersInputType = {
         },
       },
     }),
-  },
-};
-
-export const reviewerMutations: GraphQLFieldConfigMap<null, Context> = {
-  assignReviewers: {
-    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
-    args: AssignReviewersInputType,
-    resolve: async (_, args, context) => {
-      try {
-        const {
-          input: { assignmentId: encodedAssignmentId, reviewers },
-        } = args;
-
-        const viewer = getViewer(context);
-
-        if (!viewer) {
-          throw new Error('Viewer not found!');
-        }
-
-        const reviewerFields: ReviewerFields[] = reviewers.map(
-          (reviewer: { reviewerUserId: string; revieweeUserId: string }) => {
-            return {
-              reviewerUserId: fromGlobalId(reviewer.reviewerUserId).dbId,
-              revieweeUserId: fromGlobalId(reviewer.revieweeUserId).dbId,
-              assignmentId: fromGlobalId(encodedAssignmentId).dbId,
-            };
-          }
-        );
-
-        context.logger.info('Assigning reviewers in assignment', {
-          encodedAssignmentId,
-          reviewerFields,
-        });
-
-        return await createReviewers(reviewerFields);
-      } catch (e) {
-        context.logger.error('Error on assignReviewers mutation', { error: String(e) });
-        return [];
-      }
-    },
   },
 };

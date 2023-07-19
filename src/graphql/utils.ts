@@ -15,6 +15,10 @@ export const toGlobalId = ({ dbId, entityName }: EntityPayload): GlobalId => {
 };
 
 export const fromGlobalId = (globalId: GlobalId): EntityPayload => {
+  if (typeof globalId !== 'string') {
+    throw new TypeError(`Received invalid globalId, value ${globalId}`);
+  }
+
   const decoded = Buffer.from(globalId, 'base64').toString().split(':');
   return { entityName: decoded[0], dbId: decoded[1] };
 };

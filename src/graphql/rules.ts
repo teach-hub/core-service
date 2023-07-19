@@ -151,6 +151,7 @@ export default shield<null, Context, unknown>({
   SubmissionType: allow,
   ReviewerPreviewType: allow,
   ReviewerType: allow,
+  InternalGroupType: allow,
   RepositoryType: allow,
   CreateSubmissionResultType: allow,
   RootMutationType: {
@@ -169,7 +170,8 @@ export default shield<null, Context, unknown>({
     generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
     createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
     createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
-    assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
+    // TODO. Agregar courseId a la mutation.
+    // assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
     createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
     joinGroup: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
   },

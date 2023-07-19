@@ -15,6 +15,7 @@ type AssignmentType {
   courseId: ID!
   description: String
   endDate: String
+  groupParticipants: [InternalGroupParticipantType!]!
   id: ID!
   isGroup: Boolean
   link: String
@@ -76,6 +77,7 @@ type InternalGroupParticipantType {
   groupId: ID!
   id: ID!
   otherParticipants: [UserType!]!
+  user: UserType!
   userRoleId: ID!
 }
 
@@ -159,8 +161,8 @@ type ReviewerType {
 }
 
 input ReviewersAssignmentInputType {
-  """The id of the reviewer user."""
-  revieweeUserId: ID!
+  """ID of the reviewee user or group."""
+  revieweeId: ID!
 
   """The id of the reviewer user."""
   reviewerUserId: ID!

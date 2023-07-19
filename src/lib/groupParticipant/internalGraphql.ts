@@ -13,9 +13,13 @@ import { getGroupParticipantFields } from './graphql';
 import { createGroup, findAllGroups, findGroup } from '../group/service';
 import { createGroupParticipant, findAllGroupParticipants } from './service';
 import { getViewer, UserType } from '../user/internalGraphql';
-import { findAllUserRoles, findUserRoleInCourse } from '../userRole/userRoleService';
+import {
+  findUserRole,
+  findAllUserRoles,
+  findUserRoleInCourse,
+} from '../userRole/userRoleService';
 import { InternalGroupType } from '../group/internalGraphql';
-import { findAllUsers } from '../user/userService';
+import { findAllUsers, findUser } from '../user/userService';
 import { findAssignment } from '../assignment/assignmentService';
 
 export const InternalGroupParticipantType = new GraphQLObjectType({
@@ -47,6 +51,14 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
           dbId: String(s.userRoleId),
         }),
     },
+    user: {
+      type: new GraphQLNonNull(UserType),
+      resolve: async participant => {
+        const participantUserRole = await findUserRole({ id: participant.userRoleId });
+
+        return await findUser({ userId: String(participantUserRole.userId) });
+      },
+    },
     groupId: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
@@ -61,6 +73,8 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
         return await findGroup({ groupId: groupParticipant.groupId });
       },
     },
+    // Esto es medio confuso, primero que nada porque devuelve UserType
+    // TODO. Renombrar a groupUsers / usersInSameGroup.
     otherParticipants: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
       resolve: async groupParticipant => {
