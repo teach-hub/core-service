@@ -92,7 +92,7 @@ type InternalGroupType {
 
 """Users withing a group by assignments"""
 type InternalGroupUsersByAssignments {
-  assignments: [AssignmentType!]!
+  assignmentIds: [ID]!
   users: [UserType!]!
 }
 

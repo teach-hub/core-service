@@ -1,10 +1,4 @@
-import {
-  GraphQLID,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLString,
-} from 'graphql';
+import { GraphQLID, GraphQLList, GraphQLNonNull, GraphQLObjectType } from 'graphql';
 import { getGroupFields } from './graphql';
 import { toGlobalId } from '../../graphql/utils';
 import { AssignmentFields, findAllAssignments } from '../assignment/assignmentService';
@@ -13,16 +7,22 @@ import {
   GroupParticipantFields,
 } from '../groupParticipant/service';
 import { UserType } from '../user/internalGraphql';
-import { AssignmentType } from '../assignment/graphql';
 import { findAllUsers, UserFields } from '../user/userService';
 import { findAllUserRoles } from '../userRole/userRoleService';
 
-const InternalGroupUsersByAssignments = new GraphQLObjectType({
+export const InternalGroupUsersByAssignments = new GraphQLObjectType({
   name: 'InternalGroupUsersByAssignments',
   description: 'Users withing a group by assignments',
   fields: {
-    assignments: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(AssignmentType))),
+    assignmentIds: {
+      type: new GraphQLNonNull(new GraphQLList(GraphQLID)),
+      resolve: x =>
+        x.assignmentIds.map((id: string) =>
+          toGlobalId({
+            entityName: 'assignment',
+            dbId: String(id),
+          })
+        ),
     },
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
@@ -115,7 +115,7 @@ export const InternalGroupType = new GraphQLObjectType({
  * the same participants, and the user data related to them
  * */
 interface AssignmentsWithMatchingParticipants {
-  assignments: AssignmentFields[];
+  assignmentIds: number[];
   participants: GroupParticipantFields[];
   users: UserFields[];
 }
@@ -150,12 +150,12 @@ const joinAssignmentsWithMatchingParticipants = ({
         assignment => assignment.id === currentAssignmentId
       );
 
-      if (assignment) {
+      if (assignment?.id) {
         if (existingResult) {
-          existingResult.assignments.push(assignment);
+          existingResult.assignmentIds.push(assignment.id);
         } else {
           result.push({
-            assignments: [assignment],
+            assignmentIds: [assignment.id],
             participants: participants,
             users: [],
           });
