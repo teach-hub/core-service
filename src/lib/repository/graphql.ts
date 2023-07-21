@@ -13,7 +13,7 @@ import {
   findRepository,
   type RepositoryFields,
   updateRepository,
-} from './repositoryService';
+} from './service';
 
 import { buildEntityFields } from '../../graphql/fields';
 import { buildEntityMutations } from '../../graphql/mutations';
@@ -30,6 +30,9 @@ export const getRepositoryFields = ({ addId }: { addId: boolean }) => ({
     type: GraphQLID,
   },
   userId: {
+    type: GraphQLID,
+  },
+  groupId: {
     type: GraphQLID,
   },
   name: {

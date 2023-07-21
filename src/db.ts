@@ -9,7 +9,7 @@ import UserRoleModel from './lib/userRole/userRoleModel';
 import AssignmentModel from './lib/assignment/assignmentModel';
 import InviteModel from './lib/invite/model';
 import SubmissionModel from './lib/submission/model';
-import RepositoryModel from './lib/repository/repositoryModel';
+import RepositoryModel from './lib/repository/model';
 import ReviewerModel from './lib/reviewer/model';
 import GroupModel from './lib/group/model';
 import GroupParticipantModel from './lib/groupParticipant/model';
