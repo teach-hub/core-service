@@ -1,5 +1,6 @@
 import {
   GraphQLBoolean,
+  GraphQLFieldConfigMap,
   GraphQLID,
   GraphQLInputObjectType,
   GraphQLList,
@@ -9,7 +10,11 @@ import {
 } from 'graphql';
 
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
-import { createRepositories, RepositoryData } from '../../github/repositories';
+import {
+  createRepositories,
+  GithubCreatedRepositoryData,
+  RepositoryData,
+} from '../../github/repositories';
 import { getToken } from '../../utils/request';
 
 import { findUser, findUsersInCourse } from '../user/userService';
@@ -26,14 +31,22 @@ import type { Context } from '../../types';
 
 interface RepositoryStudentsData {
   name: string;
-  students: [string];
+  students: [number];
+  groupId: number;
 }
+
+type RepositoryStudentsInputData = {
+  name: string;
+  students: [string];
+  groupId: string;
+};
 
 const RepositoryStudentsDataInput = new GraphQLInputObjectType({
   name: 'RepositoryStudentData',
   fields: () => ({
     name: { type: new GraphQLNonNull(GraphQLString) },
     students: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
+    groupId: { type: GraphQLString },
   }),
 });
 
@@ -73,9 +86,8 @@ export const RepositoryType = new GraphQLObjectType({
   },
 });
 
-export const repositoryMutations = {
+export const repositoryMutations: GraphQLFieldConfigMap<null, Context> = {
   createRepositories: {
-    name: 'CreateRepositories',
     type: new GraphQLObjectType({
       name: 'CreateRepositoriesResponse',
       fields: {
@@ -100,23 +112,42 @@ export const repositoryMutations = {
         type: new GraphQLList(new GraphQLNonNull(RepositoryStudentsDataInput)),
       },
     },
-
-    // FIXME. No copiar
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolve: async (_: unknown, args: any, context: Context) => {
+    resolve: async (_, args, context) => {
       const token = getToken(context);
       if (!token) throw new Error('Token required');
 
       const {
         organization: organization,
         courseId: encodedCourseId,
-        admins: admins,
-        maintainers: maintainers,
-        repositoriesData: repositoriesStudentsData,
+        admins: globalIdAdmins,
+        maintainers: maintainerGlobalIds,
+        repositoriesData: repositoriesDataWithGlobalIds,
         arePrivate: arePrivate,
       } = args;
 
+      /**
+       * Transform all received data containing global ids
+       * into real database ids
+       * */
       const courseId = fromGlobalIdAsNumber(encodedCourseId);
+
+      const admins = globalIdAdmins.map((id: string) => fromGlobalIdAsNumber(id));
+      const maintainers = maintainerGlobalIds.map((id: string) =>
+        fromGlobalIdAsNumber(id)
+      );
+
+      const repositoriesData: RepositoryStudentsData[] =
+        repositoriesDataWithGlobalIds.map((data: RepositoryStudentsInputData) => {
+          const students = data.students.map((id: string) => fromGlobalIdAsNumber(id));
+
+          const groupId = data.groupId ? fromGlobalIdAsNumber(data.groupId) : null;
+
+          return {
+            ...data,
+            students,
+            groupId,
+          };
+        });
 
       context.logger.info(`Creating repositories with data ${JSON.stringify(args)}`);
 
@@ -127,8 +158,7 @@ export const repositoryMutations = {
       const octokit = initOctokit(token);
 
       /* Transform our id to the GitHub username, required for repository creation */
-      const fetchGithubUsername = async (globalUserId: string) => {
-        const userId = fromGlobalIdAsNumber(globalUserId);
+      const fetchGithubUsername = async (userId: number) => {
         const user = courseUsers.find(user => user.id === userId); // Match by id
         if (!user) throw new Error(`User with id ${userId} not found in course`);
 
@@ -140,15 +170,15 @@ export const repositoryMutations = {
         }
       };
 
-      const fetchListGithubUsernames = async (globalIdList: string[]) =>
-        await Promise.all(globalIdList.map(fetchGithubUsername));
+      const fetchListGithubUsernames = async (userIdList: number[]) =>
+        await Promise.all(userIdList.map(fetchGithubUsername));
 
       /* Fetch admins and maintainers only one time, for every repo will be the same */
       const adminsGithubUsernames = await fetchListGithubUsernames(admins);
       const maintainersGithubUsernames = await fetchListGithubUsernames(maintainers);
 
-      const repositoriesData: RepositoryData[] = await Promise.all(
-        repositoriesStudentsData.map(async (data: RepositoryStudentsData) => {
+      const githubRepositoryData: RepositoryData[] = await Promise.all(
+        repositoriesData.map(async (data: RepositoryStudentsData) => {
           return {
             name: data.name,
             collaborators: await fetchListGithubUsernames(data.students),
@@ -160,35 +190,31 @@ export const repositoryMutations = {
       const createRepositoriesResult = await createRepositories({
         octokit,
         organization,
-        repositoriesData,
+        repositoriesData: githubRepositoryData,
         adminsGithubUsernames,
         maintainersGithubUsernames,
       });
 
       const repositoryFieldList: RepositoryFields[] =
         createRepositoriesResult.createdRepositoriesData
-          .map(repositoryData => {
-            // Recover user id from the first student in the list
-            const student = repositoriesStudentsData.find(
-              (data: RepositoryStudentsData) => data.name === repositoryData.name
-            );
-            const userId = student
-              ? fromGlobalIdAsNumber(student.students[0] || '')
-              : undefined;
-
-            return {
+          .map(createdRepositoryData => {
+            return buildRepositoryFields({
+              createdRepositoryData,
               courseId,
-              userId,
-              groupId: undefined, // todo: TH-129 Create group repositories
-              name: repositoryData.name,
-              githubId: repositoryData.id,
-              active: true,
-              id: undefined,
-            };
+              repositoriesData,
+            });
           })
-          .filter(repositoryField => repositoryField.userId !== undefined);
+          .filter(
+            repositoryField =>
+              repositoryField.userId !== undefined ||
+              repositoryField.groupId !== undefined
+          );
 
-      await bulkCreateRepository(repositoryFieldList);
+      try {
+        await bulkCreateRepository(repositoryFieldList);
+      } catch (e) {
+        context.logger.error(e);
+      }
 
       return {
         failedRepositoriesNames: createRepositoriesResult.failedRepositoriesData.map(
@@ -197,4 +223,43 @@ export const repositoryMutations = {
       };
     },
   },
+};
+
+const buildRepositoryFields = ({
+  createdRepositoryData,
+  repositoriesData,
+  courseId,
+}: {
+  createdRepositoryData: GithubCreatedRepositoryData;
+  repositoriesData: RepositoryStudentsData[];
+  courseId: number;
+}): RepositoryFields => {
+  // Recover repository data from  matching repository name
+  const currentData = repositoriesData.find(
+    (data: RepositoryStudentsData) => data.name === createdRepositoryData.name
+  );
+
+  if (!currentData)
+    throw new Error(
+      `Internal error: repository data not found for repository ${createdRepositoryData.name}`
+    );
+
+  /**
+   * If group is set then ignore userId, as the repository
+   * must be linked to the group instead of just a user.
+   * Otherwise, if there is no group, then the repository
+   * will be linked to just one student, so the first item
+   * of the students lists is used as the userId
+   * */
+  const userId = currentData.groupId ? undefined : currentData.students[0];
+
+  return {
+    courseId,
+    userId: userId,
+    groupId: currentData.groupId,
+    name: createdRepositoryData.name,
+    githubId: createdRepositoryData.id,
+    active: true,
+    id: undefined,
+  };
 };

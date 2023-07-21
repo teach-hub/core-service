@@ -56,7 +56,7 @@ export const getAssignmentFields = ({ addId }: { addId: boolean }) => ({
 });
 
 export const InternalAssignmentType = new GraphQLObjectType({
-  name: 'AssignmentType',
+  name: 'InternalAssignmentType',
   description: 'An assignment within TeachHub',
   fields: getAssignmentFields({ addId: true }),
 });

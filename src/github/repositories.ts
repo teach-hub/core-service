@@ -18,18 +18,18 @@ interface CollaboratorData {
   permission: string;
 }
 
-interface CreatedRepositoryData {
+export interface GithubCreatedRepositoryData {
   name: string;
   id: number;
 }
 
-interface FailedRepositoryData {
+export interface GithubFailedRepositoryData {
   name: string;
 }
 
 interface CreateRepositoriesResult {
-  failedRepositoriesData: FailedRepositoryData[];
-  createdRepositoriesData: CreatedRepositoryData[];
+  failedRepositoriesData: GithubFailedRepositoryData[];
+  createdRepositoriesData: GithubCreatedRepositoryData[];
 }
 
 /**
@@ -67,93 +67,94 @@ export const createRepositories = async ({
     name: string,
     errorMessage: string,
     error: unknown
-  ): FailedRepositoryData => {
+  ): GithubFailedRepositoryData => {
     logger.error(errorMessage);
     logger.error(error);
     return { name };
   };
 
-  const createRepoPromises: Promise<CreatedRepositoryData | FailedRepositoryData>[] =
-    repositoriesData.map(
-      async (
-        repositoryData: RepositoryData
-      ): Promise<CreatedRepositoryData | FailedRepositoryData> => {
-        const { name, collaborators, isPrivate } = repositoryData;
+  const createRepoPromises: Promise<
+    GithubCreatedRepositoryData | GithubFailedRepositoryData
+  >[] = repositoriesData.map(
+    async (
+      repositoryData: RepositoryData
+    ): Promise<GithubCreatedRepositoryData | GithubFailedRepositoryData> => {
+      const { name, collaborators, isPrivate } = repositoryData;
 
-        const allRepoUsers: CollaboratorData[] = [
-          ...adminsCollaboratorData,
-          ...maintainersCollaboratorData,
-          ...collaborators.map(username => ({
-            username,
-            permission: CollaboratorPermission.Write,
-          })), // Map collaborators to their permissions
-        ];
+      const allRepoUsers: CollaboratorData[] = [
+        ...adminsCollaboratorData,
+        ...maintainersCollaboratorData,
+        ...collaborators.map(username => ({
+          username,
+          permission: CollaboratorPermission.Write,
+        })), // Map collaborators to their permissions
+      ];
 
-        try {
-          return await octokit.rest.repos
-            .createInOrg({
-              org: organization,
-              name,
-              private: isPrivate,
-            })
-            .then(createRepositoryResponse => {
-              logger.info(`Repository ${name} created in organization ${organization}`);
-
-              /* Add every repo collaborator */
-              for (const user of allRepoUsers) {
-                octokit.rest.repos
-                  .addCollaborator({
-                    owner: organization,
-                    repo: name,
-                    permission: user.permission,
-                    username: user.username,
-                  })
-                  .catch(error => {
-                    logger.error(
-                      `Error adding collaborator ${user.username} with permission ${user.permission} in repository ${name} in organization ${organization}`
-                    );
-                    logger.error(error);
-                  })
-                  .then(_ => {
-                    logger.info(
-                      `Collaborator ${user.username} with permission ${user.permission} added in repository ${name} from organization ${organization}`
-                    );
-                  });
-              }
-
-              if (
-                !createRepositoryResponse?.data?.name ||
-                !createRepositoryResponse?.data?.id
-              ) {
-                return handleRepositoryError(
-                  name,
-                  `Error creating repository ${name} in organization ${organization}, response data is not valid`,
-                  undefined
-                );
-              }
-
-              return {
-                name: createRepositoryResponse.data.name,
-                id: createRepositoryResponse.data.id,
-              };
-            });
-        } catch (error) {
-          return handleRepositoryError(
+      try {
+        return await octokit.rest.repos
+          .createInOrg({
+            org: organization,
             name,
-            `Error creating repository ${name} in organization ${organization}`,
-            error
-          );
-        }
+            private: isPrivate,
+          })
+          .then(createRepositoryResponse => {
+            logger.info(`Repository ${name} created in organization ${organization}`);
+
+            /* Add every repo collaborator */
+            for (const user of allRepoUsers) {
+              octokit.rest.repos
+                .addCollaborator({
+                  owner: organization,
+                  repo: name,
+                  permission: user.permission,
+                  username: user.username,
+                })
+                .then(_ => {
+                  logger.info(
+                    `Collaborator ${user.username} with permission ${user.permission} added in repository ${name} from organization ${organization}`
+                  );
+                })
+                .catch(error => {
+                  logger.error(
+                    `Error adding collaborator ${user.username} with permission ${user.permission} in repository ${name} in organization ${organization}`
+                  );
+                  logger.error(error);
+                });
+            }
+
+            if (
+              !createRepositoryResponse?.data?.name ||
+              !createRepositoryResponse?.data?.id
+            ) {
+              return handleRepositoryError(
+                name,
+                `Error creating repository ${name} in organization ${organization}, response data is not valid`,
+                undefined
+              );
+            }
+
+            return {
+              name: createRepositoryResponse.data.name,
+              id: createRepositoryResponse.data.id,
+            };
+          });
+      } catch (error) {
+        return handleRepositoryError(
+          name,
+          `Error creating repository ${name} in organization ${organization}`,
+          error
+        );
       }
-    );
+    }
+  );
 
   const results = await Promise.all(createRepoPromises);
-  const createdRepositoriesData: CreatedRepositoryData[] = results.filter(
-    (result): result is CreatedRepositoryData =>
+  const createdRepositoriesData: GithubCreatedRepositoryData[] = results.filter(
+    (result): result is GithubCreatedRepositoryData =>
       Object.prototype.hasOwnProperty.call(result, 'id')
   );
-  const failedRepositoriesData: FailedRepositoryData[] = results.filter(
-    (result): result is FailedRepositoryData =>
+  const failedRepositoriesData: GithubFailedRepositoryData[] = results.filter(
+    (result): result is GithubFailedRepositoryData =>
       !Object.prototype.hasOwnProperty.call(result, 'id')
   );
 

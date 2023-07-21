@@ -85,6 +85,15 @@ type InternalGroupType {
   courseId: ID!
   id: ID!
   name: String
+
+  """Users withing a group by assignments"""
+  usersByAssignments: [InternalGroupUsersByAssignments!]!
+}
+
+"""Users withing a group by assignments"""
+type InternalGroupUsersByAssignments {
+  assignmentIds: [ID]!
+  users: [UserType!]!
 }
 
 """Authenticated data"""
@@ -109,6 +118,7 @@ type RegisterType {
 }
 
 input RepositoryStudentData {
+  groupId: String
   name: String!
   students: [String!]
 }
