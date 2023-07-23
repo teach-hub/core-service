@@ -109,13 +109,6 @@ export const InternalGroupType = new GraphQLObjectType({
         return assignmentsWithMatchingParticipantsArray;
       },
     },
-    // participants: {
-    //   type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(InternalGroupParticipantType))),
-    //   resolve: async group => {
-    //     const participants = await findAllGroupParticipants({ forGroupId: group.id });
-    //     return participants;
-    //   }
-    // }
   },
 });
 

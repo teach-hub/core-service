@@ -180,8 +180,6 @@ export const AssignmentType = new GraphQLObjectType({
                   uniqParticipantGroupIds.includes(groupId) &&
                   !alreadySetGroupIds.includes(groupId)
               );
-
-            console.log('Groups reviewees', revieweeIds);
           } else {
             // Filtramos a los que ya tienen seteado el reviewer.
             const pendingUserRoles = courseUserRoles.filter(

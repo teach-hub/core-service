@@ -86,27 +86,68 @@ INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (2, 2, 9, 2, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (3, 2, 5, 3, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (4, 2, 6, 4, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (22, 2, 1, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (5, 2, 1, 3, true);
 
 -- Alumnos
 
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (5, 5, 6, 1, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (6, 5, 6, 2, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (7, 5, 6, 3, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (8, 5, 7, 1, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (9, 5, 7, 2, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (10, 5, 7, 3, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (11, 5, 8, 1, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (12, 5, 8, 2, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (13, 5, 9, 1, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (14, 5, 10, 1, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (15, 5, 11, 2, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (16, 5, 10, 3, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (17, 5, 13, 4, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (18, 5, 10, 4, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (19, 5, 10, 4, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (20, 3, 1, 1, true);
-INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (21, 5, 1, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (105, 5, 6, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (106, 5, 6, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (107, 5, 6, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (108, 5, 7, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (109, 5, 7, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (110, 5, 7, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (111, 5, 8, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (112, 5, 8, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (113, 5, 9, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (114, 5, 10, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (115, 5, 10, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (116, 5, 10, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (117, 5, 11, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (118, 5, 11, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (119, 5, 11, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (120, 5, 12, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (121, 5, 12, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (122, 5, 12, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (123, 5, 12, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (124, 5, 13, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (125, 5, 13, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (126, 5, 13, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (127, 5, 13, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (128, 5, 14, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (129, 5, 14, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (130, 5, 14, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (131, 5, 14, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (132, 5, 15, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (133, 5, 15, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (134, 5, 15, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (135, 5, 15, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (136, 5, 16, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (137, 5, 16, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (138, 5, 16, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (139, 5, 16, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (140, 5, 17, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (141, 5, 17, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (142, 5, 17, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (143, 5, 17, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (144, 5, 18, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (145, 5, 18, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (146, 5, 18, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (147, 5, 18, 4, true);
+
+-- Profesores siendo alumnos
+
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (148, 5, 1, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (149, 5, 1, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (150, 5, 1, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (151, 5, 4, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (152, 5, 4, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (153, 5, 4, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (154, 5, 9, 3, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (155, 5, 9, 4, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (156, 5, 5, 1, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (157, 5, 5, 2, true);
+INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (158, 5, 5, 4, true);
+
 
 --
 -- Data for Name: assignments; Type: TABLE DATA; Schema: teachhub; Owner: tomas
@@ -115,116 +156,152 @@ INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES
 INSERT INTO teachhub.assignments
     (id, course_id, start_date, end_date, link, title, allow_late_submissions, description, is_group)
 VALUES
-    (1, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Algoritmos simples', true, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (2, 3,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Estructuras de datos', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', true),
-    (3, 4,  '2023-01-15 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Almacenamiento dinamico', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (4, 1,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Concurrencia', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (5, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Transacciones', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (6, 3,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Lenguajes funcionales', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (7, 4,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Estadisticas y operaciones', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (8, 1,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Compiladores', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (9, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Operaciones binarias', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (10, 3, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Aritmetica de punteros', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false),
-    (11, 4, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Manejo de memoria', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit.
-
-', false);
+    (1, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Algoritmos simples', true, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (2, 3,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Estructuras de datos', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (3, 4,  '2023-01-15 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Almacenamiento dinamico', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (4, 1,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Concurrencia', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (5, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Transacciones', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (6, 3,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Lenguajes funcionales', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (7, 4,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Estadisticas y operaciones', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (8, 1,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Compiladores', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', true),
+    (9, 2,  '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Operaciones binarias', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false),
+    (10, 3, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Aritmetica de punteros', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false),
+    (11, 4, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Manejo de memoria', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false),
+    (12, 1, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Manejo de operationes basicas', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false),
+    (13, 2, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Sistemas Distribuidos', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false),
+    (14, 3, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Electronica', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false),
+    (15, 4, '2023-01-01 00:00:00.000000 +00:00', '2023-01-01 00:00:00.000000 +00:00', 'http://google.com', 'Operaciones binarias', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false);
 
 --
 -- Data for Name: groups; Type: TABLE DATA; Schema: teachhub; Owner: postgres
 --
 
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (1,  1, 'Primer grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (2,  1, 'Segundo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (3,  1, 'Tercer grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (4,  1, 'Cuarto grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (5,  2, 'Quinto grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (6,  2, 'Sexto grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (7,  2, 'Septimo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (8,  3, 'Octavo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (9,  3, 'Noveno grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (10, 3, 'Decimo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (11, 3, 'Onceavo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (12, 4, 'Doceavo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (13, 4, 'Treceavo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (14, 4, 'Catorceavo grupo', true);
-INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (15, 4, 'Quinceavo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (1,   1, 'Primer grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (2,   1, 'Segundo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (3,   1, 'Tercer grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (4,   1, 'Cuarto grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (5,   2, 'Quinto grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (6,   2, 'Sexto grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (7,   2, 'Septimo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (8,   2, 'Octavo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (9,   3, 'Noveno grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (10,  3, 'Decimo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (11,  3, 'Undecimo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (12,  3, 'Doceavo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (13,  4, 'Treceavo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (14,  4, 'Cuatroavo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (15,  4, 'Quinceavo grupo', true);
+INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (16,  4, 'Diesiseisavo grupo', true);
 
 --
 -- Data for Name: group_participants; Type: TABLE DATA; Schema: teachhub; Owner: postgres
 --
 
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 1, 5, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 2, 6, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 3, 7, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 4, 8, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 5, 9, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 6, 10, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 7, 11, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 8, 12, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (9, 9, 13, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (10, 10, 14, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (11, 11, 15, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 12, 17, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 13, 17, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 14, 18, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 15, 19, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 1, 20, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 2, 21, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 3, 5, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 4, 6, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (9, 5, 7, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (10, 6, 8, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (11, 7, 9, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 8, 10, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 9, 11, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 10, 12, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 11, 13, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 12, 14, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 13, 15, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 14, 16, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 15, 17, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (9, 1, 18, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (10, 2, 19, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (11, 3, 20, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 4, 21, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 5, 5, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 6, 6, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 7, 7, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 8, 8, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 9, 9, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 10, 10, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 11, 11, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (9, 12, 12, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (10, 13, 13, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (11, 14, 14, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 15, 15, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 1, 16, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 2, 17, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 3, 18, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 4, 19, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 5, 20, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 6, 21, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 7, 5, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (9, 8, 6, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (10, 9, 7, true);
-INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (11, 10, 8, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 5, 106, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 5, 109, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 5, 112, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 5, 118, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 6, 121, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 6, 125, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 6, 129, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 6, 133, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 7, 137, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 7, 141, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 7, 145, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 7, 149, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 8, 151, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (1, 8, 157, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 5, 106, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 5, 109, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 5, 112, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 5, 118, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 6, 121, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 6, 125, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 6, 129, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 6, 133, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 7, 137, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 7, 141, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 7, 145, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 7, 149, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 8, 151, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (5, 8, 157, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 9, 107, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 9, 110, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 9, 115, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 9, 119, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 10, 122, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 10, 126, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 10, 130, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 10, 134, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 11, 138, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 11, 142, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 11, 146, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 11, 152, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (2, 12, 154, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 9, 107, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 9, 110, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 9, 115, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 9, 119, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 10, 122, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 10, 126, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 10, 130, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 10, 134, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 11, 138, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 11, 142, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 11, 146, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 11, 152, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (6, 12, 154, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 1, 105, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 1, 108, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 1, 111, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 1, 113, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 2, 114, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 2, 117, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 2, 120, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 2, 124, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 3, 128, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 3, 132, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 3, 136, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 3, 140, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 4, 144, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 4, 148, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (4, 4, 156, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 1, 105, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 1, 108, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 1, 111, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 1, 113, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 2, 114, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 2, 117, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 2, 120, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 2, 124, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 3, 128, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 3, 132, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 3, 136, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 3, 140, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 4, 144, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 4, 148, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (8, 4, 156, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 13, 116, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 13, 123, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 13, 127, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 14, 131, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 14, 135, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 14, 139, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 15, 143, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 15, 147, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 15, 150, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 16, 153, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 16, 155, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (3, 16, 158, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 13, 116, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 13, 123, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 13, 127, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 14, 131, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 14, 135, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 14, 139, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 15, 143, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 15, 147, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 15, 150, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 16, 153, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 16, 155, true);
+INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 16, 158, true);
