@@ -123,9 +123,7 @@ export const AssignmentType = new GraphQLObjectType({
               id: reviewer.id,
               assignmentId: reviewer.assignmentId,
               reviewerUserId: reviewer.reviewerUserId,
-              revieweeUserId: assignment.isGroup
-                ? reviewer.revieweeGroupId
-                : reviewer.revieweeUserId,
+              revieweeId: reviewer.revieweeId,
               isGroup: assignment.isGroup,
             };
           });
@@ -172,7 +170,7 @@ export const AssignmentType = new GraphQLObjectType({
               ),
             ]);
 
-            const alreadySetGroupIds = alreadySetReviewers.map(x => x.revieweeGroupId);
+            const alreadySetGroupIds = alreadySetReviewers.map(x => x.revieweeId);
 
             // Filtramos a los que ya tienen seteado el reviewer.
             revieweeIds = allGroups
@@ -187,7 +185,7 @@ export const AssignmentType = new GraphQLObjectType({
           } else {
             // Filtramos a los que ya tienen seteado el reviewer.
             const pendingUserRoles = courseUserRoles.filter(
-              x => !alreadySetReviewers.map(x => x.revieweeUserId).includes(x.userId)
+              x => !alreadySetReviewers.map(x => x.revieweeId).includes(x.userId)
             );
 
             revieweeIds = pendingUserRoles
@@ -222,8 +220,8 @@ export const AssignmentType = new GraphQLObjectType({
               return chunk.map(revieweeId => ({
                 id: `${assignment.id}-${revieweeId}-${reviewerUserId}`,
                 reviewerUserId,
+                revieweeId,
                 assignmentId: assignment.id,
-                revieweeUserId: revieweeId,
                 isGroup: assignment.isGroup,
               }));
             });
@@ -238,8 +236,8 @@ export const AssignmentType = new GraphQLObjectType({
             return {
               id: `${assignment.id}-${revieweeId}-${reviewerUserId}`,
               reviewerUserId,
+              revieweeId,
               assignmentId: assignment.id,
-              revieweeUserId: revieweeId,
               isGroup: assignment.isGroup,
             };
           });
@@ -307,15 +305,11 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, Context> = {
 
         const reviewerFields: ReviewerFields[] = reviewers.map(
           (reviewer: { reviewerUserId: string; revieweeId: string }) => {
-            const newReviewer: Partial<ReviewerFields> = {
+            return {
               reviewerUserId: fromGlobalIdAsNumber(reviewer.reviewerUserId),
+              revieweeId: fromGlobalIdAsNumber(reviewer.revieweeId),
               assignmentId: assignment.id,
             };
-
-            newReviewer[assignment.isGroup ? 'revieweeGroupId' : 'revieweeUserId'] =
-              fromGlobalIdAsNumber(reviewer.revieweeId);
-
-            return newReviewer;
           }
         );
 
@@ -330,9 +324,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, Context> = {
               id: reviewer.id,
               assignmentId: reviewer.assignmentId,
               reviewerUserId: reviewer.reviewerUserId,
-              revieweeUserId: assignment.isGroup
-                ? reviewer.revieweeGroupId
-                : reviewer.revieweeUserId,
+              revieweeId: reviewer.revieweeId,
               isGroup: assignment.isGroup,
             };
           })

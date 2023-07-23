@@ -6,8 +6,7 @@ interface ReviewerAttributes {
   id?: number;
   assignmentId?: number;
   reviewerUserId?: number;
-  revieweeUserId?: number;
-  revieweeGroupId?: number;
+  revieweeId?: number;
 }
 
 class ReviewerModel
@@ -17,8 +16,7 @@ class ReviewerModel
   readonly id!: number;
   readonly reviewerUserId!: number;
   readonly assignmentId!: number;
-  readonly revieweeUserId!: number;
-  readonly revieweeGroupId!: number;
+  readonly revieweeId!: number;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return ReviewerModel.init(
@@ -38,13 +36,10 @@ class ReviewerModel
           field: 'assignment_id',
           allowNull: false,
         },
-        revieweeUserId: {
+        revieweeId: {
           type: Sequelize.NUMBER,
-          field: 'reviewee_user_id',
-        },
-        revieweeGroupId: {
-          type: Sequelize.NUMBER,
-          field: 'reviewee_group_id',
+          field: 'reviewee_id',
+          allowNull: false,
         },
       },
       {

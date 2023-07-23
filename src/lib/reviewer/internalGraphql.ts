@@ -25,7 +25,7 @@ export const RevieweeUnionType = new GraphQLUnionType({
 });
 
 export const ReviewerPreviewType = new GraphQLObjectType<
-  { revieweeUserId: number; reviewerUserId: number; isGroup?: boolean; id: string },
+  { revieweeId: number; reviewerUserId: number; isGroup?: boolean; id: string },
   Context
 >({
   name: 'ReviewerPreviewType',
@@ -59,9 +59,9 @@ export const ReviewerPreviewType = new GraphQLObjectType<
       description: 'The reviewee user.',
       resolve: async reviewer => {
         if (reviewer.isGroup) {
-          return findGroup({ groupId: String(reviewer.revieweeUserId) });
+          return findGroup({ groupId: String(reviewer.revieweeId) });
         } else {
-          return findUser({ userId: String(reviewer.revieweeUserId) });
+          return findUser({ userId: String(reviewer.revieweeId) });
         }
       },
     },
@@ -69,7 +69,7 @@ export const ReviewerPreviewType = new GraphQLObjectType<
 });
 
 export const ReviewerType = new GraphQLObjectType<
-  { revieweeUserId: number; reviewerUserId: number; isGroup?: boolean; id: string },
+  { revieweeId: number; reviewerUserId: number; isGroup?: boolean; id: string },
   Context
 >({
   name: 'ReviewerType',
@@ -103,9 +103,9 @@ export const ReviewerType = new GraphQLObjectType<
         ctx.logger.info('Resolving reviewee for', reviewer);
 
         if (reviewer.isGroup) {
-          return findGroup({ groupId: String(reviewer.revieweeUserId) });
+          return findGroup({ groupId: String(reviewer.revieweeId) });
         } else {
-          return findUser({ userId: String(reviewer.revieweeUserId) });
+          return findUser({ userId: String(reviewer.revieweeId) });
         }
       },
     },
