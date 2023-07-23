@@ -3,11 +3,10 @@
 BEGIN;
 
 ALTER TABLE teachhub.reviewers
-DROP COLUMN reviewee_user_id,
-ADD COLUMN reviewee_id INTEGER NOT NULL,
-
--- No podemos tener un reviewee con dos reviewers.
-ADD CONSTRAINT unique_assigment_reviewee UNIQUE (assignment_id, reviewee_id);
+ADD COLUMN reviewee_group_id INTEGER REFERENCES teachhub.groups(id),
+ALTER COLUMN reviewee_user_id DROP NOT NULL,
+ADD CONSTRAINT reviewers_reviewee_group_id_reviewee_user_id_key
+  CHECK (reviewee_group_id <> NULL OR reviewee_user_id <> NULL);
 
 CREATE INDEX assignment_idx ON teachhub.reviewers(assignment_id);
 

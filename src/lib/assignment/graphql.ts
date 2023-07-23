@@ -279,7 +279,12 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, Context> = {
   // meterlo en reviewers genera un dependencia circular.
   assignReviewers: {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
-    args: AssignReviewersInputType,
+    args: {
+      input: AssignReviewersInputType.input,
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
     resolve: async (_, args, context) => {
       try {
         const {

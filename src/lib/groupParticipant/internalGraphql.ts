@@ -70,12 +70,10 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
     group: {
       type: new GraphQLNonNull(InternalGroupType),
       resolve: async groupParticipant => {
-        return await findGroup({ groupId: groupParticipant.groupId });
+        return findGroup({ groupId: groupParticipant.groupId });
       },
     },
-    // Esto es medio confuso, primero que nada porque devuelve UserType
-    // TODO. Renombrar a groupUsers / usersInSameGroup.
-    otherParticipants: {
+    groupUsers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
       resolve: async groupParticipant => {
         const groupParticipants = await findAllGroupParticipants({
@@ -87,7 +85,7 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
           id: groupParticipants.map(gp => gp.userRoleId) as number[],
         });
 
-        return await findAllUsers({
+        return findAllUsers({
           id: userRoles.map(ur => ur.userId) as number[],
         });
       },

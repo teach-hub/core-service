@@ -9,6 +9,6 @@ CREATE TABLE teachhub.reviewers (
   reviewee_user_id INTEGER REFERENCES teachhub.users(id) NOT NULL
 );
 
-CREATE INDEX reviewer_user_id_idx ON teachhub.reviewers(reviewer_user_id, reviewee_user_id, assignment_id);
+CREATE INDEX reviewer_user_id_idx ON teachhub.reviewers (reviewer_user_id, reviewee_user_id, assignment_id);
 
 COMMIT;

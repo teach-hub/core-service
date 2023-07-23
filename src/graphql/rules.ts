@@ -170,8 +170,7 @@ export default shield<null, Context, unknown>({
     generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
     createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
     createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
-    // TODO. Agregar courseId a la mutation.
-    // assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
+    assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
     createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
     joinGroup: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
   },
