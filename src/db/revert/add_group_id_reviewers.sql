@@ -3,7 +3,9 @@
 BEGIN;
 
 ALTER TABLE teachhub.reviewers
-DROP COLUMN reviewee_group_id,
-ALTER COLUMN reviewee_user_id SET NOT NULL;
+DROP COLUMN reviewee_id,
+ADD COLUMN reviewee_user_id INTEGER REFERENCES teachhub.users(id) NOT NULL;
+
+DROP INDEX teachhub.assignment_idx;
 
 COMMIT;

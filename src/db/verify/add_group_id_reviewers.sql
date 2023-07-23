@@ -2,8 +2,4 @@
 
 BEGIN;
 
-SELECT reviewee_group_id
-FROM teachhub.reviewers
-WHERE false;
-
 ROLLBACK;
