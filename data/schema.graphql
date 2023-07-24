@@ -15,6 +15,7 @@ type AssignmentType {
   courseId: ID!
   description: String
   endDate: String
+  groupParticipants: [InternalGroupParticipantType!]!
   id: ID!
   isGroup: Boolean
   link: String
@@ -74,8 +75,9 @@ type InternalGroupParticipantType {
   assignmentId: ID!
   group: InternalGroupType!
   groupId: ID!
+  groupUsers: [UserType!]!
   id: ID!
-  otherParticipants: [UserType!]!
+  user: UserType!
   userRoleId: ID!
 }
 
@@ -159,8 +161,8 @@ type ReviewerType {
 }
 
 input ReviewersAssignmentInputType {
-  """The id of the reviewer user."""
-  revieweeUserId: ID!
+  """ID of the reviewee user or group."""
+  revieweeId: ID!
 
   """The id of the reviewer user."""
   reviewerUserId: ID!
@@ -177,7 +179,7 @@ type RoleType {
 
 """Root mutation"""
 type RootMutationType {
-  assignReviewers(input: AssignReviewersInputType): [ReviewerType!]!
+  assignReviewers(courseId: ID!, input: AssignReviewersInputType): [ReviewerType!]!
 
   """Creates an assignment in a course"""
   createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType

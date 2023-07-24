@@ -151,6 +151,7 @@ export default shield<null, Context, unknown>({
   SubmissionType: allow,
   ReviewerPreviewType: allow,
   ReviewerType: allow,
+  InternalGroupType: allow,
   RepositoryType: allow,
   CreateSubmissionResultType: allow,
   RootMutationType: {
@@ -169,8 +170,7 @@ export default shield<null, Context, unknown>({
     generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
     createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
     createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
-    // TODO
-    assignReviewers: allow,
+    assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
     createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
     joinGroup: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
   },

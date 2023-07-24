@@ -23,7 +23,6 @@ import { RoleType } from '../lib/role/internalGraphql';
 import { repositoryMutations, RepositoryType } from '../lib/repository/internalGraphql';
 import { assignmentMutations } from '../lib/assignment/graphql';
 import { submissionMutations } from '../lib/submission/internalGraphql';
-import { reviewerMutations } from '../lib/reviewer/internalGraphql';
 
 import { fromGlobalId, toGlobalId } from './utils';
 
@@ -204,7 +203,6 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...submissionMutations,
     ...courseMutations,
     ...repositoryMutations,
-    ...reviewerMutations,
     ...groupParticipantMutations,
   },
 });

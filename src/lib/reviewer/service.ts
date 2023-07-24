@@ -6,8 +6,7 @@ export type ReviewerFields = {
   id: Optional<number>;
   reviewerUserId: Optional<number>;
   assignmentId: Optional<number>;
-  revieweeUserId: Optional<number>;
-  revieweeGroupId: Optional<number>;
+  revieweeId: Optional<number>;
 };
 
 const buildModelFields = (reviewer: Nullable<ReviewerModel>): ReviewerFields => {
@@ -15,8 +14,7 @@ const buildModelFields = (reviewer: Nullable<ReviewerModel>): ReviewerFields => 
     id: reviewer?.id,
     reviewerUserId: reviewer?.reviewerUserId,
     assignmentId: reviewer?.assignmentId,
-    revieweeUserId: reviewer?.revieweeUserId,
-    revieweeGroupId: reviewer?.revieweeGroupId,
+    revieweeId: reviewer?.revieweeId,
   };
 };
 

@@ -1,4 +1,5 @@
 import { GraphQLID, GraphQLList, GraphQLNonNull, GraphQLObjectType } from 'graphql';
+
 import { getGroupFields } from './graphql';
 import { toGlobalId } from '../../graphql/utils';
 import { AssignmentFields, findAllAssignments } from '../assignment/assignmentService';
@@ -6,6 +7,7 @@ import {
   findAllGroupParticipants,
   GroupParticipantFields,
 } from '../groupParticipant/service';
+
 import { UserType } from '../user/internalGraphql';
 import { findAllUsers, UserFields } from '../user/userService';
 import { findAllUserRoles } from '../userRole/userRoleService';

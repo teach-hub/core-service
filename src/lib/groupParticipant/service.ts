@@ -73,7 +73,7 @@ export async function findAllGroupParticipants(
     ...(forGroupId ? { groupId: forGroupId } : {}),
     ...(forGroupIds ? { groupId: { [Op.in]: forGroupIds } } : {}),
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
-    ...(active ? { active: active } : {}),
+    ...(active ? { active } : {}),
   };
 
   return findAllModels(GroupParticipantModel, options, buildModelFields, whereClause);

@@ -8,21 +8,33 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { chunk, flatten, keyBy } from 'lodash';
+import { uniq, chunk, flatten, keyBy } from 'lodash';
+
 import { getAssignmentFields } from './internalGraphql';
+
 import {
   AssignmentFields,
   createAssignment,
   updateAssignment,
+  findAssignment,
 } from './assignmentService';
-import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
-import { ReviewerPreviewType, ReviewerType } from '../reviewer/internalGraphql';
-import { SubmissionType } from '../submission/internalGraphql';
 import { findAllSubmissions, findSubmission } from '../submission/submissionsService';
-import { findReviewers } from '../reviewer/service';
-import { findAllUserRoles } from '../userRole/userRoleService';
+import { ReviewerFields, createReviewers, findReviewers } from '../reviewer/service';
+import { UserRoleFields, findAllUserRoles } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
+import { GroupFields, findAllGroups } from '../group/service';
+import { findAllGroupParticipants } from '../groupParticipant/service';
+
+import {
+  AssignReviewersInputType,
+  ReviewerPreviewType,
+  ReviewerType,
+} from '../reviewer/internalGraphql';
+import { getViewer } from '../user/internalGraphql';
+import { SubmissionType } from '../submission/internalGraphql';
+import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 
 import type { Context } from '../../types';
 
@@ -63,11 +75,7 @@ export const AssignmentType = new GraphQLObjectType({
         }),
     },
     submission: {
-      args: {
-        id: {
-          type: new GraphQLNonNull(GraphQLID),
-        },
-      },
+      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       type: SubmissionType,
       resolve: async (_, { id }, ctx) => {
         const submissionId = fromGlobalIdAsNumber(id);
@@ -88,15 +96,37 @@ export const AssignmentType = new GraphQLObjectType({
         return submissions;
       },
     },
+    groupParticipants: {
+      type: new GraphQLNonNull(
+        new GraphQLList(new GraphQLNonNull(InternalGroupParticipantType))
+      ),
+      resolve: async assignment => {
+        const participants = await findAllGroupParticipants({
+          forAssignmentId: assignment.id,
+        });
+        return participants;
+      },
+    },
     reviewers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
       resolve: async (assignment, _, ctx: Context) => {
         try {
           const reviewers = await findReviewers({ assignmentId: assignment.id });
 
-          ctx.logger.info('Returning reviewers', { reviewers });
+          ctx.logger.info('Returning reviewers for assignment', {
+            assignment,
+            reviewers,
+          });
 
-          return reviewers;
+          return reviewers.map(reviewer => {
+            return {
+              id: reviewer.id,
+              assignmentId: reviewer.assignmentId,
+              reviewerUserId: reviewer.reviewerUserId,
+              revieweeId: reviewer.revieweeId,
+              isGroup: assignment.isGroup,
+            };
+          });
         } catch (error) {
           ctx.logger.error('An error happened while returning reviewers', { error });
           return [];
@@ -112,9 +142,9 @@ export const AssignmentType = new GraphQLObjectType({
           const teachersUserIds: number[] =
             encodedTeacherUserIds.map(fromGlobalIdAsNumber);
 
-          const alreadySetRevieweesIds = await findReviewers({
+          const alreadySetReviewers = await findReviewers({
             assignmentId: assignment.id,
-          }).then(reviewers => reviewers.map(r => r.revieweeUserId));
+          });
 
           // Mover esto a una function: Buscar profesores y alumnos
           // es bastante comun para cualquier flujo.
@@ -123,18 +153,43 @@ export const AssignmentType = new GraphQLObjectType({
             forCourseId: assignment.courseId,
           });
 
-          // Filtramos a los que ya tienen seteado el reviewer.
-          const pendingUserRoles = courseUserRoles.filter(
-            x => !alreadySetRevieweesIds.includes(x.userId)
+          const allRolesById = await findAllRoles({}).then(allRoles =>
+            keyBy(allRoles, 'id')
           );
 
-          const allRoles = await findAllRoles({});
+          let revieweeIds: GroupFields['id'][] | UserRoleFields['userId'][] = [];
 
-          const allRolesById = keyBy(allRoles, 'id');
+          if (assignment.isGroup) {
+            // -- Manejo de grupos. --
+            const [allGroups, uniqParticipantGroupIds] = await Promise.all([
+              findAllGroups({ forCourseId: assignment.courseId }),
+              findAllGroupParticipants({ forAssignmentId: assignment.id }).then(
+                allParticipants => {
+                  return uniq(allParticipants.map(p => p.groupId));
+                }
+              ),
+            ]);
 
-          const studentsUserRoles = pendingUserRoles.filter(
-            userRole => !allRolesById[userRole.roleId!].isTeacher
-          );
+            const alreadySetGroupIds = alreadySetReviewers.map(x => x.revieweeId);
+
+            // Filtramos a los que ya tienen seteado el reviewer.
+            revieweeIds = allGroups
+              .map(group => group.id)
+              .filter(
+                groupId =>
+                  uniqParticipantGroupIds.includes(groupId) &&
+                  !alreadySetGroupIds.includes(groupId)
+              );
+          } else {
+            // Filtramos a los que ya tienen seteado el reviewer.
+            const pendingUserRoles = courseUserRoles.filter(
+              x => !alreadySetReviewers.map(x => x.revieweeId).includes(x.userId)
+            );
+
+            revieweeIds = pendingUserRoles
+              .filter(userRole => !allRolesById[userRole.roleId!].isTeacher)
+              .map(student => student.userId);
+          }
 
           const teachersUserRoles = courseUserRoles.filter(userRole => {
             const roleIsTeacher = allRolesById[userRole.roleId!].isTeacher;
@@ -148,22 +203,24 @@ export const AssignmentType = new GraphQLObjectType({
           });
 
           ctx.logger.info('Returning reviewers preview', {
-            studentsUserRoles,
+            studentsUserRoles: revieweeIds,
             teachersUserRoles,
             args: { args: args.input },
           });
 
           // Consecutive
           if (consecutive) {
-            const result = chunk(
-              studentsUserRoles,
-              Math.ceil(studentsUserRoles.length / teachersUserRoles.length)
-            ).map((chunk, i) => {
-              return chunk.map(user => ({
-                id: `${assignment.id}-${user.userId}-${teachersUserRoles[i].userId}`,
-                reviewerUserId: teachersUserRoles[i].userId,
+            const chunksAmount = Math.ceil(revieweeIds.length / teachersUserRoles.length);
+
+            const result = chunk(revieweeIds, chunksAmount).map((chunk, i) => {
+              const reviewerUserId = teachersUserRoles[i].userId;
+
+              return chunk.map(revieweeId => ({
+                id: `${assignment.id}-${revieweeId}-${reviewerUserId}`,
+                reviewerUserId,
+                revieweeId,
                 assignmentId: assignment.id,
-                revieweeUserId: user.userId,
+                isGroup: assignment.isGroup,
               }));
             });
 
@@ -171,14 +228,15 @@ export const AssignmentType = new GraphQLObjectType({
           }
 
           // Alternate
-          return studentsUserRoles.map((user, i) => {
+          return revieweeIds.map((revieweeId, i) => {
             const reviewerUserId = teachersUserRoles[i % teachersUserRoles.length].userId;
 
             return {
-              id: `${assignment.id}-${user.userId}-${reviewerUserId}`,
+              id: `${assignment.id}-${revieweeId}-${reviewerUserId}`,
               reviewerUserId,
+              revieweeId,
               assignmentId: assignment.id,
-              revieweeUserId: user.userId,
+              isGroup: assignment.isGroup,
             };
           });
         } catch (error) {
@@ -190,7 +248,7 @@ export const AssignmentType = new GraphQLObjectType({
   },
 });
 
-export const assignmentMutations: GraphQLFieldConfigMap<unknown, Context> = {
+export const assignmentMutations: GraphQLFieldConfigMap<null, Context> = {
   createAssignment: {
     description: 'Creates an assignment in a course',
     type: AssignmentType,
@@ -215,6 +273,69 @@ export const assignmentMutations: GraphQLFieldConfigMap<unknown, Context> = {
       const fixedId = fromGlobalIdAsNumber(id);
 
       return await updateAssignment(String(fixedId), assignmentData);
+    },
+  },
+  // Esto vive aca porque si bien el manejo es de reviewers
+  // meterlo en reviewers genera un dependencia circular.
+  assignReviewers: {
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
+    args: {
+      input: AssignReviewersInputType.input,
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    resolve: async (_, args, context) => {
+      try {
+        const {
+          input: { assignmentId: encodedAssignmentId, reviewers },
+        } = args;
+
+        const viewer = getViewer(context);
+
+        if (!viewer) {
+          throw new Error('Viewer not found!');
+        }
+
+        const assignmentId = fromGlobalId(encodedAssignmentId).dbId;
+        const assignment = await findAssignment({ assignmentId });
+
+        if (!assignment) {
+          throw new Error('Assignment not found');
+        }
+
+        context.logger.info('Assigning reviewers for assignment', { id: assignmentId });
+
+        const reviewerFields: ReviewerFields[] = reviewers.map(
+          (reviewer: { reviewerUserId: string; revieweeId: string }) => {
+            return {
+              reviewerUserId: fromGlobalIdAsNumber(reviewer.reviewerUserId),
+              revieweeId: fromGlobalIdAsNumber(reviewer.revieweeId),
+              assignmentId: assignment.id,
+            };
+          }
+        );
+
+        context.logger.info('Assigning reviewers in assignment', {
+          assignmentId: assignment.id,
+          reviewerFields,
+        });
+
+        return createReviewers(reviewerFields).then(reviewers =>
+          reviewers.map(reviewer => {
+            return {
+              id: reviewer.id,
+              assignmentId: reviewer.assignmentId,
+              reviewerUserId: reviewer.reviewerUserId,
+              revieweeId: reviewer.revieweeId,
+              isGroup: assignment.isGroup,
+            };
+          })
+        );
+      } catch (e) {
+        context.logger.error('Error on assignReviewers mutation', { error: String(e) });
+        return [];
+      }
     },
   },
 };

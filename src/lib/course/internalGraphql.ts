@@ -166,7 +166,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
           args: { id: { type: new GraphQLNonNull(GraphQLID) } },
           description: 'Finds an assignment for a specific course',
           type: AssignmentType,
-          resolve: async (course, args, { logger }) => {
+          resolve: async (_, args, { logger }) => {
             const { dbId: assignmentId } = fromGlobalId(args.id);
 
             logger.info('Finding assignment', { assignmentId });
@@ -174,12 +174,15 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
             return await findAssignment({ assignmentId });
           },
         },
+        // TODO.
+        // Ojo porque esto en realidad es un InternalGroupParticipantType.
+        // Tal vez viewerGroupParticipants ?
         viewerGroups: {
           type: new GraphQLNonNull(
             new GraphQLList(new GraphQLNonNull(InternalGroupParticipantType))
           ),
           description: 'Viewer groups within the course',
-          resolve: async (course, args, context) => {
+          resolve: async (course, _, context) => {
             const viewer = await getViewer(context);
 
             const userRole = await findUserRoleInCourse({
