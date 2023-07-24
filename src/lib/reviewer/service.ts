@@ -1,5 +1,5 @@
 import ReviewerModel from './model';
-import { bulkCreateModel, findAllModels } from '../../sequelize/serviceUtils';
+import { bulkCreateModel, findAllModels, findModel } from '../../sequelize/serviceUtils';
 import type { Nullable, Optional } from '../../types';
 
 export type ReviewerFields = {
@@ -38,3 +38,18 @@ export function createReviewers(
 ): Promise<ReviewerFields[]> {
   return bulkCreateModel(ReviewerModel, data, buildModelFields);
 }
+
+export const findReviewer = async ({
+  userId,
+  assignmentId,
+}: {
+  userId?: number;
+  assignmentId?: number;
+}): Promise<ReviewerFields> => {
+  const query = {
+    ...(userId ? { revieweeUserId: userId } : {}),
+    ...(assignmentId ? { assignmentId: assignmentId } : {}),
+  };
+
+  return findModel(ReviewerModel, buildModelFields, query);
+};

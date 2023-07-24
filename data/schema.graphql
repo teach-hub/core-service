@@ -239,6 +239,7 @@ type SubmissionType {
   description: String
   id: ID!
   pullRequestUrl: String!
+  reviewer: ReviewerType
 
   """Date when submission was created"""
   submittedAt: String!
