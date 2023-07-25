@@ -11,6 +11,7 @@ import InviteModel from './lib/invite/model';
 import SubmissionModel from './lib/submission/model';
 import RepositoryModel from './lib/repository/model';
 import ReviewerModel from './lib/reviewer/model';
+import ReviewModel from './lib/review/model';
 import GroupModel from './lib/group/model';
 import GroupParticipantModel from './lib/groupParticipant/model';
 
@@ -37,6 +38,7 @@ const initializeModels = () => {
     GroupModel,
     GroupParticipantModel,
     ReviewerModel,
+    ReviewModel,
   };
 
   // Esta magia inicializa los modelos de la base de datos. Basicamente

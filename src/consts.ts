@@ -16,6 +16,7 @@ export const DatabaseConstants = {
     GROUP: 'groups',
     GROUP_PARTICIPANT: 'group_participants',
     REVIEWER: 'reviewers',
+    REVIEWE: 'reviews',
   },
 };
 
