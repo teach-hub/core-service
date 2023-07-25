@@ -59,7 +59,7 @@ class Review extends Sequelize.Model<ReviewAttributes> implements ReviewAttribut
       {
         sequelize: db,
         schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
-        tableName: DatabaseConstants.TABLES.REVIEWE,
+        tableName: DatabaseConstants.TABLES.REVIEW,
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: 'updated_at',

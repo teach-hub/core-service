@@ -48,7 +48,7 @@ export const getReviewFields = ({ addId }: { addId: boolean }) => ({
 
 export const ReviewType = new GraphQLObjectType({
   name: 'ReviewType',
-  description: 'A group participant within TeachHub',
+  description: 'A review done by a reviewer within TeachHub',
   fields: {
     ...getReviewFields({ addId: true }),
   },
