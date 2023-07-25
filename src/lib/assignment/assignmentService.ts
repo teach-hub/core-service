@@ -11,6 +11,7 @@ import {
 import AssignmentModel from './assignmentModel';
 import type { OrderingOptions } from '../../utils';
 import type { Nullable, Optional } from '../../types';
+import { dateToString } from '../../utils/dates';
 
 export type AssignmentFields = {
   id: Optional<number>;
@@ -29,8 +30,8 @@ const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFiel
   return {
     id: assignment?.id,
     link: assignment?.link,
-    startDate: assignment?.startDate?.toISOString(),
-    endDate: assignment?.endDate?.toISOString(),
+    startDate: assignment?.startDate && dateToString(assignment.startDate),
+    endDate: assignment?.endDate && dateToString(assignment.endDate),
     title: assignment?.title,
     description: assignment?.description,
     allowLateSubmissions: assignment?.allowLateSubmissions,

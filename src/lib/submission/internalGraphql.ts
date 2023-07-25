@@ -1,20 +1,23 @@
+import type { GraphQLFieldConfigMap } from 'graphql';
 import {
-  GraphQLID,
   GraphQLBoolean,
+  GraphQLID,
   GraphQLList,
   GraphQLNonNull,
-  GraphQLString,
   GraphQLObjectType,
+  GraphQLString,
 } from 'graphql';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
-import { SubmissionFields, createSubmission } from '../submission/submissionsService';
+import { createSubmission, SubmissionFields } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
 import { getViewer, UserType } from '../user/internalGraphql';
 
 import type { Context } from '../../../src/types';
-import type { GraphQLFieldConfigMap } from 'graphql';
+import { dateToString } from '../../utils/dates';
+import { ReviewerType } from '../reviewer/internalGraphql';
+import { findReviewer } from '../reviewer/service';
 
 export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
   name: 'SubmissionType',
@@ -39,13 +42,32 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
         return submitter;
       },
     },
+    reviewer: {
+      type: ReviewerType,
+      resolve: async (submission, _, ctx: Context) => {
+        try {
+          /* TODO: TH-164 reviewee may be user or group */
+          const reviewer = await findReviewer({
+            userId: submission.userId,
+            assignmentId: submission.assignmentId,
+          });
+
+          ctx.logger.info('Returning reviewer', { reviewer });
+
+          return reviewer;
+        } catch (error) {
+          ctx.logger.error('An error happened while returning reviewer', { error });
+          return [];
+        }
+      },
+    },
     pullRequestUrl: {
       type: new GraphQLNonNull(GraphQLString),
     },
     submittedAt: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when submission was created',
-      resolve: s => s.createdAt && s.createdAt.toUTCString(),
+      resolve: s => s.createdAt && dateToString(s.createdAt),
     },
   },
 });
