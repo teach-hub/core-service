@@ -32,7 +32,7 @@ export const getReviewFields = ({ addId }: { addId: boolean }) => ({
   reviewerId: {
     type: GraphQLID,
   },
-  reviewRequested: {
+  revisionRequested: {
     type: GraphQLBoolean,
   },
   grade: {
