@@ -246,9 +246,11 @@ type SubmissionType {
   """Date when submission was created"""
   submittedAt: String!
 
-  """User who has made the submission"""
-  user: UserType!
+  """User or group who has made the submission"""
+  submitter: SubmitterUnionType!
 }
+
+union SubmitterUnionType = InternalGroupType | UserType
 
 type UseInviteResponse {
   courseId: ID
