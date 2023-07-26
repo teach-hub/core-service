@@ -14,7 +14,7 @@ import type { OrderingOptions } from '../../utils';
 export type SubmissionFields = {
   id: number;
   assignmentId: number;
-  userId: number;
+  submiteeId: number;
   description: string;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -32,7 +32,7 @@ const buildModelFields = (
   return {
     id: submission.id,
     assignmentId: submission.assignmentId,
-    userId: submission.userId,
+    submiteeId: submission.submiteeId,
     description: submission.description || '',
     createdAt: submission.createdAt,
     updatedAt: submission.updatedAt,
@@ -67,7 +67,7 @@ export async function findAllSubmissions(
 
   const whereClause = {
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
-    ...(forUserId ? { userId: forUserId } : {}),
+    ...(forUserId ? { submiteeId: forUserId } : {}),
   };
 
   return findAllModels(SubmissionModel, filter, buildModelFields, whereClause);

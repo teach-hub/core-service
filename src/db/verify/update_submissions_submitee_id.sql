@@ -3,7 +3,7 @@
 BEGIN;
 
 SELECT submitee_id
-FROM submissions
+FROM teachhub.submissions
 WHERE false;
 
 ROLLBACK;
