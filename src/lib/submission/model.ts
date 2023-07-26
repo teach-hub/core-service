@@ -4,7 +4,7 @@ import { DatabaseConstants } from '../../consts';
 
 export interface SubmissionAttributes {
   readonly id?: number;
-  readonly submiteeId?: number;
+  readonly submitterId?: number;
   readonly assignmentId?: number;
   readonly description?: string | null;
   readonly pullRequestUrl?: string;
@@ -17,7 +17,7 @@ class SubmissionModel
   implements SubmissionAttributes
 {
   readonly id!: number;
-  readonly submiteeId!: number;
+  readonly submitterId!: number;
   readonly assignmentId!: number;
   readonly description!: string | null;
   readonly pullRequestUrl!: string;
@@ -33,8 +33,8 @@ class SubmissionModel
           autoIncrement: true,
           allowNull: false,
         },
-        submiteeId: {
-          field: 'submitee_id',
+        submitterId: {
+          field: 'submitter_id',
           type: Sequelize.INTEGER,
           allowNull: false,
         },

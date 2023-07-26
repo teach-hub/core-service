@@ -21,8 +21,8 @@ import { ReviewerType } from '../reviewer/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findReviewer } from '../reviewer/service';
 
-export const SubmiteeUnionType = new GraphQLUnionType({
-  name: 'SubmiteeUnionType',
+export const SubmitterUnionType = new GraphQLUnionType({
+  name: 'SubmitterUnionType',
   types: [UserType, InternalGroupType],
   resolveType: obj => {
     return 'file' in obj ? UserType : InternalGroupType;
@@ -43,13 +43,13 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
     description: {
       type: GraphQLString,
     },
-    submitee: {
-      type: new GraphQLNonNull(SubmiteeUnionType),
+    submitter: {
+      type: new GraphQLNonNull(SubmitterUnionType),
       description: 'User or group who has made the submission',
       resolve: async submission => {
         const submitter =
-          submission.submiteeId &&
-          (await findUser({ userId: String(submission.submiteeId) }));
+          submission.submitterId &&
+          (await findUser({ userId: String(submission.submitterId) }));
         return submitter;
       },
     },
@@ -59,7 +59,7 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
         try {
           /* TODO: TH-164 reviewee may be user or group */
           const reviewer = await findReviewer({
-            userId: submission.submiteeId,
+            userId: submission.submitterId,
             assignmentId: submission.assignmentId,
           });
 
@@ -128,7 +128,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
         });
 
         await createSubmission({
-          submiteeId: viewer.id,
+          submitterId: viewer.id,
           assignmentId: Number(assignmentId),
           description,
           pullRequestUrl,

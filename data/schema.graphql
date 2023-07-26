@@ -243,14 +243,14 @@ type SubmissionType {
   pullRequestUrl: String!
   reviewer: ReviewerType
 
-  """User or group who has made the submission"""
-  submitee: SubmiteeUnionType!
-
   """Date when submission was created"""
   submittedAt: String!
+
+  """User or group who has made the submission"""
+  submitter: SubmitterUnionType!
 }
 
-union SubmiteeUnionType = InternalGroupType | UserType
+union SubmitterUnionType = InternalGroupType | UserType
 
 type UseInviteResponse {
   courseId: ID
