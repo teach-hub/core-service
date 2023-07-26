@@ -98,6 +98,20 @@ type InternalGroupUsersByAssignments {
   users: [UserType!]!
 }
 
+"""A review from a submission within TeachHub"""
+type InternalReviewType {
+  """Date when review was created"""
+  createdAt: String!
+  grade: Int
+  id: ID!
+  reviewerId: ID!
+  revisionRequested: Boolean
+  submissionId: ID!
+
+  """Date when review was last updated"""
+  updatedAt: String!
+}
+
 """Authenticated data"""
 type Login {
   token: String
@@ -241,6 +255,7 @@ type SubmissionType {
   description: String
   id: ID!
   pullRequestUrl: String!
+  review: InternalReviewType
   reviewer: ReviewerType
 
   """Date when submission was created"""

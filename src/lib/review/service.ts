@@ -66,10 +66,13 @@ export async function findAllReviews(
 
 export async function findReview({
   reviewId,
+  submissionId,
 }: {
-  reviewId: string;
+  reviewId?: string;
+  submissionId?: number;
 }): Promise<ReviewFields> {
   return findModel(ReviewModel, buildModelFields, {
-    id: Number(reviewId),
+    ...(reviewId ? { id: Number(reviewId) } : {}),
+    ...(submissionId ? { submissionId: submissionId } : {}),
   });
 }

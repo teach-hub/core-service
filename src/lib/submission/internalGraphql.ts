@@ -20,6 +20,8 @@ import { dateToString } from '../../utils/dates';
 import { ReviewerType } from '../reviewer/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findReviewer } from '../reviewer/service';
+import { InternalReviewType } from '../review/internalGraphql';
+import { findReview } from '../review/service';
 
 export const SubmitterUnionType = new GraphQLUnionType({
   name: 'SubmitterUnionType',
@@ -79,6 +81,23 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when submission was created',
       resolve: s => s.createdAt && dateToString(s.createdAt),
+    },
+    review: {
+      type: InternalReviewType,
+      resolve: async (submission, _, ctx: Context) => {
+        try {
+          const review = await findReview({
+            submissionId: submission.id,
+          });
+
+          ctx.logger.info('Returning review', { review });
+
+          return review;
+        } catch (error) {
+          ctx.logger.error('An error happened while returning review', { error });
+          return [];
+        }
+      },
     },
   },
 });
