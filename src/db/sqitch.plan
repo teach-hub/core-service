@@ -19,7 +19,8 @@ create_group_table 2023-07-02T19:28:51Z Sebastian Penna <spenna@fi.uba.ar> # Cre
 create_group_participant_table 2023-07-02T19:29:06Z Sebastian Penna <spenna@fi.uba.ar> # Create group participant table
 add_reviewers_table 2023-07-02T02:19:53Z Tomas Lopez Hidalgo <tflopez@fi.uba.ar> # Add reviewers table
 add_group_property_to_assignment 2023-07-15T03:57:30Z Sebastian Penna <spenna@fi.uba.ar> # Add group property to assignments
-add_group_id_reviewers 2023-07-15T22:31:10Z System Administrator <root@canada> # Add group_id to reviewers table
+add_group_id_reviewers 2023-07-15T22:31:10Z Tomas Lopez Hidalgo <root@canada> # Add group_id to reviewers table
 update_repositories_for_groups 2023-07-15T15:44:39Z Sebastian Penna <spenna@fi.uba.ar> # Update repositories for groups
-uniqueness_course_user_user_roles 2023-07-23T04:04:28Z System Administrator <root@canada> # Uniqueness in user_roles
-add_reviewee_id_reviewers 2023-07-23T04:47:20Z System Administrator <root@canada> # Merge group_id and user_id in reviewers table
+uniqueness_course_user_user_roles 2023-07-23T04:04:28Z Tomas Lopez Hidalgo <root@canada> # Uniqueness in user_roles
+add_reviewee_id_reviewers 2023-07-23T04:47:20Z Tomas Lopez Hidalgo <root@canada> # Merge group_id and user_id in reviewers table
+update_submissions_submitee_id 2023-07-26T02:53:25Z Tomas Lopez Hidalgo <root@canada> # Submissions -- Change user_id to submitee_id to support groups
