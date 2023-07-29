@@ -44,6 +44,7 @@ export enum Permission {
   ViewSubmission = 'viewSubmission',
   CreateRepository = 'createRepository',
   AssignReviewer = 'assignReviewer',
+  SetReview = 'setReview',
 }
 
 export const ALL_PERMISSIONS: string[] = Object.values(Permission);

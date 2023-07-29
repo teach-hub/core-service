@@ -32,12 +32,14 @@ const buildModelFields = (review: Nullable<ReviewModel>): ReviewFields => {
   };
 };
 
-type FindReviewsFilter = OrderingOptions;
+type FindReviewsFilter = OrderingOptions & {
+  forSubmissionId?: number;
+};
 
 export async function createReview(data: ReviewFields): Promise<ReviewFields> {
   const completedData = {
     ...data,
-    revisionRequested: false,
+    revisionRequested: data.revisionRequested || false,
   };
 
   return createModel(ReviewModel, completedData, buildModelFields);
@@ -59,7 +61,9 @@ export async function countReviews(): Promise<number> {
 export async function findAllReviews(
   options: FindReviewsFilter
 ): Promise<ReviewFields[]> {
-  const whereClause = {};
+  const whereClause = {
+    ...(options.forSubmissionId ? { submissionId: options.forSubmissionId } : {}),
+  };
 
   return findAllModels(ReviewModel, options, buildModelFields, whereClause);
 }

@@ -1,7 +1,18 @@
-import { GraphQLID, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
-import { toGlobalId } from '../../graphql/utils';
+import {
+  GraphQLBoolean,
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLInt,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { getReviewFields } from './graphql';
 import { dateToString } from '../../utils/dates';
+import { Context } from '../../types';
+import { getViewer } from '../user/internalGraphql';
+import { createReview, findAllReviews } from './service';
 
 export const InternalReviewType = new GraphQLObjectType({
   name: 'InternalReviewType',
@@ -45,4 +56,50 @@ export const InternalReviewType = new GraphQLObjectType({
   },
 });
 
-/* todo: mutations de crear y editar */
+export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
+  createReview: {
+    type: new GraphQLNonNull(InternalReviewType),
+    description: 'Create a review',
+    args: {
+      submissionId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      grade: {
+        type: GraphQLInt,
+      },
+      revisionRequested: {
+        type: new GraphQLNonNull(GraphQLBoolean),
+      },
+    },
+    resolve: async (_, args, context: Context) => {
+      const viewer = await getViewer(context);
+      const { submissionId: encodedSubmissionId, grade, revisionRequested } = args;
+
+      const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
+
+      await validateReviewOnCreation({ submissionId });
+
+      context.logger.info(`Creating review with data: ` + JSON.stringify(args));
+
+      return await createReview({
+        submissionId,
+        grade,
+        revisionRequested,
+        reviewerId: viewer.id,
+        createdAt: undefined,
+        updatedAt: undefined,
+        id: undefined,
+      });
+    },
+  },
+};
+
+const validateReviewOnCreation = async ({ submissionId }: { submissionId: number }) => {
+  const existingReview = await findAllReviews({
+    forSubmissionId: submissionId,
+  });
+
+  if (existingReview.length > 0) {
+    throw new Error('Group name not available');
+  }
+};

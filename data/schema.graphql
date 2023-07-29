@@ -204,6 +204,9 @@ type RootMutationType {
   """Creates repositories"""
   createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
 
+  """Create a review"""
+  createReview(grade: Int, revisionRequested: Boolean!, submissionId: ID!): InternalReviewType!
+
   """Creates a new submission for the viewer"""
   createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): CreateSubmissionResultType
 

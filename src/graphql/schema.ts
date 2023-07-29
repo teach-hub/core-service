@@ -36,6 +36,7 @@ import { UserPullRequestType } from '../github/graphql';
 
 import type { Context } from 'src/types';
 import { groupParticipantMutations } from '../lib/groupParticipant/internalGraphql';
+import { reviewMutations } from '../lib/review/internalGraphql';
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,
@@ -204,6 +205,7 @@ const Mutation: GraphQLObjectType<null, Context> = new GraphQLObjectType({
     ...courseMutations,
     ...repositoryMutations,
     ...groupParticipantMutations,
+    ...reviewMutations,
   },
 });
 
