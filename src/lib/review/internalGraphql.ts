@@ -7,12 +7,12 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { getReviewFields } from './graphql';
 import { dateToString } from '../../utils/dates';
 import { Context } from '../../types';
 import { getViewer } from '../user/internalGraphql';
-import { createReview, findAllReviews } from './service';
+import { createReview, findAllReviews, findReview, updateReview } from './service';
 
 export const InternalReviewType = new GraphQLObjectType({
   name: 'InternalReviewType',
@@ -64,6 +64,9 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
       submissionId: {
         type: new GraphQLNonNull(GraphQLID),
       },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      }, // Required for permission check
       grade: {
         type: GraphQLInt,
       },
@@ -90,6 +93,41 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
         updatedAt: undefined,
         id: undefined,
       });
+    },
+  },
+  updateReview: {
+    type: new GraphQLNonNull(InternalReviewType),
+    description: 'Updates a review grade and / or revision requested status',
+    args: {
+      id: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      }, // Required for permission check
+      grade: {
+        type: GraphQLInt,
+      },
+      revisionRequested: {
+        type: new GraphQLNonNull(GraphQLBoolean),
+      },
+    },
+    resolve: async (_, args, context: Context) => {
+      const viewer = await getViewer(context);
+      const { id: encodedId, grade, revisionRequested } = args;
+
+      const id = fromGlobalId(encodedId).dbId;
+      const review = await findReview({ reviewId: id });
+      const updatedReview = {
+        ...review,
+        grade,
+        revisionRequested,
+        reviewerId: viewer.id,
+      };
+
+      context.logger.info(`Updating review with data: ` + JSON.stringify(updatedReview));
+
+      return updateReview(id, updatedReview);
     },
   },
 };
