@@ -38,14 +38,17 @@ export function createReviewers(
 }
 
 export const findReviewer = async ({
-  userId,
+  revieweeId,
+  reviewerUserId,
   assignmentId,
 }: {
-  userId?: number;
+  revieweeId?: number;
+  reviewerUserId?: number;
   assignmentId?: number;
 }): Promise<ReviewerFields> => {
   const query = {
-    ...(userId ? { revieweeId: userId } : {}),
+    ...(reviewerUserId ? { reviewerUserId: reviewerUserId } : {}),
+    ...(revieweeId ? { revieweeId: revieweeId } : {}),
     ...(assignmentId ? { assignmentId: assignmentId } : {}),
   };
 

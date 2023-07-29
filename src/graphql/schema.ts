@@ -62,7 +62,7 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
       type: new GraphQLNonNull(GraphQLString),
       resolve: s =>
         toGlobalId({
-          entityName: 'viewer',
+          entityName: 'user', // Viewer is really user
           dbId: String(s.id),
         }),
     },

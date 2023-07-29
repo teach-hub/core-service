@@ -13,6 +13,9 @@ import { dateToString } from '../../utils/dates';
 import { Context } from '../../types';
 import { getViewer } from '../user/internalGraphql';
 import { createReview, findAllReviews, findReview, updateReview } from './service';
+import { findReviewer } from '../reviewer/service';
+import { findSubmission } from '../submission/submissionsService';
+import { isDefinedAndNotEmpty } from '../../utils/object';
 
 export const InternalReviewType = new GraphQLObjectType({
   name: 'InternalReviewType',
@@ -75,24 +78,33 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
       },
     },
     resolve: async (_, args, context: Context) => {
-      const viewer = await getViewer(context);
-      const { submissionId: encodedSubmissionId, grade, revisionRequested } = args;
+      try {
+        const viewer = await getViewer(context);
+        const { submissionId: encodedSubmissionId, grade, revisionRequested } = args;
 
-      const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
+        const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
+        const reviewerId = await findReviewerAndCheckIfIsReviewerForSubmission({
+          submissionId,
+          viewerId: Number(viewer.id),
+        });
 
-      await validateReviewOnCreation({ submissionId });
+        await validateReviewOnCreation({ submissionId });
 
-      context.logger.info(`Creating review with data: ` + JSON.stringify(args));
+        context.logger.info(`Creating review with data: ` + JSON.stringify(args));
 
-      return await createReview({
-        submissionId,
-        grade,
-        revisionRequested,
-        reviewerId: viewer.id,
-        createdAt: undefined,
-        updatedAt: undefined,
-        id: undefined,
-      });
+        return await createReview({
+          submissionId,
+          grade,
+          revisionRequested,
+          reviewerId,
+          createdAt: undefined,
+          updatedAt: undefined,
+          id: undefined,
+        });
+      } catch (error) {
+        context.logger.error('Error performing mutation', { error });
+        throw error;
+      }
     },
   },
   updateReview: {
@@ -113,21 +125,37 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
       },
     },
     resolve: async (_, args, context: Context) => {
-      const viewer = await getViewer(context);
-      const { id: encodedId, grade, revisionRequested } = args;
+      try {
+        const viewer = await getViewer(context);
+        const { id: encodedId, grade, revisionRequested } = args;
 
-      const id = fromGlobalId(encodedId).dbId;
-      const review = await findReview({ reviewId: id });
-      const updatedReview = {
-        ...review,
-        grade,
-        revisionRequested,
-        reviewerId: viewer.id,
-      };
+        const id = fromGlobalId(encodedId).dbId;
+        const review = await findReview({ reviewId: id });
+        if (!isDefinedAndNotEmpty(review)) {
+          throw new Error('Review not found');
+        }
 
-      context.logger.info(`Updating review with data: ` + JSON.stringify(updatedReview));
+        const reviewerId = await findReviewerAndCheckIfIsReviewerForSubmission({
+          submissionId: Number(review.submissionId),
+          viewerId: Number(viewer.id),
+        });
 
-      return updateReview(id, updatedReview);
+        const updatedReview = {
+          ...review,
+          grade,
+          revisionRequested,
+          reviewerId,
+        };
+
+        context.logger.info(
+          `Updating review with data: ` + JSON.stringify(updatedReview)
+        );
+
+        return updateReview(id, updatedReview);
+      } catch (error) {
+        context.logger.error('Error performing mutation', { error });
+        throw error;
+      }
     },
   },
 };
@@ -138,6 +166,30 @@ const validateReviewOnCreation = async ({ submissionId }: { submissionId: number
   });
 
   if (existingReview.length > 0) {
-    throw new Error('Group name not available');
+    throw new Error('Review already created for submission');
   }
+};
+
+const findReviewerAndCheckIfIsReviewerForSubmission = async ({
+  submissionId,
+  viewerId,
+}: {
+  submissionId: number;
+  viewerId: number;
+}) => {
+  const submission = await findSubmission({
+    submissionId: submissionId,
+  });
+  /* Find reviewer, matching current viewer id for submission assignment */
+  const currentReviewer = await findReviewer({
+    reviewerUserId: viewerId,
+    assignmentId: submission.assignmentId,
+  });
+
+  /* Check that viewer is reviewer for the submission submitter */
+  if (currentReviewer.revieweeId !== submission.submitterId) {
+    throw new Error('User is not a reviewer for this submission');
+  }
+
+  return currentReviewer?.id;
 };

@@ -61,7 +61,7 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
         try {
           /* TODO: TH-164 reviewee may be user or group */
           const reviewer = await findReviewer({
-            userId: submission.submitterId,
+            revieweeId: submission.submitterId,
             assignmentId: submission.assignmentId,
           });
 
