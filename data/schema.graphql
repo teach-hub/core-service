@@ -262,6 +262,7 @@ type SubmissionType {
   id: ID!
   pullRequestUrl: String!
   review: InternalReviewType
+  reviewEnabledForViewer: Boolean!
   reviewer: ReviewerType
 
   """Date when submission was created"""

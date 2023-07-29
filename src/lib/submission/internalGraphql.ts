@@ -60,10 +60,7 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
       resolve: async (submission, _, ctx: Context) => {
         try {
           /* TODO: TH-164 reviewee may be user or group */
-          const reviewer = await findReviewer({
-            revieweeId: submission.submitterId,
-            assignmentId: submission.assignmentId,
-          });
+          const reviewer = await findSubmissionReviewer(submission);
 
           ctx.logger.info('Returning reviewer', { reviewer });
 
@@ -99,8 +96,37 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
         }
       },
     },
+    reviewEnabledForViewer: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      resolve: async (submission, _, ctx: Context) => {
+        try {
+          const viewer = await getViewer(ctx);
+
+          if (!viewer) {
+            return false;
+          }
+
+          const reviewer = await findSubmissionReviewer(submission);
+
+          /* Viewer id must match reviewer user id to enable review */
+          return Boolean(reviewer?.reviewerUserId === viewer.id);
+        } catch (error) {
+          ctx.logger.error('An error happened while returning reviewEnabledForViewer', {
+            error,
+          });
+          return false;
+        }
+      },
+    },
   },
 });
+
+const findSubmissionReviewer = async (submission: SubmissionFields) => {
+  return await findReviewer({
+    revieweeId: submission.submitterId,
+    assignmentId: submission.assignmentId,
+  });
+};
 
 export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
   createSubmission: {
