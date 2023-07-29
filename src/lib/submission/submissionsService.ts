@@ -6,6 +6,7 @@ import {
   createModel,
   findAllModels,
   findModel,
+  countModels,
   updateModel,
 } from '../../sequelize/serviceUtils';
 import { findAssignment } from '../assignment/assignmentService';
@@ -62,20 +63,24 @@ export async function findSubmission({
 
 type FindAllFilter = {
   forAssignmentId?: number;
-  forUserId?: number;
+  forSubmitterId?: number;
 } & OrderingOptions;
 
 export async function findAllSubmissions(
-  filter: FindAllFilter
+  filter: FindAllFilter & OrderingOptions
 ): Promise<SubmissionFields[]> {
-  const { forAssignmentId, forUserId } = filter;
+  const { forAssignmentId, forSubmitterId } = filter;
 
   const whereClause = {
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
-    ...(forUserId ? { submitterId: forUserId } : {}),
+    ...(forSubmitterId ? { submitterId: forSubmitterId } : {}),
   };
 
   return findAllModels(SubmissionModel, filter, buildModelFields, whereClause);
+}
+
+export async function countSumissions(filters: FindAllFilter): Promise<number> {
+  return countModels(SubmissionModel, filters);
 }
 
 type CreateSubmissioInput = {
