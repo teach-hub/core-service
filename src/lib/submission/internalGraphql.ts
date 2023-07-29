@@ -128,11 +128,10 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
         });
 
         await createSubmission({
-          submitterId: viewer.id,
+          submitterUserId: viewer.id,
           assignmentId: Number(assignmentId),
           description,
           pullRequestUrl,
-          createdAt: new Date(),
         });
 
         return {

@@ -79,12 +79,23 @@ export async function findAllGroupParticipants(
   return findAllModels(GroupParticipantModel, options, buildModelFields, whereClause);
 }
 
+type FindGroupParticipantFilters = {
+  groupParticipantId?: string;
+  forAssignmentId?: GroupParticipantModel['assignmentId'];
+  forUserRoleId?: GroupParticipantModel['userRoleId'];
+  active?: boolean;
+};
+
 export async function findGroupParticipant({
   groupParticipantId,
-}: {
-  groupParticipantId: string;
-}): Promise<GroupParticipantFields> {
-  return findModel(GroupParticipantModel, buildModelFields, {
-    id: Number(groupParticipantId),
-  });
+  forAssignmentId,
+  forUserRoleId,
+}: FindGroupParticipantFilters): Promise<GroupParticipantFields> {
+  const whereClause = {
+    ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
+    ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
+    ...(groupParticipantId ? { id: Number(groupParticipantId) } : {}),
+  };
+
+  return findModel(GroupParticipantModel, buildModelFields, whereClause);
 }
