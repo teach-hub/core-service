@@ -21,7 +21,7 @@ import {
 import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import {
-  countSumissions,
+  countSubmissions,
   findAllSubmissions,
   findSubmission,
 } from '../submission/submissionsService';
@@ -81,12 +81,14 @@ export const AssignmentType = new GraphQLObjectType({
           return startDate < now;
         }
 
-        return (
-          startDate < now && assignment.endDate && now < new Date(assignment.endDate)
-        );
+        if (assignment.endDate) {
+          return startDate < now && now < new Date(assignment.endDate);
+        }
+
+        return startDate < now;
       },
     },
-    alreadySubmitted: {
+    viewerAlreadyMadeSubmission: {
       type: new GraphQLNonNull(GraphQLBoolean),
       description: 'Whether the viewer has already made a submission or not.',
       resolve: async (assignment, _, context) => {
@@ -121,7 +123,7 @@ export const AssignmentType = new GraphQLObjectType({
           forSubmitterId = viewerGroupParticipant.groupId;
         }
 
-        return !!(await countSumissions({
+        return !!(await countSubmissions({
           forAssignmentId: assignment.id,
           forSubmitterId,
         }));

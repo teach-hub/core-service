@@ -67,7 +67,7 @@ type FindAllFilter = {
 } & OrderingOptions;
 
 export async function findAllSubmissions(
-  filter: FindAllFilter & OrderingOptions
+  filter: FindAllFilter
 ): Promise<SubmissionFields[]> {
   const { forAssignmentId, forSubmitterId } = filter;
 
@@ -79,7 +79,7 @@ export async function findAllSubmissions(
   return findAllModels(SubmissionModel, filter, buildModelFields, whereClause);
 }
 
-export async function countSumissions(filters: FindAllFilter): Promise<number> {
+export async function countSubmissions(filters: FindAllFilter): Promise<number> {
   const whereClause = {
     ...(filters.forAssignmentId ? { assignmentId: filters.forAssignmentId } : {}),
     ...(filters.forSubmitterId ? { submitterId: filters.forSubmitterId } : {}),
@@ -88,7 +88,7 @@ export async function countSumissions(filters: FindAllFilter): Promise<number> {
   return countModels(SubmissionModel, whereClause);
 }
 
-type CreateSubmissioInput = {
+type CreateSubmissionInput = {
   submitterUserId: number;
   assignmentId: number;
   description: string;
@@ -100,7 +100,7 @@ export async function createSubmission({
   assignmentId,
   description,
   pullRequestUrl,
-}: CreateSubmissioInput): Promise<SubmissionFields> {
+}: CreateSubmissionInput): Promise<SubmissionFields> {
   const assignment = await findAssignment({ assignmentId: String(assignmentId) });
   const now = new Date();
   const startDate = assignment.startDate && new Date(assignment.startDate);
@@ -149,7 +149,6 @@ export async function createSubmission({
       assignmentId,
       description,
       pullRequestUrl,
-      createdAt: new Date(),
     },
     buildModelFields
   );

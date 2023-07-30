@@ -33,7 +33,7 @@ INSERT INTO teachhub.subjects (id, name, code, active) VALUES (5, 'Estructura de
 --
 
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (1, 'Usuario', NULL, 'viewHome', false, false);
-INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (2, 'Titular', NULL, 'createAssignment, inviteUser, editSubject, assignReviewer', false, true);
+INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (2, 'Titular', NULL, 'editAssignment, createAssignment, inviteUser, editSubject, assignReviewer', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (3, 'JTP', NULL, '', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (4, 'Ayudante', NULL, '', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (5, 'Alumno', NULL, 'manageOwnGroups, submitAssignment, viewSubmission', false, false);
