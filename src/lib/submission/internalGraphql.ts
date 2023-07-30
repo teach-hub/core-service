@@ -20,6 +20,8 @@ import { dateToString } from '../../utils/dates';
 import { ReviewerType } from '../reviewer/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findReviewer } from '../reviewer/service';
+import { InternalReviewType } from '../review/internalGraphql';
+import { findReview } from '../review/service';
 
 export const SubmitterUnionType = new GraphQLUnionType({
   name: 'SubmitterUnionType',
@@ -58,10 +60,7 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
       resolve: async (submission, _, ctx: Context) => {
         try {
           /* TODO: TH-164 reviewee may be user or group */
-          const reviewer = await findReviewer({
-            userId: submission.submitterId,
-            assignmentId: submission.assignmentId,
-          });
+          const reviewer = await findSubmissionReviewer(submission);
 
           ctx.logger.info('Returning reviewer', { reviewer });
 
@@ -80,8 +79,54 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
       description: 'Date when submission was created',
       resolve: s => s.createdAt && dateToString(s.createdAt),
     },
+    review: {
+      type: InternalReviewType,
+      resolve: async (submission, _, ctx: Context) => {
+        try {
+          const review = await findReview({
+            submissionId: submission.id,
+          });
+
+          ctx.logger.info('Returning review', { review });
+
+          return review;
+        } catch (error) {
+          ctx.logger.error('An error happened while returning review', { error });
+          return null;
+        }
+      },
+    },
+    viewerCanReview: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      resolve: async (submission, _, ctx: Context) => {
+        try {
+          const viewer = await getViewer(ctx);
+
+          if (!viewer) {
+            return false;
+          }
+
+          const reviewer = await findSubmissionReviewer(submission);
+
+          /* Viewer id must match reviewer user id to enable review */
+          return Boolean(reviewer?.reviewerUserId === viewer.id);
+        } catch (error) {
+          ctx.logger.error('An error happened while returning reviewEnabledForViewer', {
+            error,
+          });
+          return false;
+        }
+      },
+    },
   },
 });
+
+const findSubmissionReviewer = async (submission: SubmissionFields) => {
+  return await findReviewer({
+    revieweeId: submission.submitterId,
+    assignmentId: submission.assignmentId,
+  });
+};
 
 export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
   createSubmission: {

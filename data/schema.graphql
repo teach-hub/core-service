@@ -98,6 +98,20 @@ type InternalGroupUsersByAssignments {
   users: [UserType!]!
 }
 
+"""A review from a submission within TeachHub"""
+type InternalReviewType {
+  """Date when review was created"""
+  createdAt: String!
+  grade: Int
+  id: ID!
+  reviewerId: ID!
+  revisionRequested: Boolean
+  submissionId: ID!
+
+  """Date when review was last updated"""
+  updatedAt: String!
+}
+
 """Authenticated data"""
 type Login {
   token: String
@@ -190,6 +204,9 @@ type RootMutationType {
   """Creates repositories"""
   createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
 
+  """Create a review"""
+  createReview(courseId: ID!, grade: Int, revisionRequested: Boolean!, submissionId: ID!): InternalReviewType!
+
   """Creates a new submission for the viewer"""
   createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): CreateSubmissionResultType
 
@@ -213,6 +230,9 @@ type RootMutationType {
 
   """Updates an assignment in a course"""
   updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, id: ID!, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
+
+  """Updates a review grade and / or revision requested status"""
+  updateReview(courseId: ID!, grade: Int, id: ID!, revisionRequested: Boolean!): InternalReviewType!
 
   """Updates a user"""
   updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType
@@ -241,6 +261,8 @@ type SubmissionType {
   description: String
   id: ID!
   pullRequestUrl: String!
+  review: InternalReviewType
+  reviewEnabledForViewer: Boolean!
   reviewer: ReviewerType
 
   """Date when submission was created"""

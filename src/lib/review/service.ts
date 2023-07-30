@@ -11,13 +11,13 @@ import type { OrderingOptions } from '../../utils';
 import type { Nullable, Optional } from '../../types';
 
 export type ReviewFields = {
-  id: Optional<number>;
+  id?: Optional<number>;
   submissionId: Optional<number>;
   reviewerId: Optional<number>;
   grade: Optional<number>;
   revisionRequested: Optional<boolean>;
-  createdAt: Optional<Nullable<Date>>;
-  updatedAt: Optional<Nullable<Date>>;
+  createdAt?: Optional<Nullable<Date>>;
+  updatedAt?: Optional<Nullable<Date>>;
 };
 
 const buildModelFields = (review: Nullable<ReviewModel>): ReviewFields => {
@@ -32,12 +32,14 @@ const buildModelFields = (review: Nullable<ReviewModel>): ReviewFields => {
   };
 };
 
-type FindReviewsFilter = OrderingOptions;
+type FindReviewsFilter = OrderingOptions & {
+  forSubmissionId?: number;
+};
 
 export async function createReview(data: ReviewFields): Promise<ReviewFields> {
   const completedData = {
     ...data,
-    revisionRequested: false,
+    revisionRequested: data.revisionRequested || false,
   };
 
   return createModel(ReviewModel, completedData, buildModelFields);
@@ -59,17 +61,22 @@ export async function countReviews(): Promise<number> {
 export async function findAllReviews(
   options: FindReviewsFilter
 ): Promise<ReviewFields[]> {
-  const whereClause = {};
+  const whereClause = {
+    ...(options.forSubmissionId ? { submissionId: options.forSubmissionId } : {}),
+  };
 
   return findAllModels(ReviewModel, options, buildModelFields, whereClause);
 }
 
 export async function findReview({
   reviewId,
+  submissionId,
 }: {
-  reviewId: string;
+  reviewId?: string;
+  submissionId?: number;
 }): Promise<ReviewFields> {
   return findModel(ReviewModel, buildModelFields, {
-    id: Number(reviewId),
+    ...(reviewId ? { id: Number(reviewId) } : {}),
+    ...(submissionId ? { submissionId: submissionId } : {}),
   });
 }
