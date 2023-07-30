@@ -12,6 +12,9 @@ input AssignReviewersInputType {
 type AssignmentType {
   active: Boolean
   allowLateSubmissions: Boolean
+
+  """Whether the viewer has already made a submission or not."""
+  alreadySubmitted: Boolean!
   courseId: ID!
   description: String
   endDate: String

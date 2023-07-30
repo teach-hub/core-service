@@ -83,15 +83,24 @@ export const AssignmentType = new GraphQLObjectType({
         let forSubmitterId = viewer.id;
 
         if (assignment.isGroup) {
-          const viewerUserRoles = await findAllUserRoles({
+          const [viewerCourseUserRole] = await findAllUserRoles({
             forCourseId: assignment.courseId,
             forUserId: viewer.id,
           });
 
+          if (!viewerCourseUserRole) {
+            throw new Error('Viewer has no role in course.');
+          }
+
           const [viewerGroupParticipant] = await findAllGroupParticipants({
             forAssignmentId: assignment.id,
-            forUserRoleId: viewerUserRoles[0].id,
+            forUserRoleId: viewerCourseUserRole.id,
           });
+
+          if (!viewerGroupParticipant) {
+            // Si el viewer no es participante de ningun grupo retornamos false.
+            return false;
+          }
 
           forSubmitterId = viewerGroupParticipant.groupId;
         }

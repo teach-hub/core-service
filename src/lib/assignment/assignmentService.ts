@@ -87,7 +87,7 @@ export async function findAllAssignments(
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
     ...(active ? { active: active } : {}),
-    ...(isGroup ? { isGroup: isGroup } : {}),
+    ...(isGroup ? { isGroup } : {}),
   };
 
   return findAllModels(AssignmentModel, options, buildModelFields, whereClause);

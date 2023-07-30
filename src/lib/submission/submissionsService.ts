@@ -80,7 +80,12 @@ export async function findAllSubmissions(
 }
 
 export async function countSumissions(filters: FindAllFilter): Promise<number> {
-  return countModels(SubmissionModel, filters);
+  const whereClause = {
+    ...(filters.forAssignmentId ? { assignmentId: filters.forAssignmentId } : {}),
+    ...(filters.forSubmitterId ? { submitterId: filters.forSubmitterId } : {}),
+  };
+
+  return countModels(SubmissionModel, whereClause);
 }
 
 type CreateSubmissioInput = {
