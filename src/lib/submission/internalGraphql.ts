@@ -92,11 +92,11 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
           return review;
         } catch (error) {
           ctx.logger.error('An error happened while returning review', { error });
-          return [];
+          return null;
         }
       },
     },
-    reviewEnabledForViewer: {
+    viewerCanReview: {
       type: new GraphQLNonNull(GraphQLBoolean),
       resolve: async (submission, _, ctx: Context) => {
         try {

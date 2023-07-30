@@ -11,13 +11,13 @@ import type { OrderingOptions } from '../../utils';
 import type { Nullable, Optional } from '../../types';
 
 export type ReviewFields = {
-  id: Optional<number>;
+  id?: Optional<number>;
   submissionId: Optional<number>;
   reviewerId: Optional<number>;
   grade: Optional<number>;
   revisionRequested: Optional<boolean>;
-  createdAt: Optional<Nullable<Date>>;
-  updatedAt: Optional<Nullable<Date>>;
+  createdAt?: Optional<Nullable<Date>>;
+  updatedAt?: Optional<Nullable<Date>>;
 };
 
 const buildModelFields = (review: Nullable<ReviewModel>): ReviewFields => {

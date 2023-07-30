@@ -97,9 +97,6 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
           grade,
           revisionRequested,
           reviewerId,
-          createdAt: undefined,
-          updatedAt: undefined,
-          id: undefined,
         });
       } catch (error) {
         context.logger.error('Error performing mutation', { error });
