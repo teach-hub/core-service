@@ -21,6 +21,9 @@ type AssignmentType {
   groupParticipants: [InternalGroupParticipantType!]!
   id: ID!
   isGroup: Boolean
+
+  """Whether now is between assignment dates"""
+  isOpenForSubmissions: Boolean!
   link: String
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!

@@ -70,6 +70,19 @@ export const AssignmentType = new GraphQLObjectType({
           dbId: String(s.id),
         }),
     },
+    isOpenForSubmissions: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      description: 'Whether now is between assignment dates',
+      resolve: assignment => {
+        const now = new Date();
+
+        if (assignment.allowLateSubmissions) {
+          return assignment.startDate < now;
+        }
+
+        return assignment.startDate < now && now < assignment.endDate;
+      },
+    },
     alreadySubmitted: {
       type: new GraphQLNonNull(GraphQLBoolean),
       description: 'Whether the viewer has already made a submission or not.',
