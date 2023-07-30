@@ -75,12 +75,15 @@ export const AssignmentType = new GraphQLObjectType({
       description: 'Whether now is between assignment dates',
       resolve: assignment => {
         const now = new Date();
+        const startDate = new Date(assignment.startDate);
 
         if (assignment.allowLateSubmissions) {
-          return assignment.startDate < now;
+          return startDate < now;
         }
 
-        return assignment.startDate < now && now < assignment.endDate;
+        return (
+          startDate < now && assignment.endDate && now < new Date(assignment.endDate)
+        );
       },
     },
     alreadySubmitted: {
