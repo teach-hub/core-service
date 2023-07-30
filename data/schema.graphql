@@ -18,6 +18,9 @@ type AssignmentType {
   groupParticipants: [InternalGroupParticipantType!]!
   id: ID!
   isGroup: Boolean
+
+  """Whether now is between assignment dates"""
+  isOpenForSubmissions: Boolean!
   link: String
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
@@ -25,6 +28,9 @@ type AssignmentType {
   submission(id: ID!): SubmissionType
   submissions: [SubmissionType!]!
   title: String
+
+  """Whether the viewer has already made a submission or not."""
+  viewerAlreadyMadeSubmission: Boolean!
 }
 
 type CourseType {

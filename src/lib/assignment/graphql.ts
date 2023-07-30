@@ -20,7 +20,11 @@ import {
 } from './assignmentService';
 import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
-import { findAllSubmissions, findSubmission } from '../submission/submissionsService';
+import {
+  countSubmissions,
+  findAllSubmissions,
+  findSubmission,
+} from '../submission/submissionsService';
 import { ReviewerFields, createReviewers, findReviewers } from '../reviewer/service';
 import { UserRoleFields, findAllUserRoles } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
@@ -65,6 +69,65 @@ export const AssignmentType = new GraphQLObjectType({
           entityName: 'assignment',
           dbId: String(s.id),
         }),
+    },
+    isOpenForSubmissions: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      description: 'Whether now is between assignment dates',
+      resolve: assignment => {
+        const now = new Date();
+        const startDate = new Date(assignment.startDate);
+
+        if (assignment.allowLateSubmissions) {
+          return startDate < now;
+        }
+
+        if (assignment.endDate) {
+          return startDate < now && now < new Date(assignment.endDate);
+        }
+
+        return startDate < now;
+      },
+    },
+    viewerAlreadyMadeSubmission: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      description: 'Whether the viewer has already made a submission or not.',
+      resolve: async (assignment, _, context) => {
+        const viewer = await getViewer(context);
+
+        if (!viewer) {
+          throw new Error('Viewer not found.');
+        }
+
+        let forSubmitterId = viewer.id;
+
+        if (assignment.isGroup) {
+          const [viewerCourseUserRole] = await findAllUserRoles({
+            forCourseId: assignment.courseId,
+            forUserId: viewer.id,
+          });
+
+          if (!viewerCourseUserRole) {
+            throw new Error('Viewer has no role in course.');
+          }
+
+          const [viewerGroupParticipant] = await findAllGroupParticipants({
+            forAssignmentId: assignment.id,
+            forUserRoleId: viewerCourseUserRole.id,
+          });
+
+          if (!viewerGroupParticipant) {
+            // Si el viewer no es participante de ningun grupo retornamos false.
+            return false;
+          }
+
+          forSubmitterId = viewerGroupParticipant.groupId;
+        }
+
+        return !!(await countSubmissions({
+          forAssignmentId: assignment.id,
+          forSubmitterId,
+        }));
+      },
     },
     courseId: {
       type: new GraphQLNonNull(GraphQLID),
