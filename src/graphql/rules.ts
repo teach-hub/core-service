@@ -98,14 +98,7 @@ async function userHasPermissionInCourse({
   const userRole = await findRole({ roleId: String(userUserRole.roleId) });
 
   const { permissions } = await consolidateRoles(userRole);
-
-  console.log('permissions', permissions);
-  console.log('permission', permission);
-
-  const r = (permissions ?? []).includes(permission);
-  console.log(r);
-
-  return r;
+  return (permissions ?? []).includes(permission);
 }
 
 const viewerHasPermissionInCourse = (permission: Permission) =>
