@@ -268,7 +268,6 @@ type SubmissionType {
   id: ID!
   pullRequestUrl: String!
   review: InternalReviewType
-  reviewEnabledForViewer: Boolean!
   reviewer: ReviewerType
 
   """Date when submission was created"""
@@ -276,6 +275,7 @@ type SubmissionType {
 
   """User or group who has made the submission"""
   submitter: SubmitterUnionType!
+  viewerCanReview: Boolean!
 }
 
 union SubmitterUnionType = InternalGroupType | UserType

@@ -126,6 +126,8 @@ export async function consolidateRoles(
     targetRole = parent;
   }
 
+  console.log(allPermissions);
+
   return {
     ...role,
     permissions: allPermissions.filter(isValidPermission),

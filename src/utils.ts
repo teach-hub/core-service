@@ -37,4 +37,6 @@ export const checkDB = async () => {
   await db.query('SELECT 1 FROM user;');
 };
 
+export const isDevEnv = () => process.env.NODE_ENV !== 'production';
+
 export { initializeModels } from './db';
