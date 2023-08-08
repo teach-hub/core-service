@@ -47,9 +47,9 @@ export const findReviewer = async ({
   assignmentId?: number;
 }): Promise<ReviewerFields> => {
   const query = {
-    ...(reviewerUserId ? { reviewerUserId: reviewerUserId } : {}),
-    ...(revieweeId ? { revieweeId: revieweeId } : {}),
-    ...(assignmentId ? { assignmentId: assignmentId } : {}),
+    ...(reviewerUserId ? { reviewerUserId } : {}),
+    ...(revieweeId ? { revieweeId } : {}),
+    ...(assignmentId ? { assignmentId } : {}),
   };
 
   return findModel(ReviewerModel, buildModelFields, query);

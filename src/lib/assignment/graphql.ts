@@ -25,7 +25,12 @@ import {
   findAllSubmissions,
   findSubmission,
 } from '../submission/submissionsService';
-import { ReviewerFields, createReviewers, findReviewers } from '../reviewer/service';
+import {
+  ReviewerFields,
+  createReviewers,
+  findReviewer,
+  findReviewers,
+} from '../reviewer/service';
 import { UserRoleFields, findAllUserRoles } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
 import { GroupFields, findAllGroups } from '../group/service';
@@ -69,6 +74,50 @@ export const AssignmentType = new GraphQLObjectType({
           entityName: 'assignment',
           dbId: String(s.id),
         }),
+    },
+    // Similar a como hacemos con `viewerRole` en `CourseType`.
+    // Este campo deja en el backend la logica de devolver el reviewer
+    // del viewer actual (si es que hay uno).
+    viewerReviewer: {
+      type: ReviewerType,
+      resolve: async (assignment, _, ctx: Context) => {
+        try {
+          const viewer = await getViewer(ctx);
+
+          let reviewer = null;
+
+          if (assignment.isGroup) {
+            const [viewerCourseUserRole] = await findAllUserRoles({
+              forCourseId: assignment.courseId,
+              forUserId: viewer.id,
+            });
+
+            if (!viewerCourseUserRole) {
+              throw new Error('Viewer has no role in course.');
+            }
+
+            const [viewerGroupParticipant] = await findAllGroupParticipants({
+              forAssignmentId: assignment.id,
+              forUserRoleId: viewerCourseUserRole.id,
+            });
+
+            reviewer = await findReviewer({
+              assignmentId: assignment.id,
+              revieweeId: viewerGroupParticipant.groupId,
+            });
+          } else {
+            reviewer = await findReviewer({
+              assignmentId: assignment.id,
+              revieweeId: viewer.id,
+            });
+          }
+
+          return reviewer.id ? reviewer : null;
+        } catch (error) {
+          ctx.logger.error('An error happened while returning reviewer', { error });
+          return null;
+        }
+      },
     },
     isOpenForSubmissions: {
       type: new GraphQLNonNull(GraphQLBoolean),

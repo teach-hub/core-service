@@ -1,3 +1,5 @@
+import { omit } from 'lodash';
+
 import Course, { CoursePeriod } from './courseModel';
 import {
   countModels,
@@ -46,6 +48,7 @@ const fixData = (data: CourseFields) => {
 const validate = async (data: CourseFields): Promise<void> => {
   const courseAlreadyExists = await existsModel(Course, {
     year: data.year,
+    name: data.name,
     period: String(data.period),
     subjectId: data.subjectId,
     ...(data.id ? { id: { [Op.not]: data.id } } : {}),
@@ -68,7 +71,9 @@ export async function updateCourse(
   id: string,
   data: CourseFields
 ): Promise<CourseFields> {
-  await validate(data);
+  // 'id' no existe en data pero ¯\_(ツ)_/¯
+  await validate({ id: Number(id), ...omit(data, 'id') });
+
   return updateModel(Course, fixData(data), buildModelFields, buildQuery(id));
 }
 

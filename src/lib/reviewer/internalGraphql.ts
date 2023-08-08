@@ -90,7 +90,7 @@ export const ReviewerType = new GraphQLObjectType<
       description: 'The id of the reviewer user role.',
       resolve: async reviewer => {
         if (!reviewer.reviewerUserId) {
-          throw new Error();
+          throw new Error('There is no reviewer user id');
         }
 
         return findUser({ userId: String(reviewer.reviewerUserId) });

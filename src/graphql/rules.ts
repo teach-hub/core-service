@@ -14,6 +14,8 @@ import type { Context } from 'src/types';
 
 import { Permission } from '../consts';
 
+import { isDevEnv } from '../utils';
+
 const buildRule: ReturnType<typeof rule> = fn =>
   rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
     try {
@@ -59,7 +61,7 @@ async function viewerIsCourseTeacher(
     return false;
   }
 
-  return viewerRole.isTeacher!;
+  return !!viewerRole.isTeacher;
 }
 
 async function viewerBelongsToCourse(courseId: CourseFields['id'], context: Context) {
@@ -112,7 +114,9 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
       return false;
     }
 
-    context.logger.info(`Checking if viewer has permission in ${course.name}`);
+    context.logger.info(
+      `Checking if viewer has permission ${permission} in ${course.name}`
+    );
 
     return userHasPermissionInCourse({ user: viewer, course, permission });
   });
@@ -130,50 +134,55 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
  * por las functiones `fromGlobalId` por lo que nos toca
  * tener esa logica en las reglas que lo necesiten.
  */
-export default shield<null, Context, unknown>({
-  ViewerType: allow,
-  UserRoleType: or(
-    buildRule(viewerIsUserRoleOwner),
-    buildRule(
-      async (userRole, _, ctx) => await viewerIsCourseTeacher(userRole.courseId, ctx)
+export default shield<null, Context, unknown>(
+  {
+    ViewerType: allow,
+    UserRoleType: or(
+      buildRule(viewerIsUserRoleOwner),
+      buildRule(
+        async (userRole, _, ctx) => await viewerIsCourseTeacher(userRole.courseId, ctx)
+      ),
+      buildRule(
+        async (userRole, _, ctx) => await viewerBelongsToCourse(userRole.courseId, ctx)
+      )
     ),
-    buildRule(
-      async (userRole, _, ctx) => await viewerBelongsToCourse(userRole.courseId, ctx)
-    )
-  ),
-  CourseType: buildRule(
-    async (course, _, context) => await viewerBelongsToCourse(course.id, context)
-  ),
-  RoleType: allow,
-  UserType: allow,
-  SubjectType: allow,
-  AssignmentType: allow,
-  SubmissionType: allow,
-  ReviewerPreviewType: allow,
-  ReviewerType: allow,
-  InternalGroupType: allow,
-  RepositoryType: allow,
-  CreateSubmissionResultType: allow,
-  RootMutationType: {
-    registerUser: allow,
-    /**
-     * Todavia no tenemos caso de uso para
-     * esta mutation.
-     */
-    updateUser: deny,
-    login: allow,
-    logout: allow,
-    useInvite: allow,
-    createAssignment: viewerHasPermissionInCourse(Permission.CreateAssignment),
-    updateAssignment: viewerHasPermissionInCourse(Permission.EditAssignment),
-    setOrganization: viewerHasPermissionInCourse(Permission.SetOrganization),
-    generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
-    createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
-    createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
-    assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
-    createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
-    joinGroup: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
-    createReview: viewerHasPermissionInCourse(Permission.SetReview),
-    updateReview: viewerHasPermissionInCourse(Permission.SetReview),
+    CourseType: buildRule(
+      async (course, _, context) => await viewerBelongsToCourse(course.id, context)
+    ),
+    RoleType: allow,
+    UserType: allow,
+    SubjectType: allow,
+    AssignmentType: allow,
+    SubmissionType: allow,
+    ReviewerPreviewType: allow,
+    ReviewerType: allow,
+    InternalGroupType: allow,
+    RepositoryType: allow,
+    CreateSubmissionResultType: allow,
+    RootMutationType: {
+      registerUser: allow,
+      /**
+       * Todavia no tenemos caso de uso para
+       * esta mutation.
+       */
+      updateUser: deny,
+      login: allow,
+      logout: allow,
+      useInvite: allow,
+      createAssignment: viewerHasPermissionInCourse(Permission.CreateAssignment),
+      updateAssignment: viewerHasPermissionInCourse(Permission.EditAssignment),
+      setOrganization: viewerHasPermissionInCourse(Permission.SetOrganization),
+      generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
+      createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
+      createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
+      assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
+      createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
+      joinGroup: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
+      createReview: viewerHasPermissionInCourse(Permission.SetReview),
+      updateReview: viewerHasPermissionInCourse(Permission.SetReview),
+    },
   },
-});
+  {
+    debug: isDevEnv(),
+  }
+);
