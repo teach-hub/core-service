@@ -189,13 +189,16 @@ export const AssignmentType = new GraphQLObjectType({
     submission: {
       args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       type: SubmissionType,
-      resolve: async (_, { id }, ctx) => {
+      resolve: async (assignment, { id }, ctx) => {
         const submissionId = fromGlobalIdAsNumber(id);
         const submission = await findSubmission({ submissionId });
 
         ctx.logger.info('Requested submission with id', { submission });
 
-        return submission;
+        return {
+          ...submission,
+          isGroup: assignment.isGroup,
+        };
       },
     },
     submissions: {
