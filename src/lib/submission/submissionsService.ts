@@ -62,7 +62,7 @@ export async function findSubmission({
 }
 
 type FindAllFilter = {
-  forAssignmentId?: number;
+  forAssignmentId?: number | number[];
   forSubmitterId?: number;
 } & OrderingOptions;
 

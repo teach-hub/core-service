@@ -24,6 +24,8 @@ import { InternalGroupType } from '../group/internalGraphql';
 import { findReviewer } from '../reviewer/service';
 import { InternalReviewType } from '../review/internalGraphql';
 import { findReview } from '../review/service';
+import { AssignmentType } from '../assignment/graphql';
+import { findAssignment } from '../assignment/assignmentService';
 
 export const SubmitterUnionType = new GraphQLUnionType({
   name: 'SubmitterUnionType',
@@ -122,6 +124,18 @@ export const SubmissionType = new GraphQLObjectType<
           ctx.logger.error('An error happened while returning review', { error });
           return null;
         }
+      },
+    },
+    assignment: {
+      description: 'Finds an assignment from a submission',
+      type: AssignmentType,
+      resolve: async (submission, args, { logger }) => {
+        const assignment = await findAssignment({
+          assignmentId: String(submission.assignmentId),
+        });
+
+        logger.info('Finding assignment from sub', { assignment });
+        return assignment;
       },
     },
     viewerCanReview: {
