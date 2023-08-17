@@ -10,6 +10,7 @@ import {
 } from 'graphql';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { isDefinedAndNotEmpty } from 'src/utils/object';
 
 import { createSubmission, SubmissionFields } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
@@ -71,7 +72,7 @@ export const SubmissionType = new GraphQLObjectType<
 
           // TODO. Dejar de tener campos nulleables en los DTO.
           // `ReviewerFields` tiene campos que son todos null cuando no lo encuentra.
-          if (!reviewer.id) {
+          if (!isDefinedAndNotEmpty(reviewer)) {
             return null;
           }
 
@@ -104,7 +105,7 @@ export const SubmissionType = new GraphQLObjectType<
 
           // TODO. Dejar de tener campos nulleables en los DTO.
           // `ReviewFields` tiene campos que son todos null cuando no lo encuentra.
-          if (!review.id) {
+          if (!isDefinedAndNotEmpty(review)) {
             return null;
           }
 
