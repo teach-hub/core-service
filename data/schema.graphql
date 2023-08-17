@@ -25,6 +25,7 @@ type AssignmentType {
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
   startDate: String
+  submissions: [SubmissionType!]!
   title: String
 
   """Whether the viewer has already made a submission or not."""
@@ -52,7 +53,6 @@ type CourseType {
   """Subject the course belongs to"""
   subject: SubjectType!
   submission(id: ID!): SubmissionType
-  submissions(assignmentId: ID): [SubmissionType!]!
   teachersCount: Int!
 
   """Teacher user roles within a course"""

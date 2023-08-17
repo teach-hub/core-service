@@ -41,7 +41,7 @@ import { InternalGroupType } from '../group/internalGraphql';
 import { findAllGroups } from '../group/service';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 import { SubmissionType } from '../submission/internalGraphql';
-import { findAllSubmissions, findSubmission } from '../submission/submissionsService';
+import { findSubmission } from '../submission/submissionsService';
 
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
@@ -187,26 +187,6 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
             logger.info('Finding assignment', { assignmentId });
 
             return await findAssignment({ assignmentId });
-          },
-        },
-        submissions: {
-          args: {
-            assignmentId: { type: GraphQLID },
-          },
-          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SubmissionType))),
-          resolve: async (course, { assignmentId }, ctx: Context) => {
-            if (assignmentId) {
-              ctx.logger.info('Finding submissions for assignments', { assignmentId });
-              return await findAllSubmissions({
-                forAssignmentId: fromGlobalIdAsNumber(assignmentId),
-              });
-            } else {
-              ctx.logger.info('Finding submissions for course', { course });
-              const assignments = await findAllAssignments({ forCourseId: course.id });
-              return await findAllSubmissions({
-                forAssignmentId: assignments.map(a => a.id) as number[],
-              });
-            }
           },
         },
         submission: {
