@@ -41,7 +41,7 @@ type CourseType {
   assignment(id: ID!): AssignmentType
 
   """Active assignments within the course"""
-  assignments: [AssignmentType!]!
+  assignments(assignmentId: ID): [AssignmentType!]!
 
   """Groups within a course"""
   groups: [InternalGroupType!]!
@@ -265,6 +265,7 @@ type SubjectType {
 }
 
 type SubmissionType {
+  assignmentId: ID!
   description: String
   id: ID!
   pullRequestUrl: String!

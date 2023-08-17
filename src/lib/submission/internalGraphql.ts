@@ -50,6 +50,14 @@ export const SubmissionType = new GraphQLObjectType<
     description: {
       type: GraphQLString,
     },
+    assignmentId: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: s =>
+        toGlobalId({
+          entityName: 'assignment',
+          dbId: String(s.assignmentId),
+        }),
+    },
     submitter: {
       type: new GraphQLNonNull(SubmitterUnionType),
       description: 'User or group who has made the submission',

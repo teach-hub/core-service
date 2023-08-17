@@ -3,10 +3,10 @@ import { isNil } from 'lodash';
 import SubmissionModel from './model';
 
 import {
+  countModels,
   createModel,
   findAllModels,
   findModel,
-  countModels,
   updateModel,
 } from '../../sequelize/serviceUtils';
 import { findAssignment } from '../assignment/assignmentService';
