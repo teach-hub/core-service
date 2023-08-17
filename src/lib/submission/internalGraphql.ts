@@ -10,7 +10,7 @@ import {
 } from 'graphql';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
-import { isDefinedAndNotEmpty } from 'src/utils/object';
+import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import { createSubmission, SubmissionFields } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
@@ -35,12 +35,12 @@ export const SubmitterUnionType = new GraphQLUnionType({
   },
 });
 
-export const SubmissionType = new GraphQLObjectType<
+export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
   SubmissionFields & { isGroup: boolean },
   Context
 >({
   name: 'SubmissionType',
-  fields: {
+  fields: () => ({
     id: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
@@ -160,7 +160,7 @@ export const SubmissionType = new GraphQLObjectType<
         }
       },
     },
-  },
+  }),
 });
 
 const findSubmissionReviewer = async (submission: SubmissionFields) => {
