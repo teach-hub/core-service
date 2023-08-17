@@ -25,7 +25,6 @@ type AssignmentType {
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
   startDate: String
-  submission(id: ID!): SubmissionType
   submissions: [SubmissionType!]!
   title: String
 

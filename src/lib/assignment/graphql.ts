@@ -8,32 +8,28 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { uniq, chunk, flatten, keyBy } from 'lodash';
+import { chunk, flatten, keyBy, uniq } from 'lodash';
 
 import { getAssignmentFields } from './internalGraphql';
 
 import {
   AssignmentFields,
   createAssignment,
-  updateAssignment,
   findAssignment,
+  updateAssignment,
 } from './assignmentService';
 import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
+import { countSubmissions, findAllSubmissions } from '../submission/submissionsService';
 import {
-  countSubmissions,
-  findAllSubmissions,
-  findSubmission,
-} from '../submission/submissionsService';
-import {
-  ReviewerFields,
   createReviewers,
   findReviewer,
   findReviewers,
+  ReviewerFields,
 } from '../reviewer/service';
-import { UserRoleFields, findAllUserRoles } from '../userRole/userRoleService';
+import { findAllUserRoles, UserRoleFields } from '../userRole/userRoleService';
 import { findAllRoles } from '../role/roleService';
-import { GroupFields, findAllGroups } from '../group/service';
+import { findAllGroups, GroupFields } from '../group/service';
 import { findAllGroupParticipants } from '../groupParticipant/service';
 
 import {
@@ -185,21 +181,6 @@ export const AssignmentType = new GraphQLObjectType({
           entityName: 'assignment',
           dbId: String(s.courseId),
         }),
-    },
-    submission: {
-      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-      type: SubmissionType,
-      resolve: async (assignment, { id }, ctx) => {
-        const submissionId = fromGlobalIdAsNumber(id);
-        const submission = await findSubmission({ submissionId });
-
-        ctx.logger.info('Requested submission with id', { submission });
-
-        return {
-          ...submission,
-          isGroup: assignment.isGroup,
-        };
-      },
     },
     submissions: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SubmissionType))),
