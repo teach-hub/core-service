@@ -10,9 +10,11 @@ import {
 } from 'graphql';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { isDefinedAndNotEmpty } from 'src/utils/object';
 
 import { createSubmission, SubmissionFields } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
+import { findGroup } from '../group/service';
 import { getViewer, UserType } from '../user/internalGraphql';
 
 import type { Context } from '../../../src/types';
@@ -31,7 +33,10 @@ export const SubmitterUnionType = new GraphQLUnionType({
   },
 });
 
-export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
+export const SubmissionType = new GraphQLObjectType<
+  SubmissionFields & { isGroup: boolean },
+  Context
+>({
   name: 'SubmissionType',
   fields: {
     id: {
@@ -48,19 +53,28 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
     submitter: {
       type: new GraphQLNonNull(SubmitterUnionType),
       description: 'User or group who has made the submission',
-      resolve: async submission => {
-        const submitter =
-          submission.submitterId &&
-          (await findUser({ userId: String(submission.submitterId) }));
-        return submitter;
+      resolve: async (submission, _, ctx) => {
+        if (submission.isGroup) {
+          ctx.logger.info('Looking for grupal submission', {
+            submitterId: submission.submitterId,
+          });
+          return findGroup({ groupId: String(submission.submitterId) });
+        }
+
+        return findUser({ userId: String(submission.submitterId) });
       },
     },
     reviewer: {
       type: ReviewerType,
       resolve: async (submission, _, ctx: Context) => {
         try {
-          /* TODO: TH-164 reviewee may be user or group */
           const reviewer = await findSubmissionReviewer(submission);
+
+          // TODO. Dejar de tener campos nulleables en los DTO.
+          // `ReviewerFields` tiene campos que son todos null cuando no lo encuentra.
+          if (!isDefinedAndNotEmpty(reviewer)) {
+            return null;
+          }
 
           ctx.logger.info('Returning reviewer', { reviewer });
 
@@ -88,6 +102,12 @@ export const SubmissionType = new GraphQLObjectType<SubmissionFields, Context>({
           });
 
           ctx.logger.info('Returning review', { review });
+
+          // TODO. Dejar de tener campos nulleables en los DTO.
+          // `ReviewFields` tiene campos que son todos null cuando no lo encuentra.
+          if (!isDefinedAndNotEmpty(review)) {
+            return null;
+          }
 
           return review;
         } catch (error) {
