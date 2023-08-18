@@ -27,7 +27,7 @@ import {
   isTeacherRole,
 } from '../role/roleService';
 
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import type { CourseFields } from './courseService';
 import { findCourse, updateCourse } from './courseService';
@@ -40,6 +40,8 @@ import { InternalGroupParticipantType } from '../groupParticipant/internalGraphq
 import { InternalGroupType } from '../group/internalGraphql';
 import { findAllGroups } from '../group/service';
 import { isDefinedAndNotEmpty } from '../../utils/object';
+import { SubmissionType } from '../submission/internalGraphql';
+import { findSubmission } from '../submission/submissionsService';
 
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
@@ -187,6 +189,19 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
             return await findAssignment({ assignmentId });
           },
         },
+        submission: {
+          args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+          type: SubmissionType,
+          resolve: async (_, { id }, ctx) => {
+            const submissionId = fromGlobalIdAsNumber(id);
+            const submission = await findSubmission({ submissionId });
+
+            ctx.logger.info('Requested submission with id', { submission });
+
+            return submission;
+          },
+        },
+
         // TODO.
         // Ojo porque esto en realidad es un InternalGroupParticipantType.
         // Tal vez viewerGroupParticipants ?

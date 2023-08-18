@@ -10,7 +10,7 @@ import {
 } from 'graphql';
 
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
-import { isDefinedAndNotEmpty } from 'src/utils/object';
+import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import { createSubmission, SubmissionFields } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
@@ -24,6 +24,8 @@ import { InternalGroupType } from '../group/internalGraphql';
 import { findReviewer } from '../reviewer/service';
 import { InternalReviewType } from '../review/internalGraphql';
 import { findReview } from '../review/service';
+import { AssignmentType } from '../assignment/graphql';
+import { findAssignment } from '../assignment/assignmentService';
 
 export const SubmitterUnionType = new GraphQLUnionType({
   name: 'SubmitterUnionType',
@@ -33,12 +35,12 @@ export const SubmitterUnionType = new GraphQLUnionType({
   },
 });
 
-export const SubmissionType = new GraphQLObjectType<
+export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
   SubmissionFields & { isGroup: boolean },
   Context
 >({
   name: 'SubmissionType',
-  fields: {
+  fields: () => ({
     id: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
@@ -62,7 +64,15 @@ export const SubmissionType = new GraphQLObjectType<
       type: new GraphQLNonNull(SubmitterUnionType),
       description: 'User or group who has made the submission',
       resolve: async (submission, _, ctx) => {
-        if (submission.isGroup) {
+        const assignment = await findAssignment({
+          assignmentId: String(submission.assignmentId),
+        });
+
+        if (!assignment) {
+          throw new Error('Assignment not found.');
+        }
+
+        if (assignment.isGroup) {
           ctx.logger.info('Looking for grupal submission', {
             submitterId: submission.submitterId,
           });
@@ -124,6 +134,18 @@ export const SubmissionType = new GraphQLObjectType<
         }
       },
     },
+    assignment: {
+      description: 'Finds an assignment from a submission',
+      type: AssignmentType,
+      resolve: async (submission, args, { logger }) => {
+        const assignment = await findAssignment({
+          assignmentId: String(submission.assignmentId),
+        });
+
+        logger.info('Finding assignment from sub', { assignment });
+        return assignment;
+      },
+    },
     viewerCanReview: {
       type: new GraphQLNonNull(GraphQLBoolean),
       resolve: async (submission, _, ctx: Context) => {
@@ -146,7 +168,7 @@ export const SubmissionType = new GraphQLObjectType<
         }
       },
     },
-  },
+  }),
 });
 
 const findSubmissionReviewer = async (submission: SubmissionFields) => {

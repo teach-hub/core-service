@@ -25,7 +25,6 @@ type AssignmentType {
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
   startDate: String
-  submission(id: ID!): SubmissionType
   submissions: [SubmissionType!]!
   title: String
 
@@ -53,6 +52,7 @@ type CourseType {
 
   """Subject the course belongs to"""
   subject: SubjectType!
+  submission(id: ID!): SubmissionType
   teachersCount: Int!
 
   """Teacher user roles within a course"""
@@ -265,6 +265,8 @@ type SubjectType {
 }
 
 type SubmissionType {
+  """Finds an assignment from a submission"""
+  assignment: AssignmentType
   assignmentId: ID!
   description: String
   id: ID!
