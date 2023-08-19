@@ -12,12 +12,18 @@ import { getReviewFields } from './graphql';
 import { dateToString } from '../../utils/dates';
 import { Context } from '../../types';
 import { getViewer } from '../user/internalGraphql';
-import { createReview, findAllReviews, findReview, updateReview } from './service';
+import {
+  ReviewFields,
+  createReview,
+  findAllReviews,
+  findReview,
+  updateReview,
+} from './service';
 import { findReviewer } from '../reviewer/service';
 import { findSubmission } from '../submission/submissionsService';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 
-export const InternalReviewType = new GraphQLObjectType({
+export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
   name: 'InternalReviewType',
   description: 'A review from a submission within TeachHub',
   fields: {
@@ -46,15 +52,27 @@ export const InternalReviewType = new GraphQLObjectType({
           dbId: String(s.reviewerId),
         }),
     },
-    createdAt: {
+    reviewedAt: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when review was created',
-      resolve: s => s.createdAt && dateToString(s.createdAt),
+      resolve: s => s.reviewedAt && dateToString(s.reviewedAt),
+    },
+    reviewedAgainAt: {
+      type: GraphQLString,
+      description: 'Date when review was created',
+      resolve: s => s.reviewedAgainAt && dateToString(s.reviewedAgainAt),
+    },
+    createdAt: {
+      deprecationReason: 'Usar reviewedAt',
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'Date when review was created',
+      resolve: () => dateToString(new Date()),
     },
     updatedAt: {
+      deprecationReason: 'Usar reviewedAgainAt',
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when review was last updated',
-      resolve: s => s.updatedAt && dateToString(s.updatedAt),
+      resolve: () => dateToString(new Date()),
     },
   },
 });

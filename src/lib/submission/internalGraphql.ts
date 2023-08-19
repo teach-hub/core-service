@@ -12,7 +12,11 @@ import {
 import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { isDefinedAndNotEmpty } from 'src/utils/object';
 
-import { createSubmission, updateSubmission, SubmissionFields } from '../submission/submissionsService';
+import {
+  createSubmission,
+  updateSubmission,
+  SubmissionFields,
+} from '../submission/submissionsService';
 import { findUser } from '../user/userService';
 import { findGroup } from '../group/service';
 import { getViewer, UserType } from '../user/internalGraphql';
@@ -157,7 +161,24 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     submittedAt: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when submission was created',
-      resolve: s => s.createdAt && dateToString(s.createdAt),
+      resolve: s => s.submittedAt && dateToString(s.submittedAt),
+    },
+    submittedAgainAt: {
+      type: GraphQLString,
+      description: 'Date when submission was submitted again',
+      resolve: s => s.submittedAgainAt && dateToString(s.submittedAgainAt),
+    },
+    createdAt: {
+      type: new GraphQLNonNull(GraphQLString),
+      deprecationReason: 'Usar `submittedAt`',
+      description: 'Date when submission was created',
+      resolve: () => dateToString(new Date()),
+    },
+    updatedAt: {
+      type: new GraphQLNonNull(GraphQLString),
+      deprecationReason: 'Usar `submittedAgainAt`',
+      description: 'Date when submission was submitted again',
+      resolve: () => dateToString(new Date()),
     },
     review: {
       type: InternalReviewType,
@@ -325,7 +346,8 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
         }
 
         context.logger.info('Marking submission as ready for review again', {
-          courseId, submissionId
+          courseId,
+          submissionId,
         });
 
         await updateSubmission(submissionId, { submittedAgainAt: new Date() });
@@ -341,6 +363,6 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
           errors: [`Failed updating submission: ${error}`],
         };
       }
-    }
-  }
+    },
+  },
 };
