@@ -8,7 +8,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { chunk, flatten, keyBy, uniq } from 'lodash';
+import { chunk, difference, flatten, keyBy, uniq } from 'lodash';
 
 import { getAssignmentFields } from './internalGraphql';
 
@@ -28,7 +28,7 @@ import {
   ReviewerFields,
 } from '../reviewer/service';
 import { findAllUserRoles, UserRoleFields } from '../userRole/userRoleService';
-import { findAllRoles } from '../role/roleService';
+import { findAllRoles, isTeacherRole } from '../role/roleService';
 import { findAllGroups, GroupFields } from '../group/service';
 import { findAllGroupParticipants } from '../groupParticipant/service';
 
@@ -38,7 +38,7 @@ import {
   ReviewerType,
 } from '../reviewer/internalGraphql';
 import { getViewer } from '../user/internalGraphql';
-import { SubmissionType } from '../submission/internalGraphql';
+import { NonExistentSubmissionType, SubmissionType } from '../submission/internalGraphql';
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 
 import type { Context } from '../../types';
@@ -337,6 +337,70 @@ export const AssignmentType = new GraphQLObjectType({
           });
         } catch (error) {
           ctx.logger.error('Error', error);
+          return [];
+        }
+      },
+    },
+    nonExistentSubmissions: {
+      type: new GraphQLNonNull(
+        new GraphQLList(new GraphQLNonNull(NonExistentSubmissionType))
+      ),
+      resolve: async (assignment, _, ctx: Context) => {
+        try {
+          const submissions = await findAllSubmissions({
+            forAssignmentId: assignment.id,
+          });
+          const allSubmittersIds = submissions.map(submission => submission.submitterId);
+          const isGroup = assignment.isGroup === true;
+
+          if (!isGroup) {
+            /* Find all user roles and keep the ones from students */
+            const userRoles = await findAllUserRoles({
+              forCourseId: assignment.courseId,
+            });
+            const allRoles = await findAllRoles({});
+            const allRolesById = keyBy(allRoles, 'id');
+
+            const courseRoles = userRoles.filter(
+              userRole => !isTeacherRole(allRolesById[userRole.roleId!])
+            );
+
+            /* Compare users with submissions to the ones that did not submit */
+            const courseUsersIds = courseRoles.map(userRole => userRole.userId);
+            const nonExistentSubmittersIds = difference(courseUsersIds, allSubmittersIds);
+
+            return nonExistentSubmittersIds.map(submitterId => ({
+              assignmentId: assignment.id,
+              submitterId,
+              isGroup,
+            }));
+          } else {
+            /* Search for all course groups in assignment */
+            const groupParticipants = await findAllGroupParticipants({
+              forAssignmentId: assignment.id,
+            });
+            const assignmentGroupIdsSet = new Set<number>();
+
+            /* Compare groups with submissions to the ones that did not submit */
+            groupParticipants.forEach(groupParticipant => {
+              if (groupParticipant.groupId)
+                assignmentGroupIdsSet.add(groupParticipant.groupId);
+            });
+            const nonExistentSubmittersIds = difference(
+              Array.from(assignmentGroupIdsSet),
+              allSubmittersIds
+            );
+
+            return nonExistentSubmittersIds.map(submitterId => ({
+              assignmentId: assignment.id,
+              submitterId,
+              isGroup,
+            }));
+          }
+        } catch (error) {
+          ctx.logger.error('An error happened while returning non existing submissions', {
+            error,
+          });
           return [];
         }
       },

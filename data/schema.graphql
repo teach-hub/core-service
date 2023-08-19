@@ -22,6 +22,7 @@ type AssignmentType {
   """Whether now is between assignment dates"""
   isOpenForSubmissions: Boolean!
   link: String
+  nonExistentSubmissions: [NonExistentSubmissionType!]!
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
   startDate: String
@@ -128,6 +129,14 @@ type Login {
 """Logout data"""
 type Logout {
   token: String
+}
+
+type NonExistentSubmissionType {
+  """Reviewer of the submission to be made"""
+  reviewer: ReviewerType
+
+  """User or group who has not made the submission"""
+  submitter: SubmitterUnionType!
 }
 
 input PreviewReviewersFilterInputType {
