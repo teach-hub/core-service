@@ -104,6 +104,8 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
       }
     },
   },
+  // Ver como se esta usando esto.
+  // Porque aca deberiamos setear el reviewedAgainAt.
   updateReview: {
     type: new GraphQLNonNull(InternalReviewType),
     description: 'Updates a review grade and / or revision requested status',

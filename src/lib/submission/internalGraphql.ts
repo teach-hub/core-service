@@ -9,10 +9,10 @@ import {
   GraphQLUnionType,
 } from 'graphql';
 
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
-import { isDefinedAndNotEmpty } from '../../utils/object';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { isDefinedAndNotEmpty } from 'src/utils/object';
 
-import { createSubmission, SubmissionFields } from '../submission/submissionsService';
+import { createSubmission, updateSubmission, SubmissionFields } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
 import { findGroup } from '../group/service';
 import { getViewer, UserType } from '../user/internalGraphql';
@@ -290,4 +290,57 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
       }
     },
   },
+  submitSubmission: {
+    description: 'Re-submits a submission for the viewer',
+    args: {
+      submissionId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      // Necesario para permisos.
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    type: new GraphQLObjectType({
+      name: 'CreateSubmissionResultType',
+      fields: {
+        success: {
+          type: GraphQLBoolean,
+        },
+        errors: {
+          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
+        },
+      },
+    }),
+    resolve: async (_, args, context) => {
+      try {
+        const { courseId: encodedCourseId, submissionId: encodedSubmissionId } = args;
+
+        const courseId = fromGlobalIdAsNumber(encodedCourseId);
+        const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
+
+        const viewer = await getViewer(context);
+        if (!viewer.id) {
+          throw new Error('Viewer not found');
+        }
+
+        context.logger.info('Marking submission as ready for review again', {
+          courseId, submissionId
+        });
+
+        await updateSubmission(submissionId, { submittedAgainAt: new Date() });
+
+        return {
+          success: true,
+          errors: [],
+        };
+      } catch (error) {
+        context.logger.error('Error while updating submission', { error });
+        return {
+          success: false,
+          errors: [`Failed updating submission: ${error}`],
+        };
+      }
+    }
+  }
 };
