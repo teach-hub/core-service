@@ -11,6 +11,8 @@ import {
 import { UserType } from '../user/internalGraphql';
 import { findAllUsers, UserFields } from '../user/userService';
 import { findAllUserRoles } from '../userRole/userRoleService';
+import { Context } from '../../types';
+import { GroupFields } from './service';
 
 export const InternalGroupUsersByAssignments = new GraphQLObjectType({
   name: 'InternalGroupUsersByAssignments',
@@ -32,10 +34,13 @@ export const InternalGroupUsersByAssignments = new GraphQLObjectType({
   },
 });
 
-export const InternalGroupType = new GraphQLObjectType({
+export const InternalGroupType: GraphQLObjectType = new GraphQLObjectType<
+  GroupFields & { assignmentId: number },
+  Context
+>({
   name: 'InternalGroupType',
   description: 'A group within TeachHub',
-  fields: {
+  fields: () => ({
     ...getGroupFields({ addId: false }),
     id: {
       type: new GraphQLNonNull(GraphQLID),
@@ -52,6 +57,27 @@ export const InternalGroupType = new GraphQLObjectType({
           entityName: 'course',
           dbId: String(s.courseId),
         }),
+    },
+    usersForAssignment: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
+      description: 'Users withing a group for a submission',
+      resolve: async (group, _, __) => {
+        const groupParticipants = await findAllGroupParticipants({
+          forGroupId: group.id,
+          forAssignmentId: group.assignmentId,
+        });
+
+        // Find user roles for every participant, and then the users for each of them
+        const userRoles = await findAllUserRoles({
+          id: groupParticipants
+            .map(groupParticipant => groupParticipant.userRoleId)
+            .filter(id => id) as number[],
+        });
+
+        return await findAllUsers({
+          id: userRoles.map(userRole => userRole.userId).filter(id => id) as number[],
+        });
+      },
     },
     usersByAssignments: {
       type: new GraphQLNonNull(
@@ -109,7 +135,7 @@ export const InternalGroupType = new GraphQLObjectType({
         return assignmentsWithMatchingParticipantsArray;
       },
     },
-  },
+  }),
 });
 
 /**

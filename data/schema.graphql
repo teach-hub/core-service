@@ -98,6 +98,9 @@ type InternalGroupType {
 
   """Users withing a group by assignments"""
   usersByAssignments: [InternalGroupUsersByAssignments!]!
+
+  """Users withing a group for a submission"""
+  usersForAssignment: [UserType!]!
 }
 
 """Users withing a group by assignments"""
