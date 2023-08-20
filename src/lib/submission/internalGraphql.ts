@@ -10,7 +10,7 @@ import {
 } from 'graphql';
 
 import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
-import { isDefinedAndNotEmpty } from 'src/utils/object';
+import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import {
   createSubmission,
@@ -311,7 +311,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
       }
     },
   },
-  submitSubmission: {
+  submitSubmissionAgain: {
     description: 'Re-submits a submission for the viewer',
     args: {
       submissionId: {
@@ -323,7 +323,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
       },
     },
     type: new GraphQLObjectType({
-      name: 'CreateSubmissionResultType',
+      name: 'SubmitSubmissionResultType',
       fields: {
         success: {
           type: GraphQLBoolean,

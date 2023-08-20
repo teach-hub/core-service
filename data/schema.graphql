@@ -113,15 +113,21 @@ type InternalGroupType {
 """A review from a submission within TeachHub"""
 type InternalReviewType {
   """Date when review was created"""
-  createdAt: String!
+  createdAt: String! @deprecated(reason: "Usar reviewedAt")
   grade: Int
   id: ID!
+
+  """Date when review was created"""
+  reviewedAgainAt: String
+
+  """Date when review was created"""
+  reviewedAt: String!
   reviewerId: ID!
   revisionRequested: Boolean
   submissionId: ID!
 
   """Date when review was last updated"""
-  updatedAt: String!
+  updatedAt: String! @deprecated(reason: "Usar reviewedAgainAt")
 }
 
 """Authenticated data"""
@@ -255,6 +261,9 @@ type RootMutationType {
   """Sets the github organization of a course"""
   setOrganization(courseId: ID!, organizationName: String!): CourseType
 
+  """Re-submits a submission for the viewer"""
+  submitSubmissionAgain(courseId: ID!, submissionId: ID!): SubmitSubmissionResultType
+
   """Updates an assignment in a course"""
   updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, id: ID!, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
 
@@ -293,18 +302,32 @@ type SubmissionType {
   """Finds an assignment from a submission"""
   assignment: AssignmentType
   assignmentId: ID!
+
+  """Date when submission was created"""
+  createdAt: String! @deprecated(reason: "Usar `submittedAt`")
   description: String
   id: ID!
   pullRequestUrl: String!
   review: InternalReviewType
   reviewer: ReviewerType
 
+  """Date when submission was submitted again"""
+  submittedAgainAt: String
+
   """Date when submission was created"""
   submittedAt: String!
 
   """User or group who has made the submission"""
   submitter: SubmitterUnionType!
+
+  """Date when submission was submitted again"""
+  updatedAt: String! @deprecated(reason: "Usar `submittedAgainAt`")
   viewerCanReview: Boolean!
+}
+
+type SubmitSubmissionResultType {
+  errors: [String!]!
+  success: Boolean
 }
 
 union SubmitterUnionType = InternalGroupType | UserType

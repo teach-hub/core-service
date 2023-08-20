@@ -9,7 +9,6 @@ import {
 } from 'graphql';
 
 import { getReviewFields } from './graphql';
-import { Context } from '../../types';
 import { getViewer } from '../user/internalGraphql';
 import {
   ReviewFields,
@@ -23,6 +22,8 @@ import { findSubmission } from '../submission/submissionsService';
 import { dateToString } from '../../utils/dates';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+
+import type { Context } from '../../types';
 
 export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
   name: 'InternalReviewType',
@@ -212,10 +213,11 @@ const findReviewerAndCheckIfIsReviewerForSubmission = async ({
   const currentReviewer = await findReviewer({
     reviewerUserId: viewerId,
     assignmentId: submission.assignmentId,
+    revieweeId: submission.submitterId,
   });
 
   /* Check that viewer is reviewer for the submission submitter */
-  if (currentReviewer.revieweeId !== submission.submitterId) {
+  if (!currentReviewer) {
     throw new Error('User is not a reviewer for this submission');
   }
 
