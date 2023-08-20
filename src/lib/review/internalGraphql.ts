@@ -7,9 +7,8 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+
 import { getReviewFields } from './graphql';
-import { dateToString } from '../../utils/dates';
 import { Context } from '../../types';
 import { getViewer } from '../user/internalGraphql';
 import {
@@ -21,7 +20,9 @@ import {
 } from './service';
 import { findReviewer } from '../reviewer/service';
 import { findSubmission } from '../submission/submissionsService';
+import { dateToString } from '../../utils/dates';
 import { isDefinedAndNotEmpty } from '../../utils/object';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
   name: 'InternalReviewType',
@@ -122,8 +123,6 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
       }
     },
   },
-  // Ver como se esta usando esto.
-  // Porque aca deberiamos setear el reviewedAgainAt.
   updateReview: {
     type: new GraphQLNonNull(InternalReviewType),
     description: 'Updates a review grade and / or revision requested status',
@@ -163,6 +162,18 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
           revisionRequested,
           reviewerId,
         };
+
+        const submission = await findSubmission({
+          submissionId: Number(review.submissionId),
+        });
+
+        // Si la submission ya fue re-entregada (submittedAgainAt).
+        // Entonces nosotros tambien tenemos que actualizar reviewedAgainAt
+        const isReSubmission = !!submission.submittedAgainAt;
+
+        if (isReSubmission && !review.reviewedAgainAt) {
+          updatedReview['reviewedAgainAt'] = new Date();
+        }
 
         context.logger.info(
           `Updating review with data: ` + JSON.stringify(updatedReview)
