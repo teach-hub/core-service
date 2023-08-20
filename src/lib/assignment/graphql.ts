@@ -189,7 +189,12 @@ export const AssignmentType = new GraphQLObjectType({
 
         ctx.logger.info('Returning submissions', { submissions });
 
-        return submissions;
+        return submissions.flatMap(submission => {
+          return {
+            ...submission,
+            isGroup: assignment.isGroup,
+          };
+        });
       },
     },
     groupParticipants: {

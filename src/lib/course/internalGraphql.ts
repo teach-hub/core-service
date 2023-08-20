@@ -198,6 +198,16 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
 
             ctx.logger.info('Requested submission with id', { submission });
 
+            if (submission) {
+              const assignment = await findAssignment({
+                assignmentId: String(submission.assignmentId),
+              });
+              return {
+                ...submission,
+                isGroup: assignment.isGroup,
+              };
+            }
+
             return submission;
           },
         },
