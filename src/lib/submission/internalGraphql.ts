@@ -35,6 +35,42 @@ export const SubmitterUnionType = new GraphQLUnionType({
   },
 });
 
+export const NonExistentSubmissionType = new GraphQLObjectType<
+  { submitterId: number; assignmentId: number; isGroup: boolean },
+  Context
+>({
+  name: 'NonExistentSubmissionType',
+  fields: () => ({
+    reviewer: {
+      type: ReviewerType,
+      description: 'Reviewer of the submission to be made',
+      resolve: async nonExistentSubmission => {
+        const reviewer = await findReviewer({
+          revieweeId: nonExistentSubmission.submitterId,
+          assignmentId: nonExistentSubmission.assignmentId,
+        });
+
+        /* Reviewer may or may not be assigned yet */
+        if (isDefinedAndNotEmpty(reviewer)) {
+          return reviewer;
+        }
+        return null;
+      },
+    },
+    submitter: {
+      type: new GraphQLNonNull(SubmitterUnionType),
+      description: 'User or group who has not made the submission',
+      resolve: async (nonExistentSubmission, _, __) => {
+        if (nonExistentSubmission.isGroup) {
+          return findGroup({ groupId: String(nonExistentSubmission.submitterId) });
+        }
+
+        return findUser({ userId: String(nonExistentSubmission.submitterId) });
+      },
+    },
+  }),
+});
+
 export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
   SubmissionFields & { isGroup: boolean },
   Context
