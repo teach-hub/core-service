@@ -112,7 +112,11 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
           ctx.logger.info('Looking for grupal submission', {
             submitterId: submission.submitterId,
           });
-          return findGroup({ groupId: String(submission.submitterId) });
+          const group = await findGroup({ groupId: String(submission.submitterId) });
+          if (!isDefinedAndNotEmpty(group)) {
+            return group;
+          }
+          return { ...group, assignmentId: assignment.id };
         }
 
         return findUser({ userId: String(submission.submitterId) });
