@@ -203,6 +203,8 @@ type RoleType {
 
 """Root mutation"""
 type RootMutationType {
+  """Adds a list of participants to a group"""
+  addParticipantsToGroup(assignmentId: ID!, groupId: ID!, participantUserRoleIds: [ID!]!): [InternalGroupParticipantType]!
   assignReviewers(courseId: ID!, input: AssignReviewersInputType): [ReviewerType!]!
 
   """Creates an assignment in a course"""

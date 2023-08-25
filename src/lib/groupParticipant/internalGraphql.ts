@@ -252,6 +252,53 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
       );
     },
   },
+  addParticipantsToGroup: {
+    type: new GraphQLNonNull(new GraphQLList(InternalGroupParticipantType)),
+    description: 'Adds a list of participants to a group',
+    args: {
+      groupId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      participantUserRoleIds: {
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
+      },
+    },
+    resolve: async (_, args, context) => {
+      const {
+        assignmentId: encodedAssignmentId,
+        groupId: encodedGroupId,
+        participantUserRoleIds: encodedParticipantUserRoleIds,
+      } = args;
+
+      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+      const groupId = fromGlobalIdAsNumber(encodedGroupId);
+      const participantUserRoleIds: number[] =
+        encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
+
+      await validateGroupOnJoin({ assignmentId });
+
+      context.logger.info(
+        `Adding users with roles ${participantUserRoleIds.join(
+          ', '
+        )} to group ${groupId} for assignment ${assignmentId}`
+      );
+
+      return await Promise.all(
+        participantUserRoleIds.map(async userRoleId => {
+          return await createGroupParticipant({
+            id: undefined,
+            assignmentId: assignmentId,
+            groupId: groupId,
+            userRoleId: userRoleId,
+            active: true,
+          });
+        })
+      );
+    },
+  },
 };
 
 const validateGroupOnCreation = async ({
