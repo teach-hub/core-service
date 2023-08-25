@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 
 import { OrderingOptions } from '../../utils';
-import { Permission, ALL_PERMISSIONS } from '../../consts';
+import { ALL_PERMISSIONS, Permission } from '../../consts';
 import { Nullable, Optional } from '../../types';
 import {
   countModels,

@@ -1,7 +1,7 @@
 import {
-  GraphQLID,
   GraphQLBoolean,
   GraphQLFieldConfigMap,
+  GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
@@ -15,7 +15,7 @@ import {
   UserFields,
 } from './userService';
 
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { toGlobalId } from '../../graphql/utils';
 
 import type { Context } from '../../types';
 import { createRegisteredUserTokenFromJwt, isRegisterToken } from '../../tokens/jwt';
@@ -112,11 +112,10 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       };
     },
   },
-  updateUser: {
+  updateViewerUser: {
     type: UserType,
-    description: 'Updates a user',
+    description: 'Updates viewer user',
     args: {
-      userId: { type: new GraphQLNonNull(GraphQLID) },
       name: { type: GraphQLString },
       lastName: { type: GraphQLString },
       file: { type: GraphQLString },
@@ -124,13 +123,13 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       notificationEmail: { type: GraphQLString },
     },
     resolve: async (_, args, ctx) => {
-      const { userId, ...rest } = args;
-      const { dbId } = fromGlobalId(userId);
+      const viewer = await getViewer(ctx);
+      const { ...rest } = args;
 
       ctx.logger.info('Executing updateUser mutation with values', args);
 
       // @ts-expect-error. FIXME
-      return updateUser(dbId, rest);
+      return updateUser(viewer.id, rest);
     },
   },
 };

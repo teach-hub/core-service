@@ -1,4 +1,4 @@
-import { allow, deny, or, rule, shield } from 'graphql-shield';
+import { allow, or, rule, shield } from 'graphql-shield';
 
 import { getViewer } from '../lib/user/internalGraphql';
 
@@ -161,11 +161,7 @@ export default shield<null, Context, unknown>(
     CreateSubmissionResultType: allow,
     RootMutationType: {
       registerUser: allow,
-      /**
-       * Todavia no tenemos caso de uso para
-       * esta mutation.
-       */
-      updateUser: deny,
+      updateViewerUser: allow, // Allow each viewer to update its user
       login: allow,
       logout: allow,
       useInvite: allow,
