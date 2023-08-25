@@ -45,7 +45,7 @@ export const NonExistentSubmissionType = new GraphQLObjectType<
       type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
         toGlobalId({
-          entityName: 'nonExistentSubmissionID',
+          entityName: 'nonExistentSubmission',
           dbId: `${s.submitterId}-${s.assignmentId}`,
         }),
     },
