@@ -178,6 +178,7 @@ export default shield<null, Context, unknown>(
       assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
       createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
       joinGroup: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
+      createGroupWithParticipants: viewerHasPermissionInCourse(Permission.ManageGroups),
       createReview: viewerHasPermissionInCourse(Permission.SetReview),
       updateReview: viewerHasPermissionInCourse(Permission.SetReview),
     },

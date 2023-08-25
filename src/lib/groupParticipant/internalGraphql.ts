@@ -14,8 +14,8 @@ import { createGroup, findAllGroups, findGroup } from '../group/service';
 import { createGroupParticipant, findAllGroupParticipants } from './service';
 import { getViewer, UserType } from '../user/internalGraphql';
 import {
-  findUserRole,
   findAllUserRoles,
+  findUserRole,
   findUserRoleInCourse,
 } from '../userRole/userRoleService';
 import { InternalGroupType } from '../group/internalGraphql';
@@ -192,6 +192,64 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
         userRoleId: userRole.id,
         active: true,
       });
+    },
+  },
+  createGroupWithParticipants: {
+    type: new GraphQLNonNull(new GraphQLList(InternalGroupParticipantType)),
+    description: 'Creates a group and adds a list of participants to it',
+    args: {
+      groupName: {
+        type: new GraphQLNonNull(GraphQLString),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      participantUserRoleIds: {
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
+      },
+    },
+    resolve: async (_, args, context) => {
+      const {
+        assignmentId: encodedAssignmentId,
+        courseId: encodedCourseId,
+        groupName,
+        participantUserRoleIds: encodedParticipantUserRoleIds,
+      } = args;
+
+      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+      const courseId = fromGlobalIdAsNumber(encodedCourseId);
+      const participantUserRoleIds: number[] =
+        encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
+
+      await validateGroupOnCreation({ groupName, courseId, assignmentId });
+
+      context.logger.info(
+        `Creating group with name ${groupName} for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
+          ', '
+        )}`
+      );
+
+      const group = await createGroup({
+        name: groupName,
+        courseId,
+        id: undefined,
+        active: true,
+      });
+
+      return await Promise.all(
+        participantUserRoleIds.map(async userRoleId => {
+          return await createGroupParticipant({
+            id: undefined,
+            assignmentId: assignmentId,
+            groupId: group.id,
+            userRoleId: userRoleId,
+            active: true,
+          });
+        })
+      );
     },
   },
 };

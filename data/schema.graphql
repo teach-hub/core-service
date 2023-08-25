@@ -211,6 +211,9 @@ type RootMutationType {
   """Creates a group and adds a participant to it"""
   createGroupWithParticipant(assignmentId: ID!, courseId: ID!, groupName: String!): InternalGroupParticipantType!
 
+  """Creates a group and adds a list of participants to it"""
+  createGroupWithParticipants(assignmentId: ID!, courseId: ID!, groupName: String!, participantUserRoleIds: [ID!]!): [InternalGroupParticipantType]!
+
   """Creates repositories"""
   createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
 
