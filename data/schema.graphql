@@ -312,6 +312,7 @@ type UserType {
   active: Boolean!
   file: String!
   githubId: String!
+  githubUserName: String!
   id: ID!
   lastName: String!
   name: String!
@@ -333,6 +334,7 @@ type ViewerType {
   course(id: ID!): CourseType
   file: String!
   githubId: String!
+  githubUserName: String!
   id: String!
   lastName: String!
   name: String!
