@@ -50,14 +50,12 @@ export const inviteMutations: GraphQLFieldConfigMap<null, Context> = {
     },
   },
   useInvite: {
-    type: new GraphQLNonNull(
-      new GraphQLObjectType({
-        name: 'UseInviteResponse',
-        fields: {
-          courseId: { type: GraphQLID },
-        },
-      })
-    ),
+    type: new GraphQLObjectType({
+      name: 'UseInviteResponse',
+      fields: {
+        courseId: { type: GraphQLID },
+      },
+    }), // Set nullable to avoid 500 error if error raises
     description:
       'Use an invite to enter to be added to a course and return the course id',
     args: {
@@ -82,6 +80,10 @@ export const inviteMutations: GraphQLFieldConfigMap<null, Context> = {
       if (invite.expiresAt && currentDate > invite.expiresAt) {
         throw new Error('Invite expired');
       }
+
+      context.logger.info(
+        `Creating user role ${invite.roleId} for user ${viewer.id} in course ${invite.courseId}`
+      );
 
       const userRole = await createUserRole({
         userId: viewer.id,

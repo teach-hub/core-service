@@ -43,6 +43,32 @@ import { isDefinedAndNotEmpty } from '../../utils/object';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findSubmission } from '../submission/submissionsService';
 
+export const CoursePublicDataType: GraphQLObjectType<CourseFields, Context> =
+  new GraphQLObjectType({
+    name: 'CoursePublicDataType',
+    fields: () => ({
+      id: {
+        type: new GraphQLNonNull(GraphQLID),
+        resolve: s => {
+          return toGlobalId({
+            entityName: 'course',
+            dbId: String(s.id),
+          });
+        },
+      },
+      name: { type: new GraphQLNonNull(GraphQLString) },
+      period: { type: new GraphQLNonNull(GraphQLInt) },
+      year: { type: new GraphQLNonNull(GraphQLInt) },
+      subject: {
+        type: new GraphQLNonNull(SubjectType),
+        description: 'Subject the course belongs to',
+        resolve: async ({ subjectId }) => {
+          return subjectId ? await findSubject({ subjectId: String(subjectId) }) : null;
+        },
+      },
+    }),
+  });
+
 export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
   {
     name: 'CourseType',
