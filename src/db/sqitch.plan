@@ -25,4 +25,4 @@ uniqueness_course_user_user_roles 2023-07-23T04:04:28Z System Administrator <roo
 add_reviewee_id_reviewers 2023-07-23T04:47:20Z System Administrator <root@canada> # Merge group_id and user_id in reviewers table
 update_submissions_submitter_id 2023-07-26T02:53:25Z Tomas Lopez Hidalgo <root@canada> # Submissions -- Change user_id to submitee_id to support groups
 create_review_table 2023-07-25T02:06:38Z Sebastian Penna <spenna@fi.uba.ar> # Create review table
-
+change_invites_to_expire_after_time 2023-08-26T03:06:52Z Sebastian Penna <spenna@fi.uba.ar> # Change invites to expire after time

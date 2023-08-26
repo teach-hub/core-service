@@ -1,15 +1,23 @@
-import { GraphQLID, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
+import {
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLInt,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql';
 
-import { buildInvite, markInviteAsUsed } from './inviteService';
-import { toGlobalId, fromGlobalId } from '../../graphql/utils';
+import { buildInvite } from './inviteService';
+import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
 import { getViewer } from '../user/internalGraphql';
 
 import type { Context } from 'src/types';
+import InviteModel from './model';
+import { createUserRole } from '../userRole/userRoleService';
 
-export const inviteMutations = {
+export const inviteMutations: GraphQLFieldConfigMap<null, Context> = {
   generateInviteCode: {
-    name: 'GenerateInvitationCode',
     type: new GraphQLNonNull(GraphQLString),
     description: 'Generates an invitation code',
     args: {
@@ -19,25 +27,29 @@ export const inviteMutations = {
       courseId: {
         type: new GraphQLNonNull(GraphQLID),
       },
+      expirationMinutes: {
+        type: GraphQLInt,
+      },
     },
 
-    // FIXME. No copiar
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolve: async (_: unknown, args: any, context: Context) => {
-      const { roleId: encodedRoleId, courseId: encodedCourseId } = args;
+    resolve: async (_, args, context: Context) => {
+      const {
+        roleId: encodedRoleId,
+        courseId: encodedCourseId,
+        expirationMinutes,
+      } = args;
 
       const { dbId: roleId } = fromGlobalId(encodedRoleId);
       const { dbId: courseId } = fromGlobalId(encodedCourseId);
 
       context.logger.info('Building invite for', { roleId, courseId });
 
-      const invite = await buildInvite({ roleId, courseId });
+      const invite = await buildInvite({ roleId, courseId, expirationMinutes });
 
       return toGlobalId({ dbId: String(invite.id), entityName: 'invite' });
     },
   },
   useInvite: {
-    name: 'UseInvite',
     type: new GraphQLNonNull(
       new GraphQLObjectType({
         name: 'UseInviteResponse',
@@ -46,25 +58,40 @@ export const inviteMutations = {
         },
       })
     ),
-    description: 'Marks an invite as used returning the course id',
+    description:
+      'Use an invite to enter to be added to a course and return the course id',
     args: {
       inviteId: { type: new GraphQLNonNull(GraphQLID) },
     },
 
-    // FIXME. No copiar
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolve: async (_: any, args: any, context: Context) => {
+    resolve: async (_, args, context: Context) => {
       const { inviteId: encodedInviteId } = args;
       const { dbId: inviteId } = fromGlobalId(encodedInviteId);
 
       const viewer = await getViewer(context);
 
-      context.logger.info('Marking invite as used', { inviteId });
+      context.logger.info('Using invite', { inviteId });
 
-      const userRole = await markInviteAsUsed({ inviteId, viewer });
+      const invite = await InviteModel.findOne({ where: { id: Number(inviteId) } });
+
+      if (!invite) {
+        throw new Error('Invite not found');
+      }
+
+      const currentDate = new Date();
+      if (invite.expiresAt && currentDate > invite.expiresAt) {
+        throw new Error('Invite expired');
+      }
+
+      const userRole = await createUserRole({
+        userId: viewer.id,
+        roleId: invite.roleId,
+        courseId: invite.courseId,
+        active: true,
+      });
 
       return {
-        courseId: toGlobalId({ dbId: String(userRole.courseId), entityName: 'role' }),
+        courseId: toGlobalId({ dbId: String(userRole.courseId), entityName: 'course' }),
       };
     },
   },
