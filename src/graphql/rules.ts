@@ -137,6 +137,7 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
 export default shield<null, Context, unknown>(
   {
     ViewerType: allow,
+    CoursePublicDataType: allow,
     UserRoleType: or(
       buildRule(viewerIsUserRoleOwner),
       buildRule(

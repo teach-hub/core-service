@@ -34,6 +34,16 @@ type AssignmentType {
   viewerReviewer: ReviewerType
 }
 
+type CoursePublicDataType {
+  id: ID!
+  name: String!
+  period: Int!
+
+  """Subject the course belongs to"""
+  subject: SubjectType!
+  year: Int!
+}
+
 type CourseType {
   active: Boolean!
 
@@ -257,13 +267,16 @@ type RootMutationType {
   """
   Use an invite to enter to be added to a course and return the course id
   """
-  useInvite(inviteId: ID!): UseInviteResponse!
+  useInvite(inviteId: ID!): UseInviteResponse
 }
 
 """Root query"""
 type RootQueryType {
   """Logged in user"""
   availableRoles: [RoleType!]!
+
+  """Course of an invite"""
+  courseOfInvite(inviteId: ID!): CoursePublicDataType
 
   """Logged in user"""
   viewer: ViewerType

@@ -18,13 +18,17 @@ import { findAllRepositories } from '../lib/repository/service';
 import { getViewer, userMutations, UserType } from '../lib/user/internalGraphql';
 import { inviteMutations } from '../lib/invite/internalGraphql';
 import { authMutations } from '../lib/auth/graphql';
-import { courseMutations, CourseType } from '../lib/course/internalGraphql';
+import {
+  courseMutations,
+  CoursePublicDataType,
+  CourseType,
+} from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
 import { repositoryMutations, RepositoryType } from '../lib/repository/internalGraphql';
 import { assignmentMutations } from '../lib/assignment/graphql';
 import { submissionMutations } from '../lib/submission/internalGraphql';
 
-import { fromGlobalId, toGlobalId } from './utils';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from './utils';
 
 import { getToken } from '../utils/request';
 
@@ -40,6 +44,7 @@ import { UserPullRequestType } from '../github/graphql';
 import type { Context } from 'src/types';
 import { groupParticipantMutations } from '../lib/groupParticipant/internalGraphql';
 import { reviewMutations } from '../lib/review/internalGraphql';
+import InviteModel from '../lib/invite/model';
 
 const UserRoleType = buildUserRoleType({
   roleType: RoleType,
@@ -201,6 +206,28 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
         const roles = await findAllRoles({});
 
         return roles;
+      },
+    },
+    courseOfInvite: {
+      description: 'Course of an invite',
+      type: CoursePublicDataType, // Set nullable to avoid 500 error if error raises
+      args: {
+        inviteId: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (_source, args, _) => {
+        const { inviteId: encodedInviteId } = args;
+        const inviteId = fromGlobalIdAsNumber(encodedInviteId);
+        const invite = await InviteModel.findOne({ where: { id: inviteId } });
+
+        if (!invite) {
+          throw new Error('Invite not found');
+        }
+
+        const course = await findCourse({ courseId: String(invite.courseId) });
+        if (!course) {
+          throw new Error('Course not found');
+        }
+        return course;
       },
     },
   },

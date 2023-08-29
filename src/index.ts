@@ -6,6 +6,12 @@ import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
 import type { GraphQLSchema } from 'graphql';
+import logger from './logger';
+import { checkDB, initializeModels, writeSchema } from './utils';
+
+import adminSchema from './graphql/adminSchema';
+import schema from './graphql/schema';
+import permissionsMiddleware from './graphql/rules';
 
 /**
  * Cargamos dotenv junto con todas las variables de entorno.
@@ -15,13 +21,6 @@ import type { GraphQLSchema } from 'graphql';
  */
 
 dotenv.config();
-
-import logger from './logger';
-import { writeSchema, checkDB, initializeModels } from './utils';
-
-import adminSchema from './graphql/adminSchema';
-import schema from './graphql/schema';
-import permissionsMiddleware from './graphql/rules';
 
 const app = express();
 
@@ -41,7 +40,17 @@ const mountSchemaOn = ({
     endpoint,
     graphqlHTTP((request, response) => {
       logger.info(`Receiving request, endpoint: ${request.url}`);
-      return { schema, context: { logger, request, response } };
+
+      const errorHandler = (error: Error) => {
+        console.error('GraphQL Error:', error);
+        return error;
+      };
+
+      return {
+        schema,
+        context: { logger, request, response },
+        customFormatErrorFn: errorHandler, // Custom error handling
+      };
     })
   );
 };
