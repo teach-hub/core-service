@@ -126,6 +126,8 @@ type Logout {
 }
 
 type NonExistentSubmissionType {
+  id: ID!
+
   """Reviewer of the submission to be made"""
   reviewer: ReviewerType
 

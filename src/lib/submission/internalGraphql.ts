@@ -41,6 +41,14 @@ export const NonExistentSubmissionType = new GraphQLObjectType<
 >({
   name: 'NonExistentSubmissionType',
   fields: () => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: s =>
+        toGlobalId({
+          entityName: 'nonExistentSubmission',
+          dbId: `${s.submitterId}-${s.assignmentId}`,
+        }),
+    },
     reviewer: {
       type: ReviewerType,
       description: 'Reviewer of the submission to be made',
