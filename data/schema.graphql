@@ -228,7 +228,7 @@ type RootMutationType {
   createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): CreateSubmissionResultType
 
   """Generates an invitation code"""
-  generateInviteCode(courseId: ID!, roleId: ID!): String!
+  generateInviteCode(courseId: ID!, expirationMinutes: Int, roleId: ID!): String!
 
   """Joins viewer to a group"""
   joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): InternalGroupParticipantType!
@@ -254,7 +254,9 @@ type RootMutationType {
   """Updates viewer user"""
   updateViewerUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String): UserType
 
-  """Marks an invite as used returning the course id"""
+  """
+  Use an invite to enter to be added to a course and return the course id
+  """
   useInvite(inviteId: ID!): UseInviteResponse!
 }
 

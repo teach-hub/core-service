@@ -6,14 +6,14 @@ interface InviteAttributes {
   readonly id?: number;
   readonly courseId?: number;
   readonly roleId?: number;
-  readonly usedAt?: Date;
+  readonly expiresAt?: Date;
 }
 
 class Invite extends Sequelize.Model<InviteAttributes> {
   readonly id!: number;
   readonly courseId!: number;
   readonly roleId!: number;
-  readonly usedAt!: Date;
+  readonly expiresAt!: Date;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return Invite.init(
@@ -33,9 +33,9 @@ class Invite extends Sequelize.Model<InviteAttributes> {
           field: 'role_id',
           allowNull: false,
         },
-        usedAt: {
+        expiresAt: {
           type: Sequelize.DATE,
-          field: 'used_at',
+          field: 'expires_at',
         },
       },
       {
