@@ -1,7 +1,7 @@
 import {
-  GraphQLID,
   GraphQLBoolean,
   GraphQLFieldConfigMap,
+  GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
@@ -15,14 +15,15 @@ import {
   UserFields,
 } from './userService';
 
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { toGlobalId } from '../../graphql/utils';
 
 import type { Context } from '../../types';
 import { createRegisteredUserTokenFromJwt, isRegisterToken } from '../../tokens/jwt';
-import { getGithubUserId } from '../../github/githubUser';
+import { getGithubUserId, getGithubUsernameFromGithubId } from '../../github/githubUser';
 
 import { getToken } from '../../utils/request';
 import { isDefinedAndNotEmpty } from '../../utils/object';
+import { initOctokit } from '../../github/config';
 
 export const getAuthenticatedUserFromToken = async (
   token: string
@@ -53,6 +54,16 @@ export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjec
     notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
     file: { type: new GraphQLNonNull(GraphQLString) },
     githubId: { type: new GraphQLNonNull(GraphQLString) },
+    githubUserName: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: async (user, _, ctx) => {
+        const token = getToken(ctx);
+        if (!token) throw new Error('Token required');
+        if (!user.githubId) throw new Error('User missing githubId');
+
+        return getGithubUsernameFromGithubId(initOctokit(token), user.githubId);
+      },
+    },
   },
 });
 
@@ -112,11 +123,10 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       };
     },
   },
-  updateUser: {
+  updateViewerUser: {
     type: UserType,
-    description: 'Updates a user',
+    description: 'Updates viewer user',
     args: {
-      userId: { type: new GraphQLNonNull(GraphQLID) },
       name: { type: GraphQLString },
       lastName: { type: GraphQLString },
       file: { type: GraphQLString },
@@ -124,13 +134,13 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       notificationEmail: { type: GraphQLString },
     },
     resolve: async (_, args, ctx) => {
-      const { userId, ...rest } = args;
-      const { dbId } = fromGlobalId(userId);
+      const viewer = await getViewer(ctx);
+      const { ...rest } = args;
 
       ctx.logger.info('Executing updateUser mutation with values', args);
 
       // @ts-expect-error. FIXME
-      return updateUser(dbId, rest);
+      return updateUser(viewer.id, rest);
     },
   },
 };

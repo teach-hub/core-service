@@ -251,8 +251,8 @@ type RootMutationType {
   """Updates a review grade and / or revision requested status"""
   updateReview(courseId: ID!, grade: Int, id: ID!, revisionRequested: Boolean!): InternalReviewType!
 
-  """Updates a user"""
-  updateUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String, userId: ID!): UserType
+  """Updates viewer user"""
+  updateViewerUser(file: String, githubId: String, lastName: String, name: String, notificationEmail: String): UserType
 
   """Marks an invite as used returning the course id"""
   useInvite(inviteId: ID!): UseInviteResponse!
@@ -319,6 +319,7 @@ type UserType {
   active: Boolean!
   file: String!
   githubId: String!
+  githubUserName: String!
   id: ID!
   lastName: String!
   name: String!
@@ -340,6 +341,7 @@ type ViewerType {
   course(id: ID!): CourseType
   file: String!
   githubId: String!
+  githubUserName: String!
   id: String!
   lastName: String!
   name: String!

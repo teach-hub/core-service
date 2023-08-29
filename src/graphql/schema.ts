@@ -28,7 +28,10 @@ import { fromGlobalId, toGlobalId } from './utils';
 
 import { getToken } from '../utils/request';
 
-import { getGithubUserOrganizationNames } from '../github/githubUser';
+import {
+  getGithubUsernameFromGithubId,
+  getGithubUserOrganizationNames,
+} from '../github/githubUser';
 import { listOpenPRs } from '../github/pullrequests';
 import { initOctokit } from '../github/config';
 
@@ -167,6 +170,16 @@ const ViewerType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType
         return {
           names: await getGithubUserOrganizationNames(token),
         };
+      },
+    },
+    githubUserName: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: async (viewer, _, ctx) => {
+        const token = getToken(ctx);
+        if (!token) throw new Error('Token required');
+        if (!viewer.githubId) throw new Error('User missing githubId');
+
+        return getGithubUsernameFromGithubId(initOctokit(token), viewer.githubId);
       },
     },
   },
