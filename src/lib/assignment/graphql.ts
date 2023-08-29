@@ -27,7 +27,11 @@ import {
   findReviewers,
   ReviewerFields,
 } from '../reviewer/service';
-import { findAllUserRoles, UserRoleFields } from '../userRole/userRoleService';
+import {
+  findAllUserRoles,
+  findUserRoleInCourse,
+  UserRoleFields,
+} from '../userRole/userRoleService';
 import { findAllRoles, isTeacherRole } from '../role/roleService';
 import { findAllGroups, GroupFields } from '../group/service';
 import { findAllGroupParticipants } from '../groupParticipant/service';
@@ -42,6 +46,7 @@ import { NonExistentSubmissionType, SubmissionType } from '../submission/interna
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 
 import type { Context } from '../../types';
+import { isDefinedAndNotEmpty } from '../../utils/object';
 
 const PreviewReviewersFilterType = {
   input: {
@@ -195,6 +200,44 @@ export const AssignmentType = new GraphQLObjectType({
             isGroup: assignment.isGroup,
           };
         });
+      },
+    },
+    viewerSubmission: {
+      type: SubmissionType,
+      resolve: async (assignment, _, ctx: Context) => {
+        const viewer = await getViewer(ctx);
+        let submitterId = viewer.id; // By default assume non group assignment
+
+        if (assignment.isGroup) {
+          const viewerRole = await findUserRoleInCourse({
+            courseId: assignment.courseId,
+            userId: Number(viewer.id),
+          });
+          const [viewerGroupParticipant] = await findAllGroupParticipants({
+            forAssignmentId: assignment.id,
+            forUserRoleId: viewerRole.id,
+          });
+          if (!viewerGroupParticipant) return null;
+
+          // If group assignment submitter is the group
+          submitterId = viewerGroupParticipant.groupId;
+        }
+
+        const [submission] = await findAllSubmissions({
+          forAssignmentId: assignment.id,
+          forSubmitterId: submitterId,
+        });
+
+        if (!isDefinedAndNotEmpty(submission)) {
+          return null;
+        }
+
+        ctx.logger.info('Returning submission', { submission });
+
+        return {
+          ...submission,
+          isGroup: assignment.isGroup,
+        };
       },
     },
     groupParticipants: {
