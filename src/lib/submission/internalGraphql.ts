@@ -168,18 +168,6 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
       description: 'Date when submission was submitted again',
       resolve: s => s.submittedAgainAt && dateToString(s.submittedAgainAt),
     },
-    createdAt: {
-      type: new GraphQLNonNull(GraphQLString),
-      deprecationReason: 'Usar `submittedAt`',
-      description: 'Date when submission was created',
-      resolve: () => dateToString(new Date()),
-    },
-    updatedAt: {
-      type: new GraphQLNonNull(GraphQLString),
-      deprecationReason: 'Usar `submittedAgainAt`',
-      description: 'Date when submission was submitted again',
-      resolve: () => dateToString(new Date()),
-    },
     review: {
       type: InternalReviewType,
       resolve: async (submission, _, ctx: Context) => {
@@ -206,7 +194,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     assignment: {
       description: 'Finds an assignment from a submission',
       type: AssignmentType,
-      resolve: async (submission, args, { logger }) => {
+      resolve: async (submission, _, { logger }) => {
         const assignment = await findAssignment({
           assignmentId: String(submission.assignmentId),
         });

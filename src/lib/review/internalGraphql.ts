@@ -64,18 +64,6 @@ export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
       description: 'Date when review was created',
       resolve: s => s.reviewedAgainAt && dateToString(s.reviewedAgainAt),
     },
-    createdAt: {
-      deprecationReason: 'Usar reviewedAt',
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'Date when review was created',
-      resolve: () => dateToString(new Date()),
-    },
-    updatedAt: {
-      deprecationReason: 'Usar reviewedAgainAt',
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'Date when review was last updated',
-      resolve: () => dateToString(new Date()),
-    },
   },
 });
 

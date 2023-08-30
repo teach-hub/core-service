@@ -112,8 +112,7 @@ type InternalGroupType {
 
 """A review from a submission within TeachHub"""
 type InternalReviewType {
-  """Date when review was created"""
-  createdAt: String! @deprecated(reason: "Usar reviewedAt")
+  createdAt: String
   grade: Int
   id: ID!
 
@@ -125,9 +124,7 @@ type InternalReviewType {
   reviewerId: ID!
   revisionRequested: Boolean
   submissionId: ID!
-
-  """Date when review was last updated"""
-  updatedAt: String! @deprecated(reason: "Usar reviewedAgainAt")
+  updatedAt: String
 }
 
 """Authenticated data"""
@@ -302,9 +299,6 @@ type SubmissionType {
   """Finds an assignment from a submission"""
   assignment: AssignmentType
   assignmentId: ID!
-
-  """Date when submission was created"""
-  createdAt: String! @deprecated(reason: "Usar `submittedAt`")
   description: String
   id: ID!
   pullRequestUrl: String!
@@ -319,9 +313,6 @@ type SubmissionType {
 
   """User or group who has made the submission"""
   submitter: SubmitterUnionType!
-
-  """Date when submission was submitted again"""
-  updatedAt: String! @deprecated(reason: "Usar `submittedAgainAt`")
   viewerCanReview: Boolean!
 }
 
