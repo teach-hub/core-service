@@ -241,10 +241,10 @@ type RootMutationType {
   """Joins viewer to a group"""
   joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): InternalGroupParticipantType!
 
-  """Login user"""
+  """Exchanges received code for a long-lived token."""
   login(code: String): Login
 
-  """Logout user"""
+  """Revokes the token from the Github app"""
   logout(token: String): Logout
 
   """Creates a user and authorizes it"""

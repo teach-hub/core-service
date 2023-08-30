@@ -30,35 +30,35 @@ export const Logout: GraphQLObjectType<unknown, Context> = new GraphQLObjectType
 export const authMutations: GraphQLFieldConfigMap<unknown, Context> = {
   login: {
     type: Login,
-    description: 'Login user',
+    description: 'Exchanges received code for a long-lived token.',
     args: {
       code: { type: GraphQLString },
     },
     resolve: async (_, args, { logger }) => {
       const { code } = args;
 
-      logger.info(`Getting token for code ${code}`);
+      logger.info(`[Github] Exchanging code=${code} for token`);
 
       const githubToken = await exchangeCodeForToken(code);
-      const githubId = await getGithubUserIdFromGithubToken(githubToken);
 
+      logger.info(`[Github] Exchanging token=${githubToken} for githubId`);
+
+      // Obtenemos el github id del usuario asociado al token.
+      const githubId = await getGithubUserIdFromGithubToken(githubToken);
       const userExists = await existsUserWithGitHubId(githubId);
 
       logger.info(
         `Logging in user with githubId ${githubId}. User exists: ${userExists}`
       );
       return {
-        token: createToken({
-          githubToken,
-          userExists,
-        }),
+        token: createToken({ githubToken, userExists }),
         userRegistered: userExists,
       };
     },
   },
   logout: {
     type: Logout,
-    description: 'Logout user',
+    description: 'Revokes the token from the Github app',
     args: {
       token: { type: GraphQLString },
     },
@@ -67,13 +67,12 @@ export const authMutations: GraphQLFieldConfigMap<unknown, Context> = {
 
       const tokenRevoked: boolean = await revokeToken(token);
 
-      tokenRevoked
-        ? ctx.logger.info(`Revoked token ${token}`)
-        : ctx.logger.info(`Failed to revoke token ${token}`);
+      ctx.logger.info(
+        tokenRevoked ? `Revoked token ${token}` : `Failed to revoke token ${token}`
+      );
 
-      return {
-        token: null, // Return null field as graphql does not allow empty objects
-      };
+      // Return null field as graphql does not allow empty objects
+      return { token: null };
     },
   },
 };
