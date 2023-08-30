@@ -2,7 +2,6 @@ import type { GraphQLFieldConfigMap } from 'graphql';
 import {
   GraphQLBoolean,
   GraphQLID,
-  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
@@ -238,17 +237,7 @@ const findSubmissionReviewer = async (submission: SubmissionFields) => {
 export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
   createSubmission: {
     description: 'Creates a new submission for the viewer',
-    type: new GraphQLObjectType({
-      name: 'CreateSubmissionResultType',
-      fields: {
-        success: {
-          type: GraphQLBoolean,
-        },
-        errors: {
-          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
-        },
-      },
-    }),
+    type: new GraphQLNonNull(SubmissionType),
     args: {
       assignmentId: {
         type: new GraphQLNonNull(GraphQLID),
@@ -279,23 +268,15 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
           userId: viewer.id,
         });
 
-        await createSubmission({
+        return createSubmission({
           submitterUserId: viewer.id,
           assignmentId: Number(assignmentId),
           description,
           pullRequestUrl,
         });
-
-        return {
-          success: true,
-          errors: [],
-        };
       } catch (e) {
         ctx.logger.error('Error while creating submission', { error: e });
-        return {
-          success: false,
-          errors: [`${e}`],
-        };
+        throw e;
       }
     },
   },
@@ -310,17 +291,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
         type: new GraphQLNonNull(GraphQLID),
       },
     },
-    type: new GraphQLObjectType({
-      name: 'SubmitSubmissionResultType',
-      fields: {
-        success: {
-          type: GraphQLBoolean,
-        },
-        errors: {
-          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
-        },
-      },
-    }),
+    type: SubmissionType,
     resolve: async (_, args, context) => {
       try {
         const { courseId: encodedCourseId, submissionId: encodedSubmissionId } = args;
@@ -338,18 +309,14 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
           submissionId,
         });
 
-        await updateSubmission(submissionId, { submittedAgainAt: new Date() });
+        const updatedSubmission = await updateSubmission(submissionId, {
+          submittedAgainAt: new Date(),
+        });
 
-        return {
-          success: true,
-          errors: [],
-        };
+        return updatedSubmission;
       } catch (error) {
         context.logger.error('Error while updating submission', { error });
-        return {
-          success: false,
-          errors: [`Failed updating submission: ${error}`],
-        };
+        throw error;
       }
     },
   },

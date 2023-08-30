@@ -82,11 +82,6 @@ type CreateRepositoriesResponse {
   failedRepositoriesNames: [String!]
 }
 
-type CreateSubmissionResultType {
-  errors: [String!]!
-  success: Boolean
-}
-
 """A group participant within TeachHub"""
 type InternalGroupParticipantType {
   active: Boolean
@@ -238,7 +233,7 @@ type RootMutationType {
   createReview(courseId: ID!, grade: Int, revisionRequested: Boolean!, submissionId: ID!): InternalReviewType!
 
   """Creates a new submission for the viewer"""
-  createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): CreateSubmissionResultType
+  createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): SubmissionType!
 
   """Generates an invitation code"""
   generateInviteCode(courseId: ID!, expirationMinutes: Int, roleId: ID!): String!
@@ -259,7 +254,7 @@ type RootMutationType {
   setOrganization(courseId: ID!, organizationName: String!): CourseType
 
   """Re-submits a submission for the viewer"""
-  submitSubmissionAgain(courseId: ID!, submissionId: ID!): SubmitSubmissionResultType
+  submitSubmissionAgain(courseId: ID!, submissionId: ID!): SubmissionType
 
   """Updates an assignment in a course"""
   updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, id: ID!, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
@@ -314,11 +309,6 @@ type SubmissionType {
   """User or group who has made the submission"""
   submitter: SubmitterUnionType!
   viewerCanReview: Boolean!
-}
-
-type SubmitSubmissionResultType {
-  errors: [String!]!
-  success: Boolean
 }
 
 union SubmitterUnionType = InternalGroupType | UserType
