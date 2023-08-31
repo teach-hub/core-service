@@ -8,8 +8,8 @@ export interface SubmissionAttributes {
   readonly assignmentId?: number;
   readonly description?: string | null;
   readonly pullRequestUrl?: string;
-  readonly createdAt?: Date | null;
-  readonly updatedAt?: Date | null;
+  readonly submittedAt?: Date | null;
+  readonly submittedAgainAt?: Date | null;
 }
 
 class SubmissionModel
@@ -21,8 +21,8 @@ class SubmissionModel
   readonly assignmentId!: number;
   readonly description!: string | null;
   readonly pullRequestUrl!: string;
-  readonly createdAt!: Date | null;
-  readonly updatedAt!: Date | null;
+  readonly submittedAt!: Date | null;
+  readonly submittedAgainAt!: Date | null;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return SubmissionModel.init(
@@ -51,11 +51,12 @@ class SubmissionModel
           field: 'pull_request_url',
           allowNull: false,
         },
-        createdAt: {
+        submittedAt: {
           field: 'created_at',
           type: Sequelize.DATE,
+          allowNull: false,
         },
-        updatedAt: {
+        submittedAgainAt: {
           field: 'updated_at',
           type: Sequelize.DATE,
         },
@@ -64,9 +65,7 @@ class SubmissionModel
         sequelize: db,
         schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
         tableName: DatabaseConstants.TABLES.SUBMISSION,
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        timestamps: false,
       }
     );
   };

@@ -8,8 +8,8 @@ interface ReviewAttributes {
   readonly reviewerId?: number;
   readonly grade?: number;
   readonly revisionRequested?: boolean;
-  readonly createdAt?: Date | null;
-  readonly updatedAt?: Date | null;
+  readonly reviewedAt?: Date | null;
+  readonly reviewedAgainAt?: Date | null;
 }
 
 class Review extends Sequelize.Model<ReviewAttributes> implements ReviewAttributes {
@@ -18,8 +18,8 @@ class Review extends Sequelize.Model<ReviewAttributes> implements ReviewAttribut
   readonly reviewerId!: number;
   readonly grade!: number;
   readonly revisionRequested!: boolean;
-  readonly createdAt?: Date | null;
-  readonly updatedAt?: Date | null;
+  readonly reviewedAt?: Date | null;
+  readonly reviewedAgainAt?: Date | null;
 
   static initialize = (db: Sequelize.Sequelize) => {
     return Review.init(
@@ -47,11 +47,12 @@ class Review extends Sequelize.Model<ReviewAttributes> implements ReviewAttribut
           type: Sequelize.BOOLEAN,
           field: 'revision_requested',
         },
-        createdAt: {
+        reviewedAt: {
           field: 'created_at',
           type: Sequelize.DATE,
+          allowNull: false,
         },
-        updatedAt: {
+        reviewedAgainAt: {
           field: 'updated_at',
           type: Sequelize.DATE,
         },
@@ -60,9 +61,7 @@ class Review extends Sequelize.Model<ReviewAttributes> implements ReviewAttribut
         sequelize: db,
         schema: DatabaseConstants.SCHEMAS.TEACH_HUB,
         tableName: DatabaseConstants.TABLES.REVIEW,
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
+        timestamps: false,
       }
     );
   };

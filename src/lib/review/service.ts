@@ -16,8 +16,8 @@ export type ReviewFields = {
   reviewerId: Optional<number>;
   grade: Optional<number>;
   revisionRequested: Optional<boolean>;
-  createdAt?: Optional<Nullable<Date>>;
-  updatedAt?: Optional<Nullable<Date>>;
+  reviewedAt?: Optional<Nullable<Date>>;
+  reviewedAgainAt?: Optional<Nullable<Date>>;
 };
 
 const buildModelFields = (review: Nullable<ReviewModel>): ReviewFields => {
@@ -27,8 +27,8 @@ const buildModelFields = (review: Nullable<ReviewModel>): ReviewFields => {
     reviewerId: review?.reviewerId,
     grade: review?.grade,
     revisionRequested: review?.revisionRequested,
-    createdAt: review?.createdAt,
-    updatedAt: review?.updatedAt,
+    reviewedAt: review?.reviewedAt,
+    reviewedAgainAt: review?.reviewedAgainAt,
   };
 };
 
@@ -40,6 +40,7 @@ export async function createReview(data: ReviewFields): Promise<ReviewFields> {
   const completedData = {
     ...data,
     revisionRequested: data.revisionRequested || false,
+    reviewedAt: new Date(),
   };
 
   return createModel(ReviewModel, completedData, buildModelFields);
@@ -49,6 +50,7 @@ export async function updateReview(
   id: string,
   data: ReviewFields
 ): Promise<ReviewFields> {
+
   return updateModel(ReviewModel, data, buildModelFields, {
     id: Number(id),
   });

@@ -82,11 +82,6 @@ type CreateRepositoriesResponse {
   failedRepositoriesNames: [String!]
 }
 
-type CreateSubmissionResultType {
-  errors: [String!]!
-  success: Boolean
-}
-
 """A group participant within TeachHub"""
 type InternalGroupParticipantType {
   active: Boolean
@@ -112,16 +107,19 @@ type InternalGroupType {
 
 """A review from a submission within TeachHub"""
 type InternalReviewType {
-  """Date when review was created"""
-  createdAt: String!
+  createdAt: String
   grade: Int
   id: ID!
+
+  """Date when review was created"""
+  reviewedAgainAt: String
+
+  """Date when review was created"""
+  reviewedAt: String!
   reviewerId: ID!
   revisionRequested: Boolean
   submissionId: ID!
-
-  """Date when review was last updated"""
-  updatedAt: String!
+  updatedAt: String
 }
 
 """Authenticated data"""
@@ -235,7 +233,7 @@ type RootMutationType {
   createReview(courseId: ID!, grade: Int, revisionRequested: Boolean!, submissionId: ID!): InternalReviewType!
 
   """Creates a new submission for the viewer"""
-  createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): CreateSubmissionResultType
+  createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): SubmissionType!
 
   """Generates an invitation code"""
   generateInviteCode(courseId: ID!, expirationMinutes: Int, roleId: ID!): String!
@@ -243,10 +241,10 @@ type RootMutationType {
   """Joins viewer to a group"""
   joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): InternalGroupParticipantType!
 
-  """Login user"""
+  """Exchanges received code for a long-lived token."""
   login(code: String): Login
 
-  """Logout user"""
+  """Revokes the token from the Github app"""
   logout(token: String): Logout
 
   """Creates a user and authorizes it"""
@@ -254,6 +252,9 @@ type RootMutationType {
 
   """Sets the github organization of a course"""
   setOrganization(courseId: ID!, organizationName: String!): CourseType
+
+  """Re-submits a submission for the viewer"""
+  submitSubmissionAgain(courseId: ID!, submissionId: ID!): SubmissionType
 
   """Updates an assignment in a course"""
   updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, id: ID!, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
@@ -298,6 +299,9 @@ type SubmissionType {
   pullRequestUrl: String!
   review: InternalReviewType
   reviewer: ReviewerType
+
+  """Date when submission was submitted again"""
+  submittedAgainAt: String
 
   """Date when submission was created"""
   submittedAt: String!

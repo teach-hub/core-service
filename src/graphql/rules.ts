@@ -159,7 +159,6 @@ export default shield<null, Context, unknown>(
     ReviewerType: allow,
     InternalGroupType: allow,
     RepositoryType: allow,
-    CreateSubmissionResultType: allow,
     RootMutationType: {
       registerUser: allow,
       updateViewerUser: allow, // Allow each viewer to update its user

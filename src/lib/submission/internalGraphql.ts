@@ -2,17 +2,20 @@ import type { GraphQLFieldConfigMap } from 'graphql';
 import {
   GraphQLBoolean,
   GraphQLID,
-  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
   GraphQLUnionType,
 } from 'graphql';
 
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 
-import { createSubmission, SubmissionFields } from '../submission/submissionsService';
+import {
+  createSubmission,
+  updateSubmission,
+  SubmissionFields,
+} from '../submission/submissionsService';
 import { findUser } from '../user/userService';
 import { findGroup } from '../group/service';
 import { getViewer, UserType } from '../user/internalGraphql';
@@ -157,7 +160,12 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     submittedAt: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when submission was created',
-      resolve: s => s.createdAt && dateToString(s.createdAt),
+      resolve: s => s.submittedAt && dateToString(s.submittedAt),
+    },
+    submittedAgainAt: {
+      type: GraphQLString,
+      description: 'Date when submission was submitted again',
+      resolve: s => s.submittedAgainAt && dateToString(s.submittedAgainAt),
     },
     review: {
       type: InternalReviewType,
@@ -185,7 +193,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     assignment: {
       description: 'Finds an assignment from a submission',
       type: AssignmentType,
-      resolve: async (submission, args, { logger }) => {
+      resolve: async (submission, _, { logger }) => {
         const assignment = await findAssignment({
           assignmentId: String(submission.assignmentId),
         });
@@ -229,17 +237,7 @@ const findSubmissionReviewer = async (submission: SubmissionFields) => {
 export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
   createSubmission: {
     description: 'Creates a new submission for the viewer',
-    type: new GraphQLObjectType({
-      name: 'CreateSubmissionResultType',
-      fields: {
-        success: {
-          type: GraphQLBoolean,
-        },
-        errors: {
-          type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
-        },
-      },
-    }),
+    type: new GraphQLNonNull(SubmissionType),
     args: {
       assignmentId: {
         type: new GraphQLNonNull(GraphQLID),
@@ -270,23 +268,55 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
           userId: viewer.id,
         });
 
-        await createSubmission({
+        return createSubmission({
           submitterUserId: viewer.id,
           assignmentId: Number(assignmentId),
           description,
           pullRequestUrl,
         });
-
-        return {
-          success: true,
-          errors: [],
-        };
       } catch (e) {
         ctx.logger.error('Error while creating submission', { error: e });
-        return {
-          success: false,
-          errors: [`${e}`],
-        };
+        throw e;
+      }
+    },
+  },
+  submitSubmissionAgain: {
+    description: 'Re-submits a submission for the viewer',
+    args: {
+      submissionId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      // Necesario para permisos.
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    type: SubmissionType,
+    resolve: async (_, args, context) => {
+      try {
+        const { courseId: encodedCourseId, submissionId: encodedSubmissionId } = args;
+
+        const courseId = fromGlobalIdAsNumber(encodedCourseId);
+        const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
+
+        const viewer = await getViewer(context);
+        if (!viewer.id) {
+          throw new Error('Viewer not found');
+        }
+
+        context.logger.info('Marking submission as ready for review again', {
+          courseId,
+          submissionId,
+        });
+
+        const updatedSubmission = await updateSubmission(submissionId, {
+          submittedAgainAt: new Date(),
+        });
+
+        return updatedSubmission;
+      } catch (error) {
+        context.logger.error('Error while updating submission', { error });
+        throw error;
       }
     },
   },

@@ -11,12 +11,13 @@ import {
   createReview,
   findAllReviews,
   findReview,
-  type ReviewFields,
   updateReview,
 } from './service';
 
 import { buildEntityFields } from '../../graphql/fields';
 import { buildEntityMutations } from '../../graphql/mutations';
+
+import type { ReviewFields } from './service';
 
 export const getReviewFields = ({ addId }: { addId: boolean }) => ({
   ...(addId

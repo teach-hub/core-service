@@ -22,8 +22,8 @@ export type SubmissionFields = {
   assignmentId: number;
   submitterId: number;
   description: string;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+  submittedAt: Date | null;
+  submittedAgainAt: Date | null;
   pullRequestUrl: string;
 };
 
@@ -40,16 +40,17 @@ const buildModelFields = (
     assignmentId: submission.assignmentId,
     submitterId: submission.submitterId,
     description: submission.description || '',
-    createdAt: submission.createdAt,
-    updatedAt: submission.updatedAt,
+    submittedAt: submission.submittedAt,
+    submittedAgainAt: submission.submittedAgainAt,
     pullRequestUrl: submission.pullRequestUrl,
   };
 };
 
 export async function updateSubmission(
   id: number,
-  data: SubmissionModel
+  data: Partial<SubmissionFields>
 ): Promise<SubmissionFields> {
+
   return updateModel(SubmissionModel, data, buildModelFields, { id });
 }
 
@@ -149,6 +150,7 @@ export async function createSubmission({
       assignmentId,
       description,
       pullRequestUrl,
+      submittedAt: new Date(),
     },
     buildModelFields
   );

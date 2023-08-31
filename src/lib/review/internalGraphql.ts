@@ -7,17 +7,25 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+
 import { getReviewFields } from './graphql';
-import { dateToString } from '../../utils/dates';
-import { Context } from '../../types';
 import { getViewer } from '../user/internalGraphql';
-import { createReview, findAllReviews, findReview, updateReview } from './service';
+import {
+  ReviewFields,
+  createReview,
+  findAllReviews,
+  findReview,
+  updateReview,
+} from './service';
 import { findReviewer } from '../reviewer/service';
 import { findSubmission } from '../submission/submissionsService';
+import { dateToString } from '../../utils/dates';
 import { isDefinedAndNotEmpty } from '../../utils/object';
+import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
-export const InternalReviewType = new GraphQLObjectType({
+import type { Context } from '../../types';
+
+export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
   name: 'InternalReviewType',
   description: 'A review from a submission within TeachHub',
   fields: {
@@ -46,15 +54,15 @@ export const InternalReviewType = new GraphQLObjectType({
           dbId: String(s.reviewerId),
         }),
     },
-    createdAt: {
+    reviewedAt: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'Date when review was created',
-      resolve: s => s.createdAt && dateToString(s.createdAt),
+      resolve: s => s.reviewedAt && dateToString(s.reviewedAt),
     },
-    updatedAt: {
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'Date when review was last updated',
-      resolve: s => s.updatedAt && dateToString(s.updatedAt),
+    reviewedAgainAt: {
+      type: GraphQLString,
+      description: 'Date when review was created',
+      resolve: s => s.reviewedAgainAt && dateToString(s.reviewedAgainAt),
     },
   },
 });
@@ -144,6 +152,18 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
           reviewerId,
         };
 
+        const submission = await findSubmission({
+          submissionId: Number(review.submissionId),
+        });
+
+        // Si la submission ya fue re-entregada (submittedAgainAt).
+        // Entonces nosotros tambien tenemos que actualizar reviewedAgainAt
+        const isReSubmission = !!submission.submittedAgainAt;
+
+        if (isReSubmission && !review.reviewedAgainAt) {
+          updatedReview['reviewedAgainAt'] = new Date();
+        }
+
         context.logger.info(
           `Updating review with data: ` + JSON.stringify(updatedReview)
         );
@@ -181,10 +201,11 @@ const findReviewerAndCheckIfIsReviewerForSubmission = async ({
   const currentReviewer = await findReviewer({
     reviewerUserId: viewerId,
     assignmentId: submission.assignmentId,
+    revieweeId: submission.submitterId,
   });
 
   /* Check that viewer is reviewer for the submission submitter */
-  if (currentReviewer.revieweeId !== submission.submitterId) {
+  if (!currentReviewer) {
     throw new Error('User is not a reviewer for this submission');
   }
 
