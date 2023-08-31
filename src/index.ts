@@ -1,26 +1,29 @@
 import * as dotenv from 'dotenv';
+
+import type { GraphQLSchema } from 'graphql';
+
+/**
+ * !!! IMPORTANTE !!!
+ * ------------------
+ *
+ * Cargamos dotenv junto con todas las variables de entorno.
+ * Esto tiene que hacrese antes que cualquier import
+ * de alguna libreria externa. No importar nada arriba de esta linea.
+ */
+dotenv.config();
+
 import { applyMiddleware } from 'graphql-middleware';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 
-import type { GraphQLSchema } from 'graphql';
 import logger from './logger';
 import { checkDB, initializeModels, writeSchema } from './utils';
 
 import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
 import permissionsMiddleware from './graphql/rules';
-
-/**
- * Cargamos dotenv junto con todas las variables de entorno.
- * Esto tiene que hacrese antes que cualquier import
- * de alguna libreria externa.
- *
- */
-
-dotenv.config();
 
 const app = express();
 
