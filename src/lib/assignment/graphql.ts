@@ -20,7 +20,7 @@ import {
 } from './assignmentService';
 import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
-import { countSubmissions, findAllSubmissions } from '../submission/submissionsService';
+import { findAllSubmissions } from '../submission/submissionsService';
 import {
   createReviewers,
   findReviewer,
@@ -133,8 +133,8 @@ export const AssignmentType = new GraphQLObjectType({
         return startDate < now;
       },
     },
-    viewerAlreadyMadeSubmission: {
-      type: new GraphQLNonNull(GraphQLBoolean),
+    viewerSubmission: {
+      type: SubmissionType,
       description: 'Whether the viewer has already made a submission or not.',
       resolve: async (assignment, _, context) => {
         const viewer = await getViewer(context);
@@ -168,10 +168,18 @@ export const AssignmentType = new GraphQLObjectType({
           forSubmitterId = viewerGroupParticipant.groupId;
         }
 
-        return !!(await countSubmissions({
+        // Deberia haber solo una.
+        const submissions = await findAllSubmissions({
           forAssignmentId: assignment.id,
           forSubmitterId,
-        }));
+        });
+
+        if (submissions.length > 1) {
+          throw new Error('More than one submission found.');
+        }
+
+        const [viewerSubmission] = submissions;
+        return viewerSubmission;
       },
     },
     courseId: {

@@ -28,10 +28,10 @@ type AssignmentType {
   startDate: String
   submissions: [SubmissionType!]!
   title: String
+  viewerReviewer: ReviewerType
 
   """Whether the viewer has already made a submission or not."""
-  viewerAlreadyMadeSubmission: Boolean!
-  viewerReviewer: ReviewerType
+  viewerSubmission: SubmissionType
 }
 
 type CoursePublicDataType {
