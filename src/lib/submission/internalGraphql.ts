@@ -1,5 +1,6 @@
 import type { GraphQLFieldConfigMap } from 'graphql';
 import {
+  GraphQLInt,
   GraphQLBoolean,
   GraphQLID,
   GraphQLNonNull,
@@ -14,6 +15,7 @@ import { isDefinedAndNotEmpty } from '../../utils/object';
 import {
   createSubmission,
   updateSubmission,
+  findSubmission,
   SubmissionFields,
 } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
@@ -25,8 +27,11 @@ import { dateToString } from '../../utils/dates';
 import { ReviewerType } from '../reviewer/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findReviewer } from '../reviewer/service';
-import { InternalReviewType } from '../review/internalGraphql';
-import { findReview } from '../review/service';
+import {
+  findReviewerAndCheckIfIsReviewerForSubmission,
+  InternalReviewType,
+} from '../review/internalGraphql';
+import { createReview, findAllReviews, findReview } from '../review/service';
 import { AssignmentType } from '../assignment/graphql';
 import { findAssignment } from '../assignment/assignmentService';
 
@@ -320,4 +325,61 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
       }
     },
   },
+  createReview: {
+    type: new GraphQLNonNull(SubmissionType),
+    description: 'Create a review within a submission',
+    args: {
+      submissionId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      // Required for permission check
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      grade: {
+        type: GraphQLInt,
+      },
+      revisionRequested: {
+        type: new GraphQLNonNull(GraphQLBoolean),
+      },
+    },
+    resolve: async (_, args, context: Context) => {
+      try {
+        const viewer = await getViewer(context);
+        const { submissionId: encodedSubmissionId, grade, revisionRequested } = args;
+
+        const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
+        const reviewerId = await findReviewerAndCheckIfIsReviewerForSubmission({
+          submissionId,
+          viewerId: Number(viewer.id),
+        });
+
+        await validateReviewOnCreation({ submissionId });
+
+        context.logger.info(`Creating review with data: ` + JSON.stringify(args));
+
+        await createReview({
+          submissionId,
+          grade,
+          revisionRequested,
+          reviewerId,
+        });
+
+        return findSubmission({ submissionId });
+      } catch (error) {
+        context.logger.error('Error performing mutation', { error });
+        throw error;
+      }
+    },
+  },
+};
+
+const validateReviewOnCreation = async ({ submissionId }: { submissionId: number }) => {
+  const existingReview = await findAllReviews({
+    forSubmissionId: submissionId,
+  });
+
+  if (existingReview.length > 0) {
+    throw new Error('Review already created for submission');
+  }
 };
