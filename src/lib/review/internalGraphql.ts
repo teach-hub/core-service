@@ -10,20 +10,15 @@ import {
 
 import { getReviewFields } from './graphql';
 import { getViewer } from '../user/internalGraphql';
-import {
-  ReviewFields,
-  createReview,
-  findAllReviews,
-  findReview,
-  updateReview,
-} from './service';
-import { findReviewer } from '../reviewer/service';
+import { findReview, updateReview } from './service';
 import { findSubmission } from '../submission/submissionsService';
 import { dateToString } from '../../utils/dates';
 import { isDefinedAndNotEmpty } from '../../utils/object';
-import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { findReviewer } from '../reviewer/service';
 
 import type { Context } from '../../types';
+import type { ReviewFields } from './service';
 
 export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
   name: 'InternalReviewType',
@@ -68,50 +63,6 @@ export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
 });
 
 export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
-  createReview: {
-    type: new GraphQLNonNull(InternalReviewType),
-    description: 'Create a review',
-    args: {
-      submissionId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      courseId: {
-        type: new GraphQLNonNull(GraphQLID),
-      }, // Required for permission check
-      grade: {
-        type: GraphQLInt,
-      },
-      revisionRequested: {
-        type: new GraphQLNonNull(GraphQLBoolean),
-      },
-    },
-    resolve: async (_, args, context: Context) => {
-      try {
-        const viewer = await getViewer(context);
-        const { submissionId: encodedSubmissionId, grade, revisionRequested } = args;
-
-        const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
-        const reviewerId = await findReviewerAndCheckIfIsReviewerForSubmission({
-          submissionId,
-          viewerId: Number(viewer.id),
-        });
-
-        await validateReviewOnCreation({ submissionId });
-
-        context.logger.info(`Creating review with data: ` + JSON.stringify(args));
-
-        return await createReview({
-          submissionId,
-          grade,
-          revisionRequested,
-          reviewerId,
-        });
-      } catch (error) {
-        context.logger.error('Error performing mutation', { error });
-        throw error;
-      }
-    },
-  },
   updateReview: {
     type: new GraphQLNonNull(InternalReviewType),
     description: 'Updates a review grade and / or revision requested status',
@@ -168,7 +119,7 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
           `Updating review with data: ` + JSON.stringify(updatedReview)
         );
 
-        return updateReview(id, updatedReview);
+        return await updateReview(id, updatedReview);
       } catch (error) {
         context.logger.error('Error performing mutation', { error });
         throw error;
@@ -177,17 +128,7 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
   },
 };
 
-const validateReviewOnCreation = async ({ submissionId }: { submissionId: number }) => {
-  const existingReview = await findAllReviews({
-    forSubmissionId: submissionId,
-  });
-
-  if (existingReview.length > 0) {
-    throw new Error('Review already created for submission');
-  }
-};
-
-const findReviewerAndCheckIfIsReviewerForSubmission = async ({
+export const findReviewerAndCheckIfIsReviewerForSubmission = async ({
   submissionId,
   viewerId,
 }: {
