@@ -31,7 +31,9 @@ export const getAuthenticatedUserFromToken = async (
   const currentUserGithubId = await getGithubUserId(token);
   const user = await findUserWithGithubId(currentUserGithubId);
 
-  if (isDefinedAndNotEmpty(user)) return user;
+  if (isDefinedAndNotEmpty(user)) {
+    return user;
+  }
 
   return null;
 };

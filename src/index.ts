@@ -16,7 +16,7 @@ import { applyMiddleware } from 'graphql-middleware';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
-import { graphqlHTTP } from 'express-graphql';
+import { GraphQLParams, graphqlHTTP } from 'express-graphql';
 
 import logger from './logger';
 import { checkDB, initializeModels, writeSchema } from './utils';
@@ -25,6 +25,8 @@ import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
 import permissionsMiddleware from './graphql/rules';
 
+import type { Context } from './types';
+
 const app = express();
 
 (async () => {
@@ -32,30 +34,28 @@ const app = express();
   initializeModels();
 })();
 
-const mountSchemaOn = ({
-  endpoint,
-  schema,
-}: {
-  endpoint: string;
-  schema: GraphQLSchema;
-}) => {
-  app.use(
-    endpoint,
-    graphqlHTTP((request, response) => {
-      logger.info(`Receiving request, endpoint: ${request.url}`);
-
-      const errorHandler = (error: Error) => {
-        console.error('GraphQL Error:', error);
-        return error;
-      };
-
-      return {
-        schema,
-        context: { logger, request, response },
-        customFormatErrorFn: errorHandler, // Custom error handling
-      };
-    })
+const buildContextForRequest = (
+  request: Context['request'],
+  response: Context['response'],
+  params?: GraphQLParams
+): Context => {
+  logger.info(
+    `Receiving request with operation name '${params?.operationName}', endpoint: ${request.url}`
   );
+
+  return { logger, request, response };
+};
+
+const buildGraphQLMiddleware = (schema: GraphQLSchema) => {
+  return graphqlHTTP((request, response, params) => ({
+    pretty: true,
+    schema,
+    context: buildContextForRequest(request, response, params),
+    customFormatErrorFn: (error: Error) => {
+      logger.error('GraphQL Error:', error);
+      return error;
+    },
+  }));
 };
 
 writeSchema(schema, path.resolve(__dirname, '../../data/schema.graphql'));
@@ -63,14 +63,14 @@ writeSchema(schema, path.resolve(__dirname, '../../data/schema.graphql'));
 app.use(cors());
 
 // Agregamos como middleware a GraphQL
-mountSchemaOn({
-  endpoint: '/graphql',
-  schema: applyMiddleware(schema, permissionsMiddleware),
-});
+app.use(
+  '/graphql',
+  buildGraphQLMiddleware(applyMiddleware(schema, permissionsMiddleware))
+);
 
 // TODO. Permisos sobre el admin schema.
 // https://teachhub.atlassian.net/browse/TH-123
-mountSchemaOn({ endpoint: '/admin/graphql', schema: adminSchema });
+app.use('/admin/graphql', buildGraphQLMiddleware(adminSchema));
 
 app.get('/healthz', async (_, response) => {
   try {
