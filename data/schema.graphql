@@ -32,6 +32,16 @@ type AssignmentType {
   viewerSubmission: SubmissionType
 }
 
+"""A role within TeachHub"""
+type Comment {
+  body: String
+  createdAt: String
+  githubUserId: String
+  githubUsername: String
+  id: ID
+  updatedAt: String
+}
+
 type CoursePublicDataType {
   id: ID!
   name: String!
@@ -287,6 +297,7 @@ type SubmissionType {
   """Finds an assignment from a submission"""
   assignment: AssignmentType
   assignmentId: ID!
+  comments: [Comment!]!
   description: String
   id: ID!
   pullRequestUrl: String!

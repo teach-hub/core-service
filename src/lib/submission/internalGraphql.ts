@@ -3,6 +3,7 @@ import {
   GraphQLInt,
   GraphQLBoolean,
   GraphQLID,
+  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
@@ -33,6 +34,10 @@ import {
 import { createReview, findAllReviews, findReview } from '../review/service';
 import { AssignmentType } from '../assignment/graphql';
 import { findAssignment } from '../assignment/assignmentService';
+import { CommentData, getPullRequestComments } from '../../github/pullrequests';
+import { initOctokit } from '../../github/config';
+import { getToken } from '../../utils/request';
+import { findCourse } from '../course/courseService';
 
 import type { AuthenticatedContext } from '../../context';
 
@@ -41,6 +46,31 @@ export const SubmitterUnionType = new GraphQLUnionType({
   types: [UserType, InternalGroupType],
   resolveType: obj => {
     return 'file' in obj ? UserType : InternalGroupType;
+  },
+});
+
+const CommentType: GraphQLObjectType<CommentData, Context> = new GraphQLObjectType({
+  name: 'Comment',
+  description: 'A role within TeachHub',
+  fields: {
+    id: {
+      type: GraphQLID,
+    },
+    body: {
+      type: GraphQLString,
+    },
+    createdAt: {
+      type: GraphQLString,
+    },
+    updatedAt: {
+      type: GraphQLString,
+    },
+    githubUserId: {
+      type: GraphQLString,
+    },
+    githubUsername: {
+      type: GraphQLString,
+    },
   },
 });
 
@@ -227,6 +257,47 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
             error,
           });
           return false;
+        }
+      },
+    },
+    comments: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(CommentType))),
+      resolve: async (submission, _, ctx: Context) => {
+        const token = getToken(ctx);
+        if (!token) throw new Error('Token required');
+
+        const pullRequestUrl = submission.pullRequestUrl;
+
+        if (!pullRequestUrl) return [];
+
+        const { courseId } = await findAssignment({
+          assignmentId: String(submission.assignmentId),
+        });
+        if (!courseId) throw new Error('Missing assignment or courseId');
+
+        const { organization } = await findCourse({ courseId: String(courseId) });
+        if (!organization) throw new Error('Course missing github organization');
+
+        try {
+          const comments = await getPullRequestComments({
+            octokit: initOctokit(token),
+            pullRequestUrl,
+            organization,
+          });
+
+          return comments
+            ? comments.map(({ id, body, createdAt, updatedAt, user }) => ({
+                id,
+                body,
+                createdAt,
+                updatedAt,
+                githubUserId: user?.id,
+                githubUsername: user?.username,
+              }))
+            : [];
+        } catch (error) {
+          ctx.logger.error('An error happened while returning comments', { error });
+          return [];
         }
       },
     },
