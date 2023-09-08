@@ -6,7 +6,6 @@ export interface SubmissionAttributes {
   readonly id?: number;
   readonly submitterId?: number;
   readonly assignmentId?: number;
-  readonly description?: string | null;
   readonly pullRequestUrl?: string;
   readonly submittedAt?: Date | null;
   readonly submittedAgainAt?: Date | null;
@@ -19,7 +18,6 @@ class SubmissionModel
   readonly id!: number;
   readonly submitterId!: number;
   readonly assignmentId!: number;
-  readonly description!: string | null;
   readonly pullRequestUrl!: string;
   readonly submittedAt!: Date | null;
   readonly submittedAgainAt!: Date | null;
@@ -42,9 +40,6 @@ class SubmissionModel
           field: 'assignment_id',
           type: Sequelize.INTEGER,
           allowNull: false,
-        },
-        description: {
-          type: Sequelize.STRING,
         },
         pullRequestUrl: {
           type: Sequelize.STRING,

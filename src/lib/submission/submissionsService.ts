@@ -21,7 +21,6 @@ export type SubmissionFields = {
   id: number;
   assignmentId: number;
   submitterId: number;
-  description: string;
   submittedAt: Date | null;
   submittedAgainAt: Date | null;
   pullRequestUrl: string;
@@ -39,7 +38,6 @@ const buildModelFields = (
     id: submission.id,
     assignmentId: submission.assignmentId,
     submitterId: submission.submitterId,
-    description: submission.description || '',
     submittedAt: submission.submittedAt,
     submittedAgainAt: submission.submittedAgainAt,
     pullRequestUrl: submission.pullRequestUrl,
@@ -91,14 +89,12 @@ export async function countSubmissions(filters: FindAllFilter): Promise<number> 
 type CreateSubmissionInput = {
   submitterUserId: number;
   assignmentId: number;
-  description: string;
   pullRequestUrl: string;
 };
 
 export async function createSubmission({
   submitterUserId,
   assignmentId,
-  description,
   pullRequestUrl,
 }: CreateSubmissionInput): Promise<SubmissionFields> {
   const assignment = await findAssignment({ assignmentId });
@@ -147,7 +143,6 @@ export async function createSubmission({
     {
       submitterId,
       assignmentId,
-      description,
       pullRequestUrl,
       submittedAt: new Date(),
     },

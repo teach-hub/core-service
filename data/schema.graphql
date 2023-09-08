@@ -236,7 +236,7 @@ type RootMutationType {
   createReview(courseId: ID!, grade: Int, revisionRequested: Boolean!, submissionId: ID!): SubmissionType!
 
   """Creates a new submission for the viewer"""
-  createSubmission(assignmentId: ID!, courseId: ID!, description: String, pullRequestUrl: String!): SubmissionType!
+  createSubmission(assignmentId: ID!, courseId: ID!, pullRequestUrl: String!): SubmissionType!
 
   """Generates an invitation code"""
   generateInviteCode(courseId: ID!, expirationMinutes: Int, roleId: ID!): String!
@@ -298,7 +298,6 @@ type SubmissionType {
   assignment: AssignmentType
   assignmentId: ID!
   comments: [Comment!]!
-  description: String
   id: ID!
   pullRequestUrl: String!
   review: InternalReviewType

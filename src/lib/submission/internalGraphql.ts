@@ -1,8 +1,8 @@
 import type { GraphQLFieldConfigMap } from 'graphql';
 import {
-  GraphQLInt,
   GraphQLBoolean,
   GraphQLID,
+  GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -15,9 +15,9 @@ import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import {
   createSubmission,
-  updateSubmission,
   findSubmission,
   SubmissionFields,
+  updateSubmission,
 } from '../submission/submissionsService';
 import { findUser } from '../user/userService';
 import { findGroup } from '../group/service';
@@ -131,9 +131,6 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
           entityName: 'submission',
           dbId: s.id,
         }),
-    },
-    description: {
-      type: GraphQLString,
     },
     assignmentId: {
       type: new GraphQLNonNull(GraphQLID),
@@ -325,15 +322,12 @@ export const submissionMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       pullRequestUrl: {
         type: new GraphQLNonNull(GraphQLString),
       },
-      description: {
-        type: GraphQLString,
-      },
     },
     resolve: async (_, args, ctx) => {
       try {
         const viewer = await getViewer(ctx);
 
-        const { assignmentId: encodedAssignmentId, description, pullRequestUrl } = args;
+        const { assignmentId: encodedAssignmentId, pullRequestUrl } = args;
         const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
 
         if (!viewer || !viewer.id) {
@@ -348,7 +342,6 @@ export const submissionMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         return createSubmission({
           submitterUserId: viewer.id,
           assignmentId: Number(assignmentId),
-          description,
           pullRequestUrl,
         });
       } catch (e) {
