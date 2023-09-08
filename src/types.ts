@@ -9,6 +9,7 @@ export type Context = {
   logger: Logger;
   request: Request;
   response: Response;
+  viewerUserId?: string;
 };
 
 export type Optional<T> = T | undefined;

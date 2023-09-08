@@ -16,16 +16,15 @@ import { applyMiddleware } from 'graphql-middleware';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
-import { GraphQLParams, graphqlHTTP } from 'express-graphql';
+import { graphqlHTTP } from 'express-graphql';
 
 import logger from './logger';
 import { checkDB, initializeModels, writeSchema } from './utils';
 
+import { buildContextForRequest } from './context';
 import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
 import permissionsMiddleware from './graphql/rules';
-
-import type { Context } from './types';
 
 const app = express();
 
@@ -34,23 +33,11 @@ const app = express();
   initializeModels();
 })();
 
-const buildContextForRequest = (
-  request: Context['request'],
-  response: Context['response'],
-  params?: GraphQLParams
-): Context => {
-  logger.info(
-    `Receiving request with operation name '${params?.operationName}', endpoint: ${request.url}`
-  );
-
-  return { logger, request, response };
-};
-
 const buildGraphQLMiddleware = (schema: GraphQLSchema) => {
-  return graphqlHTTP((request, response, params) => ({
+  return graphqlHTTP(async (request, response, params) => ({
     pretty: true,
     schema,
-    context: buildContextForRequest(request, response, params),
+    context: await buildContextForRequest(request, response, logger, params),
     customFormatErrorFn: (error: Error) => {
       logger.error('GraphQL Error:', error);
       return error;

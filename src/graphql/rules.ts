@@ -121,6 +121,10 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
     return userHasPermissionInCourse({ user: viewer, course, permission });
   });
 
+const isAuthenticated = buildRule(async (_, __, context) => {
+  return true;
+});
+
 /**
  * Cuando seteamos permisos sobre una mutation tenemos que tener
  * en cuenta los campos que se devuelven.

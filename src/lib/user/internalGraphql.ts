@@ -93,8 +93,13 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
       const token = getToken(ctx);
 
       /* Check that token exists and is for user registration */
-      if (!token) throw new Error('Token required');
-      if (!isRegisterToken({ token })) throw new Error('Invalid token for registration');
+      if (!token) {
+        throw new Error('Token required');
+      }
+
+      if (!isRegisterToken({ token })) {
+        throw new Error('Invalid token for registration');
+      }
 
       /* Get GitHub user id from the token and check that no user exists with that id*/
       const githubId = await getGithubUserId(token);
