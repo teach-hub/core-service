@@ -1,6 +1,6 @@
-import { allow, or, rule, shield } from 'graphql-shield';
+import { allow, chain, or, rule, shield } from 'graphql-shield';
 
-import { getViewer } from '../lib/user/internalGraphql';
+import { buildUnauthorizedError } from '../utils/request';
 
 import { consolidateRoles, findRole } from '../lib/role/roleService';
 import type { CourseFields } from '../lib/course/courseService';
@@ -9,20 +9,21 @@ import type { UserRoleFields } from '../lib/userRole/userRoleService';
 import { findAllUserRoles } from '../lib/userRole/userRoleService';
 
 import { fromGlobalId } from './utils';
-import type { UserFields } from '../lib/user/userService';
-import type { Context } from 'src/types';
+import { findUser, UserFields } from '../lib/user/userService';
 
 import { Permission } from '../consts';
 
 import { isDevEnv } from '../utils';
+import { isContextAuthenticated, Context } from '../context';
 
 const buildRule: ReturnType<typeof rule> = fn =>
   rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
     try {
+      console.log(`Executing rule for ${info.fieldName}`);
       return await fn(parent, args, ctx, info);
     } catch (e) {
       ctx.logger.error('An error was raised while evaluating rule', e);
-      return false;
+      throw e;
     }
   });
 
@@ -31,28 +32,28 @@ async function viewerIsUserRoleOwner(
   _: unknown,
   ctx: Context
 ): Promise<boolean> {
-  const viewer = await getViewer(ctx);
-
-  if (!viewer) {
-    return false;
+  if (!isContextAuthenticated(ctx)) {
+    throw buildUnauthorizedError();
   }
 
   ctx.logger.info(`Checking if viewer is owner of user role with ID ${userRole.id}`);
 
-  return userRole.userId === viewer.id;
+  return userRole.userId === ctx.viewerUserId;
 }
 
 async function viewerIsCourseTeacher(
   courseId: CourseFields['id'],
   ctx: Context
 ): Promise<boolean> {
-  const viewer = await getViewer(ctx);
+  if (!isContextAuthenticated(ctx)) {
+    throw buildUnauthorizedError();
+  }
 
   ctx.logger.info(`Checking if viewer is teacher in course ${courseId}`);
 
   const [viewerUserRole] = await findAllUserRoles({
     forCourseId: courseId,
-    forUserId: viewer.id,
+    forUserId: ctx.viewerUserId,
   });
 
   const viewerRole = await findRole({ roleId: String(viewerUserRole.roleId) });
@@ -65,13 +66,15 @@ async function viewerIsCourseTeacher(
 }
 
 async function viewerBelongsToCourse(courseId: CourseFields['id'], context: Context) {
-  const viewer = await getViewer(context);
+  if (!isContextAuthenticated(context)) {
+    throw buildUnauthorizedError();
+  }
 
   context.logger.info(`Checking if viewer belongs to course ${courseId}`);
 
   const viewerUserRoles = await findAllUserRoles({
     forCourseId: courseId,
-    forUserId: viewer.id,
+    forUserId: context.viewerUserId,
   });
 
   return !!viewerUserRoles.length;
@@ -106,11 +109,11 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
     const { dbId: courseId } = fromGlobalId(args.courseId);
 
     const [viewer, course] = await Promise.all([
-      getViewer(context),
+      findUser(context.viewerUserId),
       findCourse({ courseId }),
     ]);
 
-    if (!course) {
+    if (!course || !viewer) {
       return false;
     }
 
@@ -121,7 +124,16 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
     return userHasPermissionInCourse({ user: viewer, course, permission });
   });
 
-const isAuthenticated = buildRule(async (_, __, context) => {
+// Este mecanismo podria moverse a las mutations.
+// Por ahora lo dejo aca porque es mas facil de implementar
+// pero podriamos tener una function `buildAuthenticatedMutation`
+// que se encargue de ver que el viewer este y si no lanzar error.
+
+const isAuthenticated = buildRule((_, __, context) => {
+  if (!isContextAuthenticated(context)) {
+    throw buildUnauthorizedError();
+  }
+
   return true;
 });
 
@@ -140,8 +152,9 @@ const isAuthenticated = buildRule(async (_, __, context) => {
  */
 export default shield<null, Context, unknown>(
   {
-    ViewerType: allow,
+    RootQueryType: allow,
     CoursePublicDataType: allow,
+    ViewerType: allow,
     UserRoleType: or(
       buildRule(viewerIsUserRoleOwner),
       buildRule(
@@ -165,22 +178,58 @@ export default shield<null, Context, unknown>(
     RepositoryType: allow,
     RootMutationType: {
       registerUser: allow,
-      updateViewerUser: allow, // Allow each viewer to update its user
       login: allow,
-      logout: allow,
       useInvite: allow,
-      createAssignment: viewerHasPermissionInCourse(Permission.CreateAssignment),
-      updateAssignment: viewerHasPermissionInCourse(Permission.EditAssignment),
-      setOrganization: viewerHasPermissionInCourse(Permission.SetOrganization),
-      generateInviteCode: viewerHasPermissionInCourse(Permission.InviteUser),
-      createRepositories: viewerHasPermissionInCourse(Permission.CreateRepository),
-      createSubmission: viewerHasPermissionInCourse(Permission.SubmitAssignment),
-      assignReviewers: viewerHasPermissionInCourse(Permission.AssignReviewer),
-      createGroupWithParticipant: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
-      joinGroup: viewerHasPermissionInCourse(Permission.ManageOwnGroups),
-      createGroupWithParticipants: viewerHasPermissionInCourse(Permission.ManageGroups),
-      createReview: viewerHasPermissionInCourse(Permission.SetReview),
-      updateReview: viewerHasPermissionInCourse(Permission.SetReview),
+      logout: isAuthenticated,
+      updateViewerUser: isAuthenticated, // Allow each viewer to update its user
+      createAssignment: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.CreateAssignment)
+      ),
+      updateAssignment: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.EditAssignment)
+      ),
+      setOrganization: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.SetOrganization)
+      ),
+      generateInviteCode: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.InviteUser)
+      ),
+      createRepositories: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.CreateRepository)
+      ),
+      createSubmission: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.SubmitAssignment)
+      ),
+      assignReviewers: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.AssignReviewer)
+      ),
+      createGroupWithParticipant: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.ManageOwnGroups)
+      ),
+      joinGroup: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.ManageOwnGroups)
+      ),
+      createGroupWithParticipants: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.ManageGroups)
+      ),
+      createReview: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.SetReview)
+      ),
+      updateReview: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.SetReview)
+      ),
     },
   },
   {

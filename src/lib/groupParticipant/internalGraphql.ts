@@ -8,7 +8,6 @@ import {
 } from 'graphql';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
-import type { Context } from 'src/types';
 import { getGroupParticipantFields } from './graphql';
 import { createGroup, findAllGroups, findGroup } from '../group/service';
 import { createGroupParticipant, findAllGroupParticipants } from './service';
@@ -21,6 +20,8 @@ import {
 import { InternalGroupType } from '../group/internalGraphql';
 import { findAllUsers, findUser } from '../user/userService';
 import { findAssignment } from '../assignment/assignmentService';
+
+import type { AuthenticatedContext } from 'src/context';
 
 export const InternalGroupParticipantType = new GraphQLObjectType({
   name: 'InternalGroupParticipantType',
@@ -93,7 +94,10 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
   },
 });
 
-export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
+export const groupParticipantMutations: GraphQLFieldConfigMap<
+  null,
+  AuthenticatedContext
+> = {
   createGroupWithParticipant: {
     type: new GraphQLNonNull(InternalGroupParticipantType),
     description: 'Creates a group and adds a participant to it',
@@ -110,6 +114,10 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
     },
     resolve: async (_, args, context) => {
       const viewer = await getViewer(context);
+
+      if (!viewer?.id) {
+        throw new Error('User not authenticated');
+      }
 
       const {
         assignmentId: encodedAssignmentId,
@@ -163,6 +171,10 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<null, Context> = {
     },
     resolve: async (_, args, context) => {
       const viewer = await getViewer(context);
+
+      if (!viewer) {
+        throw new Error('User not authenticated');
+      }
 
       const {
         assignmentId: encodedAssignmentId,

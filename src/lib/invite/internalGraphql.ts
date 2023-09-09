@@ -10,13 +10,14 @@ import {
 import { buildInvite } from './inviteService';
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 
-import { getViewer } from '../user/internalGraphql';
-
-import type { Context } from 'src/types';
 import InviteModel from './model';
 import { createUserRole } from '../userRole/userRoleService';
 
-export const inviteMutations: GraphQLFieldConfigMap<null, Context> = {
+import { AuthenticatedContext } from '../../context';
+
+// El context es autenticado por GraphQLShield.
+
+export const inviteMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> = {
   generateInviteCode: {
     type: new GraphQLNonNull(GraphQLString),
     description: 'Generates an invitation code',
@@ -32,7 +33,7 @@ export const inviteMutations: GraphQLFieldConfigMap<null, Context> = {
       },
     },
 
-    resolve: async (_, args, context: Context) => {
+    resolve: async (_, args, context) => {
       const {
         roleId: encodedRoleId,
         courseId: encodedCourseId,
@@ -62,11 +63,9 @@ export const inviteMutations: GraphQLFieldConfigMap<null, Context> = {
       inviteId: { type: new GraphQLNonNull(GraphQLID) },
     },
 
-    resolve: async (_, args, context: Context) => {
+    resolve: async (_, args, context) => {
       const { inviteId: encodedInviteId } = args;
       const { dbId: inviteId } = fromGlobalId(encodedInviteId);
-
-      const viewer = await getViewer(context);
 
       context.logger.info('Using invite', { inviteId });
 
@@ -82,11 +81,11 @@ export const inviteMutations: GraphQLFieldConfigMap<null, Context> = {
       }
 
       context.logger.info(
-        `Creating user role ${invite.roleId} for user ${viewer.id} in course ${invite.courseId}`
+        `Creating user role ${invite.roleId} for user ${context.viewerUserId} in course ${invite.courseId}`
       );
 
       const userRole = await createUserRole({
-        userId: viewer.id,
+        userId: context.viewerUserId,
         roleId: invite.roleId,
         courseId: invite.courseId,
         active: true,

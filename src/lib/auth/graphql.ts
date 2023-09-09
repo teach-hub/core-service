@@ -3,6 +3,7 @@ import {
   GraphQLFieldConfigMap,
   GraphQLObjectType,
   GraphQLString,
+  GraphQLNonNull,
 } from 'graphql';
 import type { Context } from '../../types';
 import { exchangeCodeForToken, revokeToken } from '../../github/auth';
@@ -10,12 +11,16 @@ import { getGithubUserIdFromGithubToken } from '../../github/githubUser';
 import { existsUserWithGitHubId } from '../user/userService';
 import { createToken } from '../../tokens/jwt';
 
-export const Login: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
-  name: 'Login',
+export const LoginType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
+  name: 'LoginPayloadType',
   description: 'Authenticated data',
   fields: {
-    token: { type: GraphQLString },
-    userRegistered: { type: GraphQLBoolean },
+    token: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    shouldPerformRegistration: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+    },
   },
 });
 
@@ -23,13 +28,17 @@ export const Logout: GraphQLObjectType<unknown, Context> = new GraphQLObjectType
   name: 'Logout',
   description: 'Logout data',
   fields: {
-    token: { type: GraphQLString },
+    token: {
+      type: GraphQLString,
+    },
   },
 });
 
 export const authMutations: GraphQLFieldConfigMap<unknown, Context> = {
+  // Este login se ejecuta siempre antes de loguear a un
+  // usuario registrado o no.
   login: {
-    type: Login,
+    type: new GraphQLNonNull(LoginType),
     description: 'Exchanges received code for a long-lived token.',
     args: {
       code: { type: GraphQLString },
@@ -51,8 +60,8 @@ export const authMutations: GraphQLFieldConfigMap<unknown, Context> = {
         `Logging in user with githubId ${githubId}. User exists: ${userExists}`
       );
       return {
-        token: createToken({ githubToken, userExists }),
-        userRegistered: userExists,
+        token: createToken(githubToken),
+        shouldPerformRegistration: !userExists,
       };
     },
   },
