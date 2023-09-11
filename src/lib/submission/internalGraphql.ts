@@ -22,7 +22,6 @@ import { findUser } from '../user/userService';
 import { findGroup } from '../group/service';
 import { getViewer, UserType } from '../user/internalGraphql';
 
-import type { Context } from '../../../src/types';
 import { dateToString } from '../../utils/dates';
 import { ReviewerType } from '../reviewer/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
@@ -35,6 +34,8 @@ import { createReview, findAllReviews, findReview } from '../review/service';
 import { AssignmentType } from '../assignment/graphql';
 import { findAssignment } from '../assignment/assignmentService';
 
+import type { AuthenticatedContext } from '../../context';
+
 export const SubmitterUnionType = new GraphQLUnionType({
   name: 'SubmitterUnionType',
   types: [UserType, InternalGroupType],
@@ -45,7 +46,7 @@ export const SubmitterUnionType = new GraphQLUnionType({
 
 export const NonExistentSubmissionType = new GraphQLObjectType<
   { submitterId: number; assignmentId: number; isGroup: boolean },
-  Context
+  AuthenticatedContext
 >({
   name: 'NonExistentSubmissionType',
   fields: () => ({
@@ -89,7 +90,7 @@ export const NonExistentSubmissionType = new GraphQLObjectType<
 
 export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
   SubmissionFields & { isGroup: boolean },
-  Context
+  AuthenticatedContext
 >({
   name: 'SubmissionType',
   fields: () => ({
@@ -140,7 +141,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     },
     reviewer: {
       type: ReviewerType,
-      resolve: async (submission, _, ctx: Context) => {
+      resolve: async (submission, _, ctx: AuthenticatedContext) => {
         try {
           const reviewer = await findSubmissionReviewer(submission);
 
@@ -174,7 +175,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     },
     review: {
       type: InternalReviewType,
-      resolve: async (submission, _, ctx: Context) => {
+      resolve: async (submission, _, ctx: AuthenticatedContext) => {
         try {
           const review = await findReview({
             submissionId: submission.id,
@@ -209,7 +210,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     },
     viewerCanReview: {
       type: new GraphQLNonNull(GraphQLBoolean),
-      resolve: async (submission, _, ctx: Context) => {
+      resolve: async (submission, _, ctx: AuthenticatedContext) => {
         try {
           const viewer = await getViewer(ctx);
 
@@ -239,7 +240,7 @@ const findSubmissionReviewer = async (submission: SubmissionFields) => {
   });
 };
 
-export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
+export const submissionMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> = {
   createSubmission: {
     description: 'Creates a new submission for the viewer',
     type: new GraphQLNonNull(SubmissionType),
@@ -264,7 +265,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
         const { assignmentId: encodedAssignmentId, description, pullRequestUrl } = args;
         const { dbId: assignmentId } = fromGlobalId(encodedAssignmentId);
 
-        if (!viewer.id) {
+        if (!viewer || !viewer.id) {
           throw new Error('Viewer not found');
         }
 
@@ -305,7 +306,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
         const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);
 
         const viewer = await getViewer(context);
-        if (!viewer.id) {
+        if (!viewer?.id) {
           throw new Error('Viewer not found');
         }
 
@@ -343,9 +344,14 @@ export const submissionMutations: GraphQLFieldConfigMap<null, Context> = {
         type: new GraphQLNonNull(GraphQLBoolean),
       },
     },
-    resolve: async (_, args, context: Context) => {
+    resolve: async (_, args, context: AuthenticatedContext) => {
       try {
         const viewer = await getViewer(context);
+
+        if (!viewer?.id) {
+          throw new Error('Viewer not found');
+        }
+
         const { submissionId: encodedSubmissionId, grade, revisionRequested } = args;
 
         const submissionId = fromGlobalIdAsNumber(encodedSubmissionId);

@@ -124,9 +124,9 @@ type InternalReviewType {
 }
 
 """Authenticated data"""
-type Login {
-  token: String
-  userRegistered: Boolean
+type LoginPayloadType {
+  shouldPerformRegistration: Boolean!
+  token: String!
 }
 
 """Logout data"""
@@ -147,11 +147,6 @@ type NonExistentSubmissionType {
 input PreviewReviewersFilterInputType {
   consecutive: Boolean!
   teachersUserIds: [String]!
-}
-
-"""Registered user data"""
-type RegisterType {
-  token: String
 }
 
 input RepositoryStudentData {
@@ -243,13 +238,13 @@ type RootMutationType {
   joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): InternalGroupParticipantType!
 
   """Exchanges received code for a long-lived token."""
-  login(code: String): Login
+  login(code: String): LoginPayloadType!
 
   """Revokes the token from the Github app"""
   logout(token: String): Logout
 
   """Creates a user and authorizes it"""
-  registerUser(file: String, lastName: String, name: String, notificationEmail: String): RegisterType
+  registerUser(file: String, lastName: String, name: String, notificationEmail: String): UserType!
 
   """Sets the github organization of a course"""
   setOrganization(courseId: ID!, organizationName: String!): CourseType

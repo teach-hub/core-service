@@ -41,12 +41,13 @@ import {
   ReviewerPreviewType,
   ReviewerType,
 } from '../reviewer/internalGraphql';
-import { getViewer } from '../user/internalGraphql';
+import { findUser } from '../user/userService';
 import { NonExistentSubmissionType, SubmissionType } from '../submission/internalGraphql';
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 
-import type { Context } from '../../types';
 import { isDefinedAndNotEmpty } from '../../utils/object';
+
+import type { AuthenticatedContext } from 'src/context';
 
 const PreviewReviewersFilterType = {
   input: {
@@ -81,9 +82,13 @@ export const AssignmentType = new GraphQLObjectType({
     // del viewer actual (si es que hay uno).
     viewerReviewer: {
       type: ReviewerType,
-      resolve: async (assignment, _, ctx: Context) => {
+      resolve: async (assignment, _, ctx: AuthenticatedContext) => {
         try {
-          const viewer = await getViewer(ctx);
+          const viewer = await findUser({ userId: String(ctx.viewerUserId) });
+
+          if (!viewer) {
+            throw new Error('Viewer is not authenticated.');
+          }
 
           let reviewer = null;
 
@@ -141,19 +146,13 @@ export const AssignmentType = new GraphQLObjectType({
     viewerAlreadyMadeSubmission: {
       type: new GraphQLNonNull(GraphQLBoolean),
       description: 'Whether the viewer has already made a submission or not.',
-      resolve: async (assignment, _, context) => {
-        const viewer = await getViewer(context);
-
-        if (!viewer) {
-          throw new Error('Viewer not found.');
-        }
-
-        let forSubmitterId = viewer.id;
+      resolve: async (assignment, _, context: AuthenticatedContext) => {
+        let forSubmitterId = context.viewerUserId;
 
         if (assignment.isGroup) {
           const [viewerCourseUserRole] = await findAllUserRoles({
             forCourseId: assignment.courseId,
-            forUserId: viewer.id,
+            forUserId: context.viewerUserId,
           });
 
           if (!viewerCourseUserRole) {
@@ -170,7 +169,7 @@ export const AssignmentType = new GraphQLObjectType({
             return false;
           }
 
-          forSubmitterId = viewerGroupParticipant.groupId;
+          forSubmitterId = Number(viewerGroupParticipant.groupId);
         }
 
         return !!(await countSubmissions({
@@ -189,7 +188,7 @@ export const AssignmentType = new GraphQLObjectType({
     },
     submissions: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SubmissionType))),
-      resolve: async (assignment, _, ctx: Context) => {
+      resolve: async (assignment, _, ctx: AuthenticatedContext) => {
         const submissions = await findAllSubmissions({ forAssignmentId: assignment.id });
 
         ctx.logger.info('Returning submissions', { submissions });
@@ -204,14 +203,13 @@ export const AssignmentType = new GraphQLObjectType({
     },
     viewerSubmission: {
       type: SubmissionType,
-      resolve: async (assignment, _, ctx: Context) => {
-        const viewer = await getViewer(ctx);
-        let submitterId = viewer.id; // By default assume non group assignment
+      resolve: async (assignment, _, ctx: AuthenticatedContext) => {
+        let submitterId = ctx.viewerUserId; // By default assume non group assignment
 
         if (assignment.isGroup) {
           const viewerRole = await findUserRoleInCourse({
             courseId: assignment.courseId,
-            userId: Number(viewer.id),
+            userId: Number(ctx.viewerUserId),
           });
           const [viewerGroupParticipant] = await findAllGroupParticipants({
             forAssignmentId: assignment.id,
@@ -220,7 +218,7 @@ export const AssignmentType = new GraphQLObjectType({
           if (!viewerGroupParticipant) return null;
 
           // If group assignment submitter is the group
-          submitterId = viewerGroupParticipant.groupId;
+          submitterId = Number(viewerGroupParticipant.groupId);
         }
 
         const [submission] = await findAllSubmissions({
@@ -253,7 +251,7 @@ export const AssignmentType = new GraphQLObjectType({
     },
     reviewers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
-      resolve: async (assignment, _, ctx: Context) => {
+      resolve: async (assignment, _, ctx: AuthenticatedContext) => {
         try {
           const reviewers = await findReviewers({ assignmentId: assignment.id });
 
@@ -280,7 +278,7 @@ export const AssignmentType = new GraphQLObjectType({
     previewReviewers: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerPreviewType))),
       args: PreviewReviewersFilterType,
-      resolve: async (assignment, args, ctx: Context) => {
+      resolve: async (assignment, args, ctx) => {
         try {
           const { consecutive, teachersUserIds: encodedTeacherUserIds } = args.input;
           const teachersUserIds: number[] =
@@ -393,7 +391,7 @@ export const AssignmentType = new GraphQLObjectType({
       type: new GraphQLNonNull(
         new GraphQLList(new GraphQLNonNull(NonExistentSubmissionType))
       ),
-      resolve: async (assignment, _, ctx: Context) => {
+      resolve: async (assignment, _, ctx) => {
         try {
           const submissions = await findAllSubmissions({
             forAssignmentId: assignment.id,
@@ -456,7 +454,7 @@ export const AssignmentType = new GraphQLObjectType({
   },
 });
 
-export const assignmentMutations: GraphQLFieldConfigMap<null, Context> = {
+export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> = {
   createAssignment: {
     description: 'Creates an assignment in a course',
     type: AssignmentType,
@@ -498,12 +496,6 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, Context> = {
         const {
           input: { assignmentId: encodedAssignmentId, reviewers },
         } = args;
-
-        const viewer = getViewer(context);
-
-        if (!viewer) {
-          throw new Error('Viewer not found!');
-        }
 
         const assignmentId = fromGlobalId(encodedAssignmentId).dbId;
         const assignment = await findAssignment({ assignmentId });

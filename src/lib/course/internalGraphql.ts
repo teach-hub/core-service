@@ -34,7 +34,7 @@ import { findCourse, updateCourse } from './courseService';
 import { getGithubUserOrganizationNames } from '../../github/githubUser';
 import { getToken } from '../../utils/request';
 
-import type { Context } from '../../types';
+import type { AuthenticatedContext } from 'src/context';
 import { findAllGroupParticipants } from '../groupParticipant/service';
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
@@ -43,7 +43,7 @@ import { isDefinedAndNotEmpty } from '../../utils/object';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findSubmission } from '../submission/submissionsService';
 
-export const CoursePublicDataType: GraphQLObjectType<CourseFields, Context> =
+export const CoursePublicDataType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
   new GraphQLObjectType({
     name: 'CoursePublicDataType',
     fields: () => ({
@@ -69,8 +69,8 @@ export const CoursePublicDataType: GraphQLObjectType<CourseFields, Context> =
     }),
   });
 
-export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLObjectType(
-  {
+export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
+  new GraphQLObjectType({
     name: 'CourseType',
     fields: () => {
       const UserRoleType = buildUserRoleType({
@@ -99,7 +99,7 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
           resolve: async (course, _args, context) => {
             const viewer = await getViewer(context);
 
-            if (!course.id || !viewer.id) {
+            if (!course.id || !viewer?.id) {
               throw new Error('Course not found');
             }
 
@@ -249,6 +249,10 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
           resolve: async (course, _, context) => {
             const viewer = await getViewer(context);
 
+            if (!viewer?.id) {
+              throw new Error('Viewer not found');
+            }
+
             const userRole = await findUserRoleInCourse({
               courseId: Number(course.id),
               userId: Number(viewer.id),
@@ -272,10 +276,9 @@ export const CourseType: GraphQLObjectType<CourseFields, Context> = new GraphQLO
         },
       };
     },
-  }
-);
+  });
 
-export const courseMutations: GraphQLFieldConfigMap<null, Context> = {
+export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> = {
   setOrganization: {
     type: CourseType,
     description: 'Sets the github organization of a course',
@@ -287,7 +290,7 @@ export const courseMutations: GraphQLFieldConfigMap<null, Context> = {
         type: new GraphQLNonNull(GraphQLID),
       },
     },
-    resolve: async (_: unknown, args: unknown, context: Context) => {
+    resolve: async (_: unknown, args: unknown, context: AuthenticatedContext) => {
       const token = getToken(context);
       if (!token) throw new Error('Token required');
 

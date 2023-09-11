@@ -27,7 +27,7 @@ import { bulkCreateRepository, RepositoryFields } from './service';
 import { UserType } from '../user/internalGraphql';
 import { CourseType } from '../course/internalGraphql';
 
-import type { Context } from '../../types';
+import type { AuthenticatedContext } from 'src/context';
 
 interface RepositoryStudentsData {
   name: string;
@@ -86,7 +86,7 @@ export const RepositoryType = new GraphQLObjectType({
   },
 });
 
-export const repositoryMutations: GraphQLFieldConfigMap<null, Context> = {
+export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> = {
   createRepositories: {
     type: new GraphQLObjectType({
       name: 'CreateRepositoriesResponse',

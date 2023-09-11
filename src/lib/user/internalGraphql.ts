@@ -11,73 +11,77 @@ import {
   createUser,
   existsUserWithGitHubId,
   findUserWithGithubId,
+  findUser,
   updateUser,
   UserFields,
 } from './userService';
 
 import { toGlobalId } from '../../graphql/utils';
 
-import type { Context } from '../../types';
-import { createRegisteredUserTokenFromJwt, isRegisterToken } from '../../tokens/jwt';
 import { getGithubUserId, getGithubUsernameFromGithubId } from '../../github/githubUser';
 
 import { getToken } from '../../utils/request';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 import { initOctokit } from '../../github/config';
 
+import type { AuthenticatedContext } from '../../context';
+
 export const getAuthenticatedUserFromToken = async (
   token: string
 ): Promise<UserFields | null> => {
+  // Algo que se podria hacer es que nustra referencia en el contexto
+  // sea el githubId y no el id de la base de datos.
+  // Esto nos permitiria desacoplar esta busqueda y tomar
+  // como authenticado a cualquier usuario que tenga un githubId
+  // (que es la definicion de authenticado).
+
   const currentUserGithubId = await getGithubUserId(token);
   const user = await findUserWithGithubId(currentUserGithubId);
 
-  if (isDefinedAndNotEmpty(user)) return user;
+  if (isDefinedAndNotEmpty(user)) {
+    return user;
+  }
 
   return null;
 };
 
-export const UserType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
-  name: 'UserType',
-  description: 'A non-admin user within TeachHub',
-  fields: {
-    id: {
-      type: new GraphQLNonNull(GraphQLID),
-      resolve: s =>
-        toGlobalId({
-          entityName: 'user',
-          dbId: String(s.id),
-        }),
-    },
-    name: { type: new GraphQLNonNull(GraphQLString) },
-    active: { type: new GraphQLNonNull(GraphQLBoolean) },
-    lastName: { type: new GraphQLNonNull(GraphQLString) },
-    notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
-    file: { type: new GraphQLNonNull(GraphQLString) },
-    githubId: { type: new GraphQLNonNull(GraphQLString) },
-    githubUserName: {
-      type: new GraphQLNonNull(GraphQLString),
-      resolve: async (user, _, ctx) => {
-        const token = getToken(ctx);
-        if (!token) throw new Error('Token required');
-        if (!user.githubId) throw new Error('User missing githubId');
+export const UserType: GraphQLObjectType<UserFields, AuthenticatedContext> =
+  new GraphQLObjectType({
+    name: 'UserType',
+    description: 'A non-admin user within TeachHub',
+    fields: {
+      id: {
+        type: new GraphQLNonNull(GraphQLID),
+        resolve: s =>
+          toGlobalId({
+            entityName: 'user',
+            dbId: String(s.id),
+          }),
+      },
+      name: { type: new GraphQLNonNull(GraphQLString) },
+      active: { type: new GraphQLNonNull(GraphQLBoolean) },
+      lastName: { type: new GraphQLNonNull(GraphQLString) },
+      notificationEmail: { type: new GraphQLNonNull(GraphQLString) },
+      file: { type: new GraphQLNonNull(GraphQLString) },
+      githubId: { type: new GraphQLNonNull(GraphQLString) },
+      githubUserName: {
+        type: new GraphQLNonNull(GraphQLString),
+        resolve: async (user, _, ctx) => {
+          // FIXME. La logica de autentication no deberia estar aca.
+          //
+          const token = getToken(ctx);
+          if (!token) throw new Error('Token required');
+          if (!user.githubId) throw new Error('User missing githubId');
 
-        return getGithubUsernameFromGithubId(initOctokit(token), user.githubId);
+          return getGithubUsernameFromGithubId(initOctokit(token), user.githubId);
+        },
       },
     },
-  },
-});
+  });
 
-const RegisterType: GraphQLObjectType<UserFields, Context> = new GraphQLObjectType({
-  name: 'RegisterType',
-  description: 'Registered user data',
-  fields: {
-    token: { type: GraphQLString },
-  },
-});
-
-export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
+export const userMutations: GraphQLFieldConfigMap<unknown, AuthenticatedContext> = {
   registerUser: {
-    type: RegisterType,
+    type: new GraphQLNonNull(UserType),
     description: 'Creates a user and authorizes it',
     args: {
       name: { type: GraphQLString },
@@ -88,39 +92,29 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
     resolve: async (_, args, ctx) => {
       const { name, lastName, file, notificationEmail } = args;
 
+      // Tenemos que manejar la autentication de este lado porque el usuario
+      // todavia no esta creado, entonces no tenemos userId.
       const token = getToken(ctx);
 
-      /* Check that token exists and is for user registration */
-      if (!token) throw new Error('Token required');
-      if (!isRegisterToken({ token })) throw new Error('Invalid token for registration');
+      if (!token) {
+        throw new Error('Token required');
+      }
 
-      /* Get GitHub user id from the token and check that no user exists with that id*/
       const githubId = await getGithubUserId(token);
 
       if (await existsUserWithGitHubId(githubId)) {
-        throw new Error('GitHub user already registered');
+        throw new Error('GitHub user already created');
       }
 
-      ctx.logger.info(
-        `Registering user with githubId ${githubId} and args ${JSON.stringify(args)}`
-      );
+      ctx.logger.info(`Creating user with githubId ${githubId} and args ${args}`);
 
-      const userData: UserFields = {
-        id: undefined,
-        active: true,
-        githubId,
+      return createUser({
         name,
         lastName,
+        githubId,
         notificationEmail,
         file,
-      };
-
-      /* Create new user and return token from a registered user */
-      await createUser(userData);
-
-      return {
-        token: createRegisteredUserTokenFromJwt({ token }),
-      };
+      });
     },
   },
   updateViewerUser: {
@@ -145,20 +139,15 @@ export const userMutations: GraphQLFieldConfigMap<unknown, Context> = {
   },
 };
 
-export const getViewer = async (ctx: Context): Promise<UserFields> => {
-  const token = getToken(ctx);
+/**
+ * @deprecated: Usar findUser en su lugar.
+ */
+export const getViewer = async (ctx: AuthenticatedContext): Promise<UserFields> => {
+  const { viewerUserId } = ctx;
 
-  if (!token) {
-    throw new Error('No token provided');
-  }
+  ctx.logger.info(`Found viewer with user ID ${viewerUserId}`);
 
-  const viewer = await getAuthenticatedUserFromToken(token);
-  if (!viewer) {
-    ctx.logger.error(`No user found for token ${token}`);
-    throw new Error('Internal server error');
-  }
-
-  ctx.logger.info(`Found viewer with user ID ${viewer.id}`);
+  const viewer = await findUser({ userId: String(viewerUserId) });
 
   return {
     id: viewer.id,

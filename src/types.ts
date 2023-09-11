@@ -1,10 +1,9 @@
-import type { Logger } from './logger';
+import { graphqlHTTP } from 'express-graphql';
 
-export type Context = {
-  logger: Logger;
-  request: Request;
-  response: Response;
-};
+export { Context } from './context';
+
+export type Request = Parameters<ReturnType<typeof graphqlHTTP>>[0];
+export type Response = Parameters<ReturnType<typeof graphqlHTTP>>[1];
 
 export type Optional<T> = T | undefined;
 export type Nullable<T> = T | null;

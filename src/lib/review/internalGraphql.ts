@@ -17,10 +17,13 @@ import { isDefinedAndNotEmpty } from '../../utils/object';
 import { fromGlobalId, toGlobalId } from '../../graphql/utils';
 import { findReviewer } from '../reviewer/service';
 
-import type { Context } from '../../types';
 import type { ReviewFields } from './service';
+import type { AuthenticatedContext } from 'src/context';
 
-export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
+export const InternalReviewType = new GraphQLObjectType<
+  ReviewFields,
+  AuthenticatedContext
+>({
   name: 'InternalReviewType',
   description: 'A review from a submission within TeachHub',
   fields: {
@@ -62,7 +65,7 @@ export const InternalReviewType = new GraphQLObjectType<ReviewFields, Context>({
   },
 });
 
-export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
+export const reviewMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> = {
   updateReview: {
     type: new GraphQLNonNull(InternalReviewType),
     description: 'Updates a review grade and / or revision requested status',
@@ -80,9 +83,15 @@ export const reviewMutations: GraphQLFieldConfigMap<null, Context> = {
         type: new GraphQLNonNull(GraphQLBoolean),
       },
     },
-    resolve: async (_, args, context: Context) => {
+    resolve: async (_, args, context: AuthenticatedContext) => {
       try {
+        // Cambiar por un find directo.
         const viewer = await getViewer(context);
+
+        if (!viewer) {
+          throw new Error('Viewer not found');
+        }
+
         const { id: encodedId, grade, revisionRequested } = args;
 
         const id = fromGlobalId(encodedId).dbId;

@@ -56,7 +56,7 @@ const buildQuery = ({
   return query;
 };
 
-export async function createUser(data: UserFields): Promise<UserFields> {
+export async function createUser(data: Partial<UserFields>): Promise<UserFields> {
   const dataWithActiveField = { ...data, active: true };
 
   const githubIdAlreadyUsed = await existsModel(UserModel, {
