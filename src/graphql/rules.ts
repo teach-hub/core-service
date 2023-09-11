@@ -56,7 +56,11 @@ async function viewerIsCourseTeacher(
     forUserId: ctx.viewerUserId,
   });
 
-  const viewerRole = await findRole({ roleId: String(viewerUserRole.roleId) });
+  if (!viewerUserRole.roleId) {
+    return false;
+  }
+
+  const viewerRole = await findRole({ roleId: viewerUserRole.roleId });
 
   if (!viewerRole) {
     return false;
@@ -94,11 +98,11 @@ async function userHasPermissionInCourse({
     forUserId: user.id,
   });
 
-  if (!userUserRole) {
+  if (!userUserRole || !userUserRole.roleId) {
     return false;
   }
 
-  const userRole = await findRole({ roleId: String(userUserRole.roleId) });
+  const userRole = await findRole({ roleId: userUserRole.roleId });
 
   const { permissions } = await consolidateRoles(userRole);
   return (permissions ?? []).includes(permission);
@@ -110,7 +114,7 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
 
     const [viewer, course] = await Promise.all([
       findUser(context.viewerUserId),
-      findCourse({ courseId: String(courseId) }),
+      findCourse({ courseId }),
     ]);
 
     if (!course || !viewer) {

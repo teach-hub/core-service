@@ -19,8 +19,8 @@ export const fromGlobalIdAsNumber = (globalId: GlobalId): number => {
     throw new TypeError(`Received invalid globalId, value ${globalId}`);
   }
 
-  const [_entityName, databaseId] = Buffer.from(globalId, 'base64').toString().split(':');
-  return Number(databaseId)
-}
+  const [, databaseId] = Buffer.from(globalId, 'base64').toString().split(':');
+  return Number(databaseId);
+};
 
 export { RAArgs };

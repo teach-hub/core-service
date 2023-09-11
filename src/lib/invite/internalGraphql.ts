@@ -69,7 +69,7 @@ export const inviteMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
 
       context.logger.info('Using invite', { inviteId });
 
-      const invite = await InviteModel.findOne({ where: { id: Number(inviteId) } });
+      const invite = await InviteModel.findOne({ where: { id: inviteId } });
 
       if (!invite) {
         throw new Error('Invite not found');

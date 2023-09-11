@@ -56,7 +56,7 @@ const CourseType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   fields: getFields({ isUpdate: true }),
 });
 
-const findCourseCallback = (id: string) => {
+const findCourseCallback = (id: number) => {
   return findCourse({ courseId: id });
 };
 

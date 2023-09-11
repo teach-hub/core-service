@@ -84,7 +84,7 @@ export const AssignmentType = new GraphQLObjectType({
       type: ReviewerType,
       resolve: async (assignment, _, ctx: AuthenticatedContext) => {
         try {
-          const viewer = await findUser({ userId: String(ctx.viewerUserId) });
+          const viewer = await findUser({ userId: ctx.viewerUserId });
 
           if (!viewer) {
             throw new Error('Viewer is not authenticated.');
@@ -443,7 +443,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       const { id } = args;
       const fixedId = fromGlobalIdAsNumber(id);
 
-      return await updateAssignment(String(fixedId), assignmentData);
+      return await updateAssignment(fixedId, assignmentData);
     },
   },
   // Esto vive aca porque si bien el manejo es de reviewers
@@ -463,7 +463,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         } = args;
 
         const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
-        const assignment = await findAssignment({ assignmentId: String(assignmentId) });
+        const assignment = await findAssignment({ assignmentId: assignmentId });
 
         if (!assignment) {
           throw new Error('Assignment not found');

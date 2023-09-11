@@ -33,7 +33,7 @@ const AdminUserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType
   fields: getFields({ isUpdate: true }),
 });
 
-const findAdminUserCallback = (id: string) => {
+const findAdminUserCallback = (id: number) => {
   return findAdminUser({ adminUserId: id });
 };
 

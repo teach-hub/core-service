@@ -118,7 +118,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
       description: 'User or group who has made the submission',
       resolve: async (submission, _, ctx) => {
         const assignment = await findAssignment({
-          assignmentId: String(submission.assignmentId),
+          assignmentId: submission.assignmentId,
         });
 
         if (!assignment) {

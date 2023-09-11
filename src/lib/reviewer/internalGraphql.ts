@@ -93,7 +93,7 @@ export const ReviewerType = new GraphQLObjectType<
           throw new Error('There is no reviewer user id');
         }
 
-        return findUser({ userId: String(reviewer.reviewerUserId) });
+        return findUser({ userId: reviewer.reviewerUserId });
       },
     },
     reviewee: {
@@ -103,9 +103,9 @@ export const ReviewerType = new GraphQLObjectType<
         ctx.logger.info('Resolving reviewee for', reviewer);
 
         if (reviewer.isGroup) {
-          return findGroup({ groupId: String(reviewer.revieweeId) });
+          return findGroup({ groupId: reviewer.revieweeId });
         } else {
-          return findUser({ userId: String(reviewer.revieweeId) });
+          return findUser({ userId: reviewer.revieweeId });
         }
       },
     },

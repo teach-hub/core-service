@@ -63,7 +63,7 @@ export const CoursePublicDataType: GraphQLObjectType<CourseFields, Authenticated
         type: new GraphQLNonNull(SubjectType),
         description: 'Subject the course belongs to',
         resolve: async ({ subjectId }) => {
-          return subjectId ? await findSubject({ subjectId: String(subjectId) }) : null;
+          return subjectId ? await findSubject({ subjectId }) : null;
         },
       },
     }),
@@ -107,7 +107,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
               courseId: course.id,
               userId: viewer.id,
             });
-            const viewerRole = await findRole({ roleId: String(userRole.roleId) });
+            const viewerRole = await findRole({ roleId: userRole.roleId! });
 
             return consolidateRoles(viewerRole);
           },
@@ -176,9 +176,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
           type: new GraphQLNonNull(SubjectType),
           description: 'Subject the course belongs to',
           resolve: async ({ subjectId }) => {
-            const subject = subjectId
-              ? await findSubject({ subjectId: String(subjectId) })
-              : null;
+            const subject = subjectId ? await findSubject({ subjectId }) : null;
             return subject;
           },
         },
@@ -192,7 +190,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
             if (assignmentId) {
               const fixedAssignmentId = fromGlobalIdAsNumber(args.assignmentId);
               const assignment = await findAssignment({
-                assignmentId: String(fixedAssignmentId),
+                assignmentId: fixedAssignmentId,
               });
               if (isDefinedAndNotEmpty(assignment)) return [assignment];
               return [];
@@ -212,7 +210,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
 
             logger.info('Finding assignment', { assignmentId });
 
-            return await findAssignment({ assignmentId: String(assignmentId) });
+            return await findAssignment({ assignmentId });
           },
         },
         submission: {
@@ -226,7 +224,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
 
             if (submission) {
               const assignment = await findAssignment({
-                assignmentId: String(submission.assignmentId),
+                assignmentId: submission.assignmentId,
               });
               return {
                 ...submission,
@@ -270,7 +268,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
           description: 'Groups within a course',
           resolve: async (course, _, __) => {
             return await findAllGroups({
-              forCourseId: Number(course.id),
+              forCourseId: course.id,
             });
           },
         },
@@ -312,11 +310,11 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
       );
 
       const courseFields = {
-        ...(await findCourse({ courseId: String(courseId) })),
+        ...(await findCourse({ courseId })),
         organization: organizationName,
       };
 
-      return await updateCourse(String(courseId), courseFields);
+      return await updateCourse(courseId, courseFields);
     },
   },
 };

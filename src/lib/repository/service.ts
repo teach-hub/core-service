@@ -95,7 +95,7 @@ export async function findAllRepositories(
 export async function findRepository({
   repositoryId,
 }: {
-  repositoryId: string;
+  repositoryId: number;
 }): Promise<RepositoryFields> {
-  return findModel(RepositoryModel, buildModelFields, { id: Number(repositoryId) });
+  return findModel(RepositoryModel, buildModelFields, { id: repositoryId });
 }

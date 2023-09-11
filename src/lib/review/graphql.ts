@@ -55,7 +55,7 @@ export const ReviewType = new GraphQLObjectType({
   },
 });
 
-const findReviewCallback = (id: string): Promise<ReviewFields> =>
+const findReviewCallback = (id: number): Promise<ReviewFields> =>
   findReview({ reviewId: id });
 
 const adminReviewsFields = buildEntityFields<ReviewFields>({

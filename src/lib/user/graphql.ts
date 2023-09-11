@@ -40,7 +40,7 @@ const UserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   fields: getFields({ addId: true }),
 });
 
-const findUserCallback = (id: string): Promise<UserFields> => {
+const findUserCallback = (id: number): Promise<UserFields> => {
   return findUser({ userId: id });
 };
 
