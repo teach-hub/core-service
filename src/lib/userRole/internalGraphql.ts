@@ -33,20 +33,20 @@ export const buildUserRoleType = ({
             resolve: s =>
               toGlobalId({
                 entityName: 'userRole',
-                dbId: String(s.id),
+                dbId: s.id,
               }),
           },
           active: { type: new GraphQLNonNull(GraphQLBoolean) },
           user: {
             type: new GraphQLNonNull(userType),
-            resolve: userRole => findUser({ userId: String(userRole.userId) }),
+            resolve: userRole => findUser({ userId: userRole.userId }),
           },
           role: {
             type: new GraphQLNonNull(roleType),
             resolve: async (userRole, _, context) => {
               try {
                 context.logger.info('Finding role for userRole', userRole);
-                return await findRole({ roleId: String(userRole.roleId) });
+                return await findRole({ roleId: userRole.roleId });
               } catch (e) {
                 context.logger.error(e);
                 throw e;
@@ -57,7 +57,7 @@ export const buildUserRoleType = ({
             type: new GraphQLNonNull(courseType),
             resolve: async (userRole, _, context) => {
               try {
-                const result = await findCourse({ courseId: String(userRole.courseId) });
+                const result = await findCourse({ courseId: userRole.courseId });
                 return result;
               } catch (e) {
                 context.logger.error(e);

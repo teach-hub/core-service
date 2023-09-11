@@ -15,7 +15,7 @@ import type { Context } from 'src/types';
 
 const buildFindTypeObject = <T>(
   type: GraphQLOutputType,
-  findCallback: (id: string) => Promise<T>
+  findCallback: (id: number) => Promise<T>
 ): GraphQLFieldConfig<unknown, Context> => {
   return {
     type,
@@ -68,7 +68,7 @@ type FieldParams<T> = {
   type: GraphQLOutputType;
   keyName: string;
   countCallback: () => Promise<number>;
-  findCallback: (id: string) => Promise<T>;
+  findCallback: (id: number) => Promise<T>;
   findAllCallback: (args: OrderingOptions) => Promise<T[]>;
 };
 

@@ -28,7 +28,7 @@ import { repositoryMutations, RepositoryType } from '../lib/repository/internalG
 import { assignmentMutations } from '../lib/assignment/graphql';
 import { submissionMutations } from '../lib/submission/internalGraphql';
 
-import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from './utils';
+import { fromGlobalIdAsNumber, toGlobalId } from './utils';
 
 import { buildUnauthorizedError, getToken } from '../utils/request';
 
@@ -98,7 +98,7 @@ const ViewerType: GraphQLObjectType<UserFields, AuthenticatedContext> =
             }
 
             const client = initOctokit(githubToken);
-            return listOpenPRs(viewer, fromGlobalId(courseId).dbId, client);
+            return listOpenPRs(viewer, String(fromGlobalIdAsNumber(courseId)), client);
           } catch (error) {
             context.logger.error('Error while fetching open pull requests', { error });
             return [];
@@ -122,7 +122,7 @@ const ViewerType: GraphQLObjectType<UserFields, AuthenticatedContext> =
           try {
             const repositoriesFilters = {
               forUserId: String(viewer.id),
-              ...(courseId ? { forCourseId: fromGlobalId(courseId).dbId } : {}),
+              ...(courseId ? { forCourseId: String(fromGlobalIdAsNumber(courseId)) } : {}),
             };
 
             context.logger.info('Searching repositories', {
@@ -154,11 +154,11 @@ const ViewerType: GraphQLObjectType<UserFields, AuthenticatedContext> =
         description: 'Finds a course for the viewer',
         type: CourseType,
         resolve: async (viewer, args, { logger }) => {
-          const { dbId: courseId } = fromGlobalId(args.id);
+          const courseId = fromGlobalIdAsNumber(args.id);
 
           logger.info('Finding course', { courseId });
 
-          const course = await findCourse({ courseId });
+          const course = await findCourse({ courseId: String(courseId) });
           const userRole = await findUserRoleInCourse({
             courseId: Number(courseId),
             userId: viewer.id as number,

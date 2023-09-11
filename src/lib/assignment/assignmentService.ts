@@ -61,7 +61,7 @@ export async function createAssignment(
 }
 
 export async function updateAssignment(
-  id: string,
+  id: number,
   data: AssignmentFields
 ): Promise<AssignmentFields> {
   const dataWithActiveField = {
@@ -70,9 +70,7 @@ export async function updateAssignment(
     ...omit(data, ['startDate', 'endDate']),
   };
 
-  return updateModel(AssignmentModel, dataWithActiveField, buildModelFields, {
-    id: Number(id),
-  });
+  return updateModel(AssignmentModel, dataWithActiveField, buildModelFields, { id });
 }
 
 export async function countAssignments(): Promise<number> {
@@ -96,7 +94,7 @@ export async function findAllAssignments(
 export async function findAssignment({
   assignmentId,
 }: {
-  assignmentId: string;
+  assignmentId: number;
 }): Promise<AssignmentFields> {
-  return findModel(AssignmentModel, buildModelFields, { id: Number(assignmentId) });
+  return findModel(AssignmentModel, buildModelFields, { id: assignmentId });
 }

@@ -7,13 +7,13 @@ export const buildInvite = async ({
   roleId,
   expirationMinutes,
 }: {
-  courseId: string;
-  roleId: string;
+  courseId: number;
+  roleId: number;
   expirationMinutes?: number;
 }): Promise<InviteModel> => {
   const [role, course] = await Promise.all([
-    findRole({ roleId }),
-    findCourse({ courseId }),
+    findRole({ roleId: String(roleId) }),
+    findCourse({ courseId: String(courseId) }),
   ]);
 
   if (!role.id || !course.id) {
@@ -25,8 +25,6 @@ export const buildInvite = async ({
     : undefined;
 
   return await InviteModel.create({
-    courseId: Number(courseId),
-    roleId: Number(roleId),
-    expiresAt: expiresAt,
+    courseId, roleId, expiresAt: expiresAt,
   });
 };

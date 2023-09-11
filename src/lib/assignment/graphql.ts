@@ -18,9 +18,9 @@ import {
   findAssignment,
   updateAssignment,
 } from './assignmentService';
-import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
-import { countSubmissions, findAllSubmissions } from '../submission/submissionsService';
+import { findAllSubmissions } from '../submission/submissionsService';
 import {
   createReviewers,
   findReviewer,
@@ -141,41 +141,6 @@ export const AssignmentType = new GraphQLObjectType({
         }
 
         return startDate < now;
-      },
-    },
-    viewerAlreadyMadeSubmission: {
-      type: new GraphQLNonNull(GraphQLBoolean),
-      description: 'Whether the viewer has already made a submission or not.',
-      resolve: async (assignment, _, context: AuthenticatedContext) => {
-        let forSubmitterId = context.viewerUserId;
-
-        if (assignment.isGroup) {
-          const [viewerCourseUserRole] = await findAllUserRoles({
-            forCourseId: assignment.courseId,
-            forUserId: context.viewerUserId,
-          });
-
-          if (!viewerCourseUserRole) {
-            throw new Error('Viewer has no role in course.');
-          }
-
-          const [viewerGroupParticipant] = await findAllGroupParticipants({
-            forAssignmentId: assignment.id,
-            forUserRoleId: viewerCourseUserRole.id,
-          });
-
-          if (!viewerGroupParticipant) {
-            // Si el viewer no es participante de ningun grupo retornamos false.
-            return false;
-          }
-
-          forSubmitterId = Number(viewerGroupParticipant.groupId);
-        }
-
-        return !!(await countSubmissions({
-          forAssignmentId: assignment.id,
-          forSubmitterId,
-        }));
       },
     },
     courseId: {
@@ -497,8 +462,8 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
           input: { assignmentId: encodedAssignmentId, reviewers },
         } = args;
 
-        const assignmentId = fromGlobalId(encodedAssignmentId).dbId;
-        const assignment = await findAssignment({ assignmentId });
+        const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+        const assignment = await findAssignment({ assignmentId: String(assignmentId) });
 
         if (!assignment) {
           throw new Error('Assignment not found');

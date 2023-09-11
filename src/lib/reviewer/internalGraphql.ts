@@ -37,7 +37,7 @@ export const ReviewerPreviewType = new GraphQLObjectType<
       resolve: s => {
         return toGlobalId({
           entityName: 'reviewer',
-          dbId: String(s.id),
+          dbId: s.id,
         });
       },
     },
@@ -49,7 +49,7 @@ export const ReviewerPreviewType = new GraphQLObjectType<
           throw new Error();
         }
 
-        const r = await findUser({ userId: String(reviewer.reviewerUserId) });
+        const r = await findUser({ userId: reviewer.reviewerUserId });
 
         return r;
       },
@@ -59,9 +59,9 @@ export const ReviewerPreviewType = new GraphQLObjectType<
       description: 'The reviewee user.',
       resolve: async reviewer => {
         if (reviewer.isGroup) {
-          return findGroup({ groupId: String(reviewer.revieweeId) });
+          return findGroup({ groupId: reviewer.revieweeId });
         } else {
-          return findUser({ userId: String(reviewer.revieweeId) });
+          return findUser({ userId: reviewer.revieweeId });
         }
       },
     },

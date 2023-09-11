@@ -29,11 +29,11 @@ const buildModelFields = (subject: Nullable<Subject>): SubjectFields => {
   };
 };
 
-const buildQuery = (id: string): Sequelize.WhereOptions<Subject> => {
-  return { id: Number(id) };
+const buildQuery = (id: number): Sequelize.WhereOptions<Subject> => {
+  return { id };
 };
 
-const validate = async (data: SubjectFields) => {
+const validate = async (data: Omit<SubjectFields, 'id'>) => {
   const codeAlreadyUsed = await existsModel(Subject, {
     code: data.code,
   });
@@ -55,8 +55,8 @@ export async function createSubject(data: SubjectFields): Promise<SubjectFields>
 }
 
 export async function updateSubject(
-  id: string,
-  data: SubjectFields
+  id: number,
+  data: Omit<SubjectFields, 'id'>
 ): Promise<SubjectFields> {
   await validate(data);
   return updateModel(Subject, data, buildModelFields, buildQuery(id));
@@ -67,7 +67,7 @@ export const countSubjects = async (): Promise<number> => countModels<Subject>(S
 export const findSubject = async ({
   subjectId,
 }: {
-  subjectId: string;
+  subjectId: number;
 }): Promise<SubjectFields> => findModel(Subject, buildModelFields, buildQuery(subjectId));
 
 export const findAllSubjects = async (

@@ -47,8 +47,8 @@ export async function createReview(data: ReviewFields): Promise<ReviewFields> {
 }
 
 export async function updateReview(
-  id: string,
-  data: ReviewFields
+  id: number,
+  data: Omit<ReviewFields, 'id'>
 ): Promise<ReviewFields> {
 
   return updateModel(ReviewModel, data, buildModelFields, {
@@ -74,11 +74,11 @@ export async function findReview({
   reviewId,
   submissionId,
 }: {
-  reviewId?: string;
+  reviewId?: number;
   submissionId?: number;
 }): Promise<ReviewFields> {
   return findModel(ReviewModel, buildModelFields, {
-    ...(reviewId ? { id: Number(reviewId) } : {}),
+    ...(reviewId ? { id: reviewId } : {}),
     ...(submissionId ? { submissionId: submissionId } : {}),
   });
 }

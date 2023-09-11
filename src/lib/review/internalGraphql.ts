@@ -14,7 +14,7 @@ import { findReview, updateReview } from './service';
 import { findSubmission } from '../submission/submissionsService';
 import { dateToString } from '../../utils/dates';
 import { isDefinedAndNotEmpty } from '../../utils/object';
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { findReviewer } from '../reviewer/service';
 
 import type { ReviewFields } from './service';
@@ -94,8 +94,8 @@ export const reviewMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
 
         const { id: encodedId, grade, revisionRequested } = args;
 
-        const id = fromGlobalId(encodedId).dbId;
-        const review = await findReview({ reviewId: id });
+        const id = fromGlobalIdAsNumber(encodedId);
+        const review = await findReview({ reviewId: String(id) });
         if (!isDefinedAndNotEmpty(review)) {
           throw new Error('Review not found');
         }

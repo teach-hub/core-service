@@ -8,7 +8,7 @@ import { findCourse } from '../lib/course/courseService';
 import type { UserRoleFields } from '../lib/userRole/userRoleService';
 import { findAllUserRoles } from '../lib/userRole/userRoleService';
 
-import { fromGlobalId } from './utils';
+import { fromGlobalIdAsNumber } from './utils';
 import { findUser, UserFields } from '../lib/user/userService';
 
 import { Permission } from '../consts';
@@ -106,11 +106,11 @@ async function userHasPermissionInCourse({
 
 const viewerHasPermissionInCourse = (permission: Permission) =>
   buildRule(async (_, args, context) => {
-    const { dbId: courseId } = fromGlobalId(args.courseId);
+    const courseId = fromGlobalIdAsNumber(args.courseId);
 
     const [viewer, course] = await Promise.all([
       findUser(context.viewerUserId),
-      findCourse({ courseId }),
+      findCourse({ courseId: String(courseId) }),
     ]);
 
     if (!course || !viewer) {

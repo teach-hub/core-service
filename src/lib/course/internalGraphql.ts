@@ -27,7 +27,7 @@ import {
   isTeacherRole,
 } from '../role/roleService';
 
-import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import type { CourseFields } from './courseService';
 import { findCourse, updateCourse } from './courseService';
@@ -190,9 +190,9 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
             const { assignmentId } = args;
 
             if (assignmentId) {
-              const { dbId: fixedAssignmentId } = fromGlobalId(args.assignmentId);
+              const fixedAssignmentId = fromGlobalIdAsNumber(args.assignmentId);
               const assignment = await findAssignment({
-                assignmentId: fixedAssignmentId,
+                assignmentId: String(fixedAssignmentId),
               });
               if (isDefinedAndNotEmpty(assignment)) return [assignment];
               return [];
@@ -208,11 +208,11 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
           description: 'Finds an assignment for a specific course',
           type: AssignmentType,
           resolve: async (_, args, { logger }) => {
-            const { dbId: assignmentId } = fromGlobalId(args.id);
+            const assignmentId = fromGlobalIdAsNumber(args.id);
 
             logger.info('Finding assignment', { assignmentId });
 
-            return await findAssignment({ assignmentId });
+            return await findAssignment({ assignmentId: String(assignmentId) });
           },
         },
         submission: {
@@ -297,7 +297,7 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
       // @ts-expect-error: FIXME
       const { organizationName, courseId: encodedCourseId } = args;
 
-      const { dbId: courseId } = fromGlobalId(encodedCourseId);
+      const courseId = fromGlobalIdAsNumber(encodedCourseId);
 
       const availableOrganizations = await getGithubUserOrganizationNames(token);
 
@@ -312,11 +312,11 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
       );
 
       const courseFields = {
-        ...(await findCourse({ courseId })),
+        ...(await findCourse({ courseId: String(courseId) })),
         organization: organizationName,
       };
 
-      return await updateCourse(courseId, courseFields);
+      return await updateCourse(String(courseId), courseFields);
     },
   },
 };

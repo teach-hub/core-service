@@ -37,8 +37,8 @@ const buildModelFields = (course: Nullable<Course>): CourseFields => {
   };
 };
 
-const buildQuery = (id: string): WhereOptions<Course> => {
-  return { id: Number(id) };
+const buildQuery = (id: number): WhereOptions<Course> => {
+  return { id };
 };
 
 const fixData = (data: CourseFields) => {
@@ -68,7 +68,7 @@ export async function createCourse(data: CourseFields): Promise<CourseFields> {
 }
 
 export async function updateCourse(
-  id: string,
+  id: number,
   data: CourseFields
 ): Promise<CourseFields> {
   // 'id' no existe en data pero ¯\_(ツ)_/¯
@@ -84,7 +84,7 @@ export async function countCourses(): Promise<number> {
 export async function findCourse({
   courseId,
 }: {
-  courseId: string;
+  courseId: number;
 }): Promise<CourseFields> {
   return findModel(Course, buildModelFields, buildQuery(courseId));
 }

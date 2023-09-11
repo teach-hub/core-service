@@ -55,7 +55,7 @@ export const UserType: GraphQLObjectType<UserFields, AuthenticatedContext> =
         resolve: s =>
           toGlobalId({
             entityName: 'user',
-            dbId: String(s.id),
+            dbId: s.id!,
           }),
       },
       name: { type: new GraphQLNonNull(GraphQLString) },
@@ -147,7 +147,7 @@ export const getViewer = async (ctx: AuthenticatedContext): Promise<UserFields> 
 
   ctx.logger.info(`Found viewer with user ID ${viewerUserId}`);
 
-  const viewer = await findUser({ userId: String(viewerUserId) });
+  const viewer = await findUser({ userId: viewerUserId });
 
   return {
     id: viewer.id,

@@ -8,7 +8,7 @@ import {
 } from 'graphql';
 
 import { buildInvite } from './inviteService';
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import InviteModel from './model';
 import { createUserRole } from '../userRole/userRoleService';
@@ -40,14 +40,14 @@ export const inviteMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
         expirationMinutes,
       } = args;
 
-      const { dbId: roleId } = fromGlobalId(encodedRoleId);
-      const { dbId: courseId } = fromGlobalId(encodedCourseId);
+      const roleId = fromGlobalIdAsNumber(encodedRoleId);
+      const courseId = fromGlobalIdAsNumber(encodedCourseId);
 
       context.logger.info('Building invite for', { roleId, courseId });
 
       const invite = await buildInvite({ roleId, courseId, expirationMinutes });
 
-      return toGlobalId({ dbId: String(invite.id), entityName: 'invite' });
+      return toGlobalId({ dbId: invite.id, entityName: 'invite' });
     },
   },
   useInvite: {
@@ -65,7 +65,7 @@ export const inviteMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
 
     resolve: async (_, args, context) => {
       const { inviteId: encodedInviteId } = args;
-      const { dbId: inviteId } = fromGlobalId(encodedInviteId);
+      const inviteId = fromGlobalIdAsNumber(encodedInviteId);
 
       context.logger.info('Using invite', { inviteId });
 
@@ -91,8 +91,12 @@ export const inviteMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
         active: true,
       });
 
+      if (!userRole.courseId) {
+        throw new Error('Error creating user role');
+      }
+
       return {
-        courseId: toGlobalId({ dbId: String(userRole.courseId), entityName: 'course' }),
+        courseId: toGlobalId({ dbId: userRole.courseId, entityName: 'course' }),
       };
     },
   },

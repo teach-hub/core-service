@@ -16,11 +16,11 @@ type CreateMutationOptions<T> = {
 
 type UpdateMutationOptions<T> = {
   args: GraphQLFieldConfigArgumentMap;
-  callback: (id: string, args: T) => Promise<T>;
+  callback: (id: number, args: T) => Promise<T>;
 };
 
 type DeleteOptions<T> = {
-  findCallback: (id: string) => Promise<T>;
+  findCallback: (id: number) => Promise<T>;
 };
 
 type MutationsParams<T> = {

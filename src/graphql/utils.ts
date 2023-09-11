@@ -8,22 +8,19 @@ const RAArgs = {
 };
 
 type GlobalId = string;
-type EntityPayload = { entityName: string; dbId: string };
+type EntityPayload = { entityName: string; dbId: number | string };
 
 export const toGlobalId = ({ dbId, entityName }: EntityPayload): GlobalId => {
   return Buffer.from(`${entityName}:${dbId}`).toString('base64');
 };
 
-export const fromGlobalId = (globalId: GlobalId): EntityPayload => {
+export const fromGlobalIdAsNumber = (globalId: GlobalId): number => {
   if (typeof globalId !== 'string') {
     throw new TypeError(`Received invalid globalId, value ${globalId}`);
   }
 
-  const decoded = Buffer.from(globalId, 'base64').toString().split(':');
-  return { entityName: decoded[0], dbId: decoded[1] };
-};
-
-export const fromGlobalIdAsNumber = (globalId: GlobalId): number =>
-  Number(fromGlobalId(globalId).dbId);
+  const [_entityName, databaseId] = Buffer.from(globalId, 'base64').toString().split(':');
+  return Number(databaseId)
+}
 
 export { RAArgs };

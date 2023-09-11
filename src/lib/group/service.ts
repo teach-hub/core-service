@@ -41,10 +41,8 @@ export async function createGroup(data: GroupFields): Promise<GroupFields> {
   return createModel(GroupModel, dataWithActiveField, buildModelFields);
 }
 
-export async function updateGroup(id: string, data: GroupFields): Promise<GroupFields> {
-  return updateModel(GroupModel, data, buildModelFields, {
-    id: Number(id),
-  });
+export async function updateGroup(id: number, data: Omit<GroupFields, 'id'>): Promise<GroupFields> {
+  return updateModel(GroupModel, data, buildModelFields, { id });
 }
 
 export async function countGroups(): Promise<number> {
@@ -63,6 +61,6 @@ export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFie
   return findAllModels(GroupModel, options, buildModelFields, whereClause);
 }
 
-export async function findGroup({ groupId }: { groupId: string }): Promise<GroupFields> {
-  return findModel(GroupModel, buildModelFields, { id: Number(groupId) });
+export async function findGroup({ groupId }: { groupId: number }): Promise<GroupFields> {
+  return findModel(GroupModel, buildModelFields, { id: groupId });
 }

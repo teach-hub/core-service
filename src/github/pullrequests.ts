@@ -16,7 +16,7 @@ type PullRequest = {
 
 export const listOpenPRs = async (
   viewer: UserFields,
-  courseId: string,
+  courseId: number,
   octoClient: Octokit
 ): Promise<PullRequest[]> => {
   const { organization } = await findCourse({ courseId });
@@ -27,7 +27,7 @@ export const listOpenPRs = async (
   }
 
   const courseRepos = await findAllRepositories({
-    forUserId: String(viewer.id),
+    forUserId: viewer.id,
     forCourseId: courseId,
   });
 
