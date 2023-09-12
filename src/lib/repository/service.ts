@@ -35,9 +35,9 @@ const buildModelFields = (repository: Nullable<RepositoryModel>): RepositoryFiel
 
 type FindRepositoriesFilter = OrderingOptions & {
   active?: boolean;
-  forUserId?: string;
-  forGroupId?: string;
-  forCourseId?: string;
+  forUserId?: number;
+  forGroupId?: number;
+  forCourseId?: number;
 };
 
 export async function createRepository(
@@ -65,8 +65,8 @@ export async function bulkCreateRepository(
 }
 
 export async function updateRepository(
-  id: string,
-  data: RepositoryFields
+  id: number,
+  data: Omit<RepositoryFields, 'id'>
 ): Promise<RepositoryFields> {
   return updateModel(RepositoryModel, data, buildModelFields, {
     id: Number(id),
@@ -95,7 +95,7 @@ export async function findAllRepositories(
 export async function findRepository({
   repositoryId,
 }: {
-  repositoryId: string;
+  repositoryId: number;
 }): Promise<RepositoryFields> {
-  return findModel(RepositoryModel, buildModelFields, { id: Number(repositoryId) });
+  return findModel(RepositoryModel, buildModelFields, { id: repositoryId });
 }

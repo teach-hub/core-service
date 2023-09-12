@@ -32,8 +32,8 @@ const buildModelFields = (userRole: Nullable<UserRoleModel>): UserRoleFields => 
   };
 };
 
-const buildQuery = (id: string): WhereOptions<UserRoleModel> => {
-  return { id: Number(id) };
+const buildQuery = (id: number): WhereOptions<UserRoleModel> => {
+  return { id };
 };
 
 export async function createUserRole(
@@ -56,7 +56,7 @@ export async function createUserRole(
 }
 
 export async function updateUserRole(
-  id: string,
+  id: number,
   data: UserRoleFields
 ): Promise<UserRoleFields> {
   return updateModel(UserRoleModel, data, buildModelFields, buildQuery(id));
@@ -66,7 +66,7 @@ export async function countUserRoles(): Promise<number> {
   return countModels<UserRoleModel>(UserRoleModel);
 }
 
-export async function findUserRole({ id }: { id: string }): Promise<UserRoleFields> {
+export async function findUserRole({ id }: { id: number }): Promise<UserRoleFields> {
   return findModel(UserRoleModel, buildModelFields, buildQuery(id));
 }
 

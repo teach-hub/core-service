@@ -9,7 +9,7 @@ import {
   GraphQLUnionType,
 } from 'graphql';
 
-import { fromGlobalId, fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import {
@@ -79,10 +79,10 @@ export const NonExistentSubmissionType = new GraphQLObjectType<
       description: 'User or group who has not made the submission',
       resolve: async (nonExistentSubmission, _, __) => {
         if (nonExistentSubmission.isGroup) {
-          return findGroup({ groupId: String(nonExistentSubmission.submitterId) });
+          return findGroup({ groupId: nonExistentSubmission.submitterId });
         }
 
-        return findUser({ userId: String(nonExistentSubmission.submitterId) });
+        return findUser({ userId: nonExistentSubmission.submitterId });
       },
     },
   }),
@@ -99,7 +99,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
       resolve: s =>
         toGlobalId({
           entityName: 'submission',
-          dbId: String(s.id),
+          dbId: s.id,
         }),
     },
     description: {
@@ -110,7 +110,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
       resolve: s =>
         toGlobalId({
           entityName: 'assignment',
-          dbId: String(s.assignmentId),
+          dbId: s.assignmentId,
         }),
     },
     submitter: {
@@ -118,7 +118,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
       description: 'User or group who has made the submission',
       resolve: async (submission, _, ctx) => {
         const assignment = await findAssignment({
-          assignmentId: String(submission.assignmentId),
+          assignmentId: submission.assignmentId,
         });
 
         if (!assignment) {
@@ -129,14 +129,14 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
           ctx.logger.info('Looking for grupal submission', {
             submitterId: submission.submitterId,
           });
-          const group = await findGroup({ groupId: String(submission.submitterId) });
+          const group = await findGroup({ groupId: submission.submitterId });
           if (!isDefinedAndNotEmpty(group)) {
             return group;
           }
           return { ...group, assignmentId: assignment.id };
         }
 
-        return findUser({ userId: String(submission.submitterId) });
+        return findUser({ userId: submission.submitterId });
       },
     },
     reviewer: {
@@ -201,7 +201,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
       type: AssignmentType,
       resolve: async (submission, _, { logger }) => {
         const assignment = await findAssignment({
-          assignmentId: String(submission.assignmentId),
+          assignmentId: submission.assignmentId,
         });
 
         logger.info('Finding assignment from sub', { assignment });
@@ -263,7 +263,7 @@ export const submissionMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         const viewer = await getViewer(ctx);
 
         const { assignmentId: encodedAssignmentId, description, pullRequestUrl } = args;
-        const { dbId: assignmentId } = fromGlobalId(encodedAssignmentId);
+        const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
 
         if (!viewer || !viewer.id) {
           throw new Error('Viewer not found');

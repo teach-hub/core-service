@@ -40,13 +40,13 @@ const buildQuery = ({
   id,
   githubId,
 }: {
-  id?: Optional<string>;
+  id?: number;
   githubId?: Optional<string>;
 }): WhereOptions<UserModel> => {
   let query: WhereOptions<UserModel> = {};
 
   if (id) {
-    query = { ...query, id: Number(id) };
+    query = { ...query, id };
   }
 
   if (githubId) {
@@ -70,7 +70,7 @@ export async function createUser(data: Partial<UserFields>): Promise<UserFields>
   return createModel(UserModel, dataWithActiveField, buildModelFields);
 }
 
-export const updateUser = async (id: string, data: UserFields): Promise<UserFields> => {
+export const updateUser = async (id: number, data: UserFields): Promise<UserFields> => {
   // Buscamos si algun usuario existente tiene un id diferente al usuario.
   // Es decir si el github id va a colisionar con alguien mas.
   const collidingUser = await findUserByQuery({ githubId: data.githubId });
@@ -88,7 +88,7 @@ const findUserByQuery = async (query: WhereOptions<UserModel>): Promise<UserFiel
   return findModel(UserModel, buildModelFields, query);
 };
 
-export const findUser = async ({ userId }: { userId: string }): Promise<UserFields> => {
+export const findUser = async ({ userId }: { userId: number }): Promise<UserFields> => {
   return findUserByQuery(buildQuery({ id: userId }));
 };
 
@@ -108,10 +108,9 @@ export const findUsersInCourse = async ({
 }): Promise<UserFields[]> => {
   const userRoles = await findAllUserRoles({ forCourseId: courseId });
 
-  // @ts-expect-error: FIXME
   const userIds: UserModel['id'][] = userRoles
     .map(userRole => userRole.userId)
-    .filter(x => !!x);
+    .filter((x): x is number => !!x);
 
   return findAllModels(UserModel, {}, buildModelFields, { id: { [Op.in]: userIds } });
 };

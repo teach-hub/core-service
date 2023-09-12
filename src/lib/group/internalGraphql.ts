@@ -23,7 +23,7 @@ export const InternalGroupType: GraphQLObjectType = new GraphQLObjectType<
       resolve: s =>
         toGlobalId({
           entityName: 'group',
-          dbId: String(s.id),
+          dbId: s.id!,
         }),
     },
     courseId: {
@@ -31,7 +31,7 @@ export const InternalGroupType: GraphQLObjectType = new GraphQLObjectType<
       resolve: s =>
         toGlobalId({
           entityName: 'course',
-          dbId: String(s.courseId),
+          dbId: s.courseId!,
         }),
     },
     usersForAssignment: {

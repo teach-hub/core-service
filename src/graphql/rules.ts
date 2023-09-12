@@ -8,7 +8,7 @@ import { findCourse } from '../lib/course/courseService';
 import type { UserRoleFields } from '../lib/userRole/userRoleService';
 import { findAllUserRoles } from '../lib/userRole/userRoleService';
 
-import { fromGlobalId } from './utils';
+import { fromGlobalIdAsNumber } from './utils';
 import { findUser, UserFields } from '../lib/user/userService';
 
 import { Permission } from '../consts';
@@ -56,7 +56,11 @@ async function viewerIsCourseTeacher(
     forUserId: ctx.viewerUserId,
   });
 
-  const viewerRole = await findRole({ roleId: String(viewerUserRole.roleId) });
+  if (!viewerUserRole.roleId) {
+    return false;
+  }
+
+  const viewerRole = await findRole({ roleId: viewerUserRole.roleId });
 
   if (!viewerRole) {
     return false;
@@ -94,11 +98,11 @@ async function userHasPermissionInCourse({
     forUserId: user.id,
   });
 
-  if (!userUserRole) {
+  if (!userUserRole || !userUserRole.roleId) {
     return false;
   }
 
-  const userRole = await findRole({ roleId: String(userUserRole.roleId) });
+  const userRole = await findRole({ roleId: userUserRole.roleId });
 
   const { permissions } = await consolidateRoles(userRole);
   return (permissions ?? []).includes(permission);
@@ -106,7 +110,7 @@ async function userHasPermissionInCourse({
 
 const viewerHasPermissionInCourse = (permission: Permission) =>
   buildRule(async (_, args, context) => {
-    const { dbId: courseId } = fromGlobalId(args.courseId);
+    const courseId = fromGlobalIdAsNumber(args.courseId);
 
     const [viewer, course] = await Promise.all([
       findUser(context.viewerUserId),

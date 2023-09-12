@@ -50,7 +50,6 @@ export async function updateSubmission(
   id: number,
   data: Partial<SubmissionFields>
 ): Promise<SubmissionFields> {
-
   return updateModel(SubmissionModel, data, buildModelFields, { id });
 }
 
@@ -102,7 +101,7 @@ export async function createSubmission({
   description,
   pullRequestUrl,
 }: CreateSubmissionInput): Promise<SubmissionFields> {
-  const assignment = await findAssignment({ assignmentId: String(assignmentId) });
+  const assignment = await findAssignment({ assignmentId });
   const now = new Date();
   const startDate = assignment.startDate && new Date(assignment.startDate);
   const endDate = assignment.endDate && new Date(assignment.endDate);

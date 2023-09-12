@@ -63,8 +63,8 @@ const fixData = (data: RoleFields): RoleAttrs => {
   };
 };
 
-const buildQuery = (id: string): Sequelize.WhereOptions<RoleModel> => {
-  return { id: Number(id) };
+const buildQuery = (id: number): Sequelize.WhereOptions<RoleModel> => {
+  return { id };
 };
 
 export async function createRole(data: RoleFields): Promise<RoleFields> {
@@ -77,8 +77,8 @@ export async function createRole(data: RoleFields): Promise<RoleFields> {
   return createModel(RoleModel, fixData(dataWithActiveField), toRoleFields);
 }
 
-export async function updateRole(id: string, data: RoleFields): Promise<RoleFields> {
-  if (data.parentRoleId && id === String(data.parentRoleId)) {
+export async function updateRole(id: number, data: RoleFields): Promise<RoleFields> {
+  if (data.parentRoleId && Number(id) === Number(data.parentRoleId)) {
     throw new Error('Role cannot be parent of itself');
   }
 
@@ -95,7 +95,7 @@ export async function countRoles(): Promise<number> {
   return countModels<RoleModel>(RoleModel);
 }
 
-export async function findRole({ roleId }: { roleId: string }): Promise<RoleFields> {
+export async function findRole({ roleId }: { roleId: number }): Promise<RoleFields> {
   return findModel(RoleModel, toRoleFields, buildQuery(roleId));
 }
 
@@ -119,7 +119,7 @@ export async function consolidateRoles(
   let targetRole = role;
 
   while (targetRole.parentRoleId) {
-    const parent = await findRole({ roleId: String(role.parentRoleId) });
+    const parent = await findRole({ roleId: targetRole.parentRoleId });
 
     allPermissions.push(...(parent.permissions ? parent.permissions : []));
 

@@ -21,7 +21,7 @@ export const RoleType: GraphQLObjectType<RoleFields, Context> = new GraphQLObjec
       resolve: role => {
         return toGlobalId({
           entityName: 'role',
-          dbId: String(role.id),
+          dbId: role.id!,
         });
       },
     },
@@ -41,7 +41,7 @@ export const RoleType: GraphQLObjectType<RoleFields, Context> = new GraphQLObjec
 
         logger.info(`Resolving parent role for role ${id}`);
 
-        const parentRole = await findRole({ roleId: String(parentRoleId) });
+        const parentRole = await findRole({ roleId: parentRoleId });
 
         return parentRole;
       },

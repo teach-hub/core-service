@@ -14,7 +14,7 @@ import { findReview, updateReview } from './service';
 import { findSubmission } from '../submission/submissionsService';
 import { dateToString } from '../../utils/dates';
 import { isDefinedAndNotEmpty } from '../../utils/object';
-import { fromGlobalId, toGlobalId } from '../../graphql/utils';
+import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { findReviewer } from '../reviewer/service';
 
 import type { ReviewFields } from './service';
@@ -33,7 +33,7 @@ export const InternalReviewType = new GraphQLObjectType<
       resolve: s =>
         toGlobalId({
           entityName: 'review',
-          dbId: String(s.id),
+          dbId: s.id!,
         }),
     },
     submissionId: {
@@ -41,7 +41,7 @@ export const InternalReviewType = new GraphQLObjectType<
       resolve: s =>
         toGlobalId({
           entityName: 'submission',
-          dbId: String(s.submissionId),
+          dbId: s.submissionId!,
         }),
     },
     reviewerId: {
@@ -49,7 +49,7 @@ export const InternalReviewType = new GraphQLObjectType<
       resolve: s =>
         toGlobalId({
           entityName: 'reviewer',
-          dbId: String(s.reviewerId),
+          dbId: s.reviewerId!,
         }),
     },
     reviewedAt: {
@@ -94,7 +94,7 @@ export const reviewMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
 
         const { id: encodedId, grade, revisionRequested } = args;
 
-        const id = fromGlobalId(encodedId).dbId;
+        const id = fromGlobalIdAsNumber(encodedId);
         const review = await findReview({ reviewId: id });
         if (!isDefinedAndNotEmpty(review)) {
           throw new Error('Review not found');
@@ -113,7 +113,7 @@ export const reviewMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
         };
 
         const submission = await findSubmission({
-          submissionId: Number(review.submissionId),
+          submissionId: review.submissionId!,
         });
 
         // Si la submission ya fue re-entregada (submittedAgainAt).

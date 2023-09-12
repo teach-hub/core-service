@@ -51,12 +51,10 @@ export async function createGroupParticipant(
 }
 
 export async function updateGroupParticipant(
-  id: string,
-  data: GroupParticipantFields
+  id: number,
+  data: Omit<GroupParticipantFields, 'id'>
 ): Promise<GroupParticipantFields> {
-  return updateModel(GroupParticipantModel, data, buildModelFields, {
-    id: Number(id),
-  });
+  return updateModel(GroupParticipantModel, data, buildModelFields, { id });
 }
 
 export async function countGroupParticipants(): Promise<number> {
@@ -80,7 +78,7 @@ export async function findAllGroupParticipants(
 }
 
 type FindGroupParticipantFilters = {
-  groupParticipantId?: string;
+  groupParticipantId?: GroupParticipantModel['id'];
   forAssignmentId?: GroupParticipantModel['assignmentId'];
   forUserRoleId?: GroupParticipantModel['userRoleId'];
   active?: boolean;
@@ -94,7 +92,7 @@ export async function findGroupParticipant({
   const whereClause = {
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
-    ...(groupParticipantId ? { id: Number(groupParticipantId) } : {}),
+    ...(groupParticipantId ? { id: groupParticipantId } : {}),
   };
 
   return findModel(GroupParticipantModel, buildModelFields, whereClause);

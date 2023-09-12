@@ -33,7 +33,7 @@ export const SubjectType: GraphQLObjectType<unknown, Context> = new GraphQLObjec
   fields: getFields({ addId: true }),
 });
 
-const findSubjectCallback = (id: string) => {
+const findSubjectCallback = (id: number) => {
   return findSubject({ subjectId: id });
 };
 

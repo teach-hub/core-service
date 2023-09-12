@@ -16,7 +16,7 @@ export const SubjectType = new GraphQLObjectType({
       resolve: s =>
         toGlobalId({
           entityName: 'subject',
-          dbId: String(s.id),
+          dbId: s.id,
         }),
     },
     name: { type: new GraphQLNonNull(GraphQLString) },

@@ -33,8 +33,8 @@ const buildModelFields = (adminUser: Nullable<AdminUserModel>): AdminUserFields 
   };
 };
 
-const buildQuery = (id: string): WhereOptions<AdminUserModel> => {
-  return { id: Number(id) };
+const buildQuery = (id: number): WhereOptions<AdminUserModel> => {
+  return { id };
 };
 
 const validate = async (data: Omit<AdminUserFields, 'id'>): Promise<void> => {
@@ -62,7 +62,7 @@ export async function createAdminUser(
 }
 
 export async function updateAdminUser(
-  id: string,
+  id: number,
   data: Omit<AdminUserFields, 'id'>
 ): Promise<AdminUserFields> {
   await validate(data);
@@ -77,7 +77,7 @@ export async function countAdminUsers(): Promise<number> {
 export async function findAdminUser({
   adminUserId,
 }: {
-  adminUserId: string;
+  adminUserId: number;
 }): Promise<AdminUserFields> {
   return findModel(AdminUserModel, buildModelFields, buildQuery(adminUserId));
 }
