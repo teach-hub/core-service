@@ -6,6 +6,7 @@ import { findAllRepositories } from '../lib/repository/service';
 
 import type { Octokit } from '@octokit/rest';
 import type { UserFields } from '../lib/user/userService';
+import { Nullable, Optional } from '../types';
 
 type PullRequest = {
   id: string;
@@ -57,4 +58,112 @@ export const listOpenPRs = async (
     title: pr.title,
     repositoryName: pr.repositoryName,
   }));
+};
+
+export type CommentUserData = {
+  id: Optional<Nullable<number>>;
+  username: Optional<Nullable<string>>;
+};
+
+export type CommentData = {
+  id: Optional<Nullable<number>>;
+  body: Optional<Nullable<string>>;
+  user: Optional<Nullable<CommentUserData>>;
+  createdAt: Optional<Nullable<string>>;
+  updatedAt: Optional<Nullable<string>>;
+};
+
+/**
+ * Returns all comments made in the PR
+ * that are not made over a line of code.
+ *
+ * Includes both comments made by users and the
+ * description off the pull request.
+ *
+ * @param pullRequestUrl must follow the format
+ * https://github.com/example-org/example-repository/pull/78
+ * @param octokit client to make requests to the GitHub API
+ * @param organization name of the organization that owns the repository
+ * */
+export const getPullRequestComments = async ({
+  octokit,
+  pullRequestUrl,
+  organization,
+}: {
+  octokit: Octokit;
+  pullRequestUrl: string;
+  organization: string;
+}): Promise<CommentData[]> => {
+  const repositoryName = getRepoNameFromUrl(pullRequestUrl);
+  const pullRequestNumber = getPullRequestNumberFromUrl(pullRequestUrl);
+
+  if (!repositoryName || !pullRequestNumber) {
+    logger.error('Invalid repository URL', { pullRequestUrl: pullRequestUrl });
+    return Promise.resolve([]);
+  }
+
+  console.log('Fetching pull request comments: ', {
+    organization,
+    repositoryName,
+    pullRequestNumber,
+  });
+
+  /**
+   * Search for first comment, which is the description
+   * of the pull request
+   * */
+  const description = (
+    await octokit.pulls.get({
+      owner: organization,
+      repo: repositoryName,
+      pull_number: pullRequestNumber,
+    })
+  ).data;
+
+  /**
+   * Search for comments that are not the description
+   * and are not made over a line of code
+   * */
+  const comments = (
+    await octokit.issues.listComments({
+      owner: organization,
+      repo: repositoryName,
+      issue_number: pullRequestNumber,
+    })
+  ).data;
+
+  /* Set description as first comment */
+  return [description, ...comments].map(comment => ({
+    id: comment.id,
+    body: comment.body,
+    user: comment.user
+      ? {
+          id: comment.user.id,
+          username: comment.user.login,
+        }
+      : null,
+    createdAt: comment.created_at,
+    updatedAt: comment.updated_at,
+  }));
+};
+
+const getRepoNameFromUrl = (url: string): Nullable<string> => {
+  // Use regular expressions to extract the repo name
+  const repoNameMatch = url.match(/github\.com\/[^/]+\/([^/]+)\/pull/);
+  if (repoNameMatch && repoNameMatch.length > 1) {
+    return repoNameMatch[1];
+  }
+  return null;
+};
+
+const getPullRequestNumberFromUrl = (url: string): Nullable<number> => {
+  // Use regular expressions to extract the pull request number
+  const pullRequestNumberMatch = url.match(/\/pull\/(\d+)/);
+  if (pullRequestNumberMatch && pullRequestNumberMatch.length > 1) {
+    const prNumber = parseInt(pullRequestNumberMatch[1], 10);
+    if (!isNaN(prNumber)) {
+      return prNumber;
+    }
+  }
+  return null;
 };
