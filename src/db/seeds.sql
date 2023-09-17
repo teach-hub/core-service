@@ -28,6 +28,8 @@ INSERT INTO teachhub.subjects (id, name, code, active) VALUES (3, 'Algoritmos y 
 INSERT INTO teachhub.subjects (id, name, code, active) VALUES (4, 'Introducción a Sistemas distribuídos', '51.21', true);
 INSERT INTO teachhub.subjects (id, name, code, active) VALUES (5, 'Estructura del computador', '13.21', true);
 
+SELECT setval('teachhub.subjects_id_seq', (select MAX(id) from teachhub.subjects));
+
 --
 -- Data for Name: roles; Type: TABLE DATA; Schema: teachhub; Owner: tomas
 --
@@ -37,6 +39,8 @@ INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_te
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (3, 'JTP', NULL, '', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (4, 'Ayudante', NULL, '', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (5, 'Alumno', NULL, 'manageOwnGroups, submitAssignment, viewSubmission', false, false);
+
+SELECT setval('teachhub.roles_id_seq', (select MAX(id) from teachhub.roles));
 
 
 --
@@ -52,6 +56,8 @@ INSERT INTO teachhub.courses (id, name, github_organization, period, year, activ
 INSERT INTO teachhub.courses (id, name, github_organization, period, year, active, subject_id) VALUES (2, 'Curso Gonzalez', NULL, '1', 2023, true, 2);
 INSERT INTO teachhub.courses (id, name, github_organization, period, year, active, subject_id) VALUES (3, 'Curso Blancanieves', NULL, '1', 2022, true, 1);
 INSERT INTO teachhub.courses (id, name, github_organization, period, year, active, subject_id) VALUES (4, 'Curso Salvupeda', NULL, '2', 2022, true, 3);
+
+SELECT setval('teachhub.courses_id_seq', (select MAX(id) from teachhub.courses));
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: teachhub; Owner: tomas
@@ -76,6 +82,8 @@ INSERT INTO teachhub.users (id, github_id, notification_email, name, last_name, 
 INSERT INTO teachhub.users (id, github_id, notification_email, name, last_name, file, active) VALUES (17, '319', 'silvina@example.com', 'Silvina', 'Garcia', '911835', true);
 INSERT INTO teachhub.users (id, github_id, notification_email, name, last_name, file, active) VALUES (18, '320', 'alberto@example.com', 'Alberto', 'Morales', '921835', true);
 
+SELECT setval('teachhub.users_id_seq', (select MAX(id) from teachhub.users));
+
 --
 -- Data for Name: user_roles; Type: TABLE DATA; Schema: teachhub; Owner: tomas
 --
@@ -87,6 +95,7 @@ INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (3, 2, 5, 3, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (4, 2, 6, 4, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (5, 2, 1, 3, true);
+
 
 -- Alumnos
 
@@ -148,6 +157,7 @@ INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (157, 5, 5, 2, true);
 INSERT INTO teachhub.user_roles (id, role_id, user_id, course_id, active) VALUES (158, 5, 5, 4, true);
 
+SELECT setval('teachhub.user_roles_id_seq', (select MAX(id) from teachhub.user_roles));
 
 --
 -- Data for Name: assignments; Type: TABLE DATA; Schema: teachhub; Owner: tomas
@@ -172,6 +182,9 @@ VALUES
     (14, 3, '2023-01-01 00:00:00.000000 +00:00', '2023-09-01 00:00:00.000000 +00:00', 'http://google.com', 'Electronica', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false),
     (15, 4, '2023-01-01 00:00:00.000000 +00:00', '2023-09-01 00:00:00.000000 +00:00', 'http://google.com', 'Operaciones binarias', false, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi eleifend, enim a venenatis gravida, lorem mi aliquam dui, eget lacinia nisl leo in velit. Duis fermentum erat vitae eros commodo congue. Curabitur blandit odio quis velit vulputate varius. Donec vel libero aliquam augue fringilla iaculis. Nam ultricies, mauris ut dictum condimentum, leo ipsum imperdiet libero, interdum laoreet nisl lectus tristique nisl. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla et lacus sed tortor laoreet placerat. Nullam viverra sem justo. Duis porta molestie risus. Pellentesque dapibus nec erat at ullamcorper. Donec condimentum in massa a tincidunt. Vestibulum auctor rutrum venenatis. Quisque semper eros nec massa semper, non blandit arcu aliquet. Cras laoreet, felis vel lobortis rutrum, mi nisi suscipit eros, vitae ornare enim nisi sit amet neque. Quisque non finibus velit. ', false);
 
+
+SELECT setval('teachhub.assignments_id_seq', (select MAX(id) from teachhub.assignments));
+
 --
 -- Data for Name: groups; Type: TABLE DATA; Schema: teachhub; Owner: postgres
 --
@@ -192,6 +205,8 @@ INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (13,  4, 'Trece
 INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (14,  4, 'Cuatroavo grupo', true);
 INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (15,  4, 'Quinceavo grupo', true);
 INSERT INTO teachhub.groups (id, course_id, name, active) VALUES (16,  4, 'Diesiseisavo grupo', true);
+
+SELECT setval('teachhub.groups_id_seq', (select MAX(id) from teachhub.groups));
 
 --
 -- Data for Name: group_participants; Type: TABLE DATA; Schema: teachhub; Owner: postgres
@@ -305,3 +320,5 @@ INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, 
 INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 16, 153, true);
 INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 16, 155, true);
 INSERT INTO teachhub.group_participants (assignment_id, group_id, user_role_id, active) VALUES (7, 16, 158, true);
+
+SELECT setval('teachhub.group_participants_id_seq', (select MAX(id) from teachhub.group_participants));
