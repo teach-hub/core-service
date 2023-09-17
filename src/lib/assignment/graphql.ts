@@ -449,7 +449,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
   // Esto vive aca porque si bien el manejo es de reviewers
   // meterlo en reviewers genera un dependencia circular.
   assignReviewers: {
-    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ReviewerType))),
+    type: new GraphQLNonNull(AssignmentType),
     args: {
       input: AssignReviewersInputType.input,
       courseId: {
@@ -486,17 +486,9 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
           reviewerFields,
         });
 
-        return createReviewers(reviewerFields).then(reviewers =>
-          reviewers.map(reviewer => {
-            return {
-              id: reviewer.id,
-              assignmentId: reviewer.assignmentId,
-              reviewerUserId: reviewer.reviewerUserId,
-              revieweeId: reviewer.revieweeId,
-              isGroup: assignment.isGroup,
-            };
-          })
-        );
+        await createReviewers(reviewerFields);
+
+        return assignment;
       } catch (e) {
         context.logger.error('Error on assignReviewers mutation', { error: String(e) });
         return [];

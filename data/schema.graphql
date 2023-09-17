@@ -218,7 +218,7 @@ type RoleType {
 type RootMutationType {
   """Adds a list of participants to a group"""
   addParticipantsToGroup(assignmentId: ID!, groupId: ID!, participantUserRoleIds: [ID!]!): [InternalGroupParticipantType]!
-  assignReviewers(courseId: ID!, input: AssignReviewersInputType): [ReviewerType!]!
+  assignReviewers(courseId: ID!, input: AssignReviewersInputType): AssignmentType!
 
   """Creates an assignment in a course"""
   createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
