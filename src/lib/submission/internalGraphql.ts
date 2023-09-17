@@ -49,30 +49,31 @@ export const SubmitterUnionType = new GraphQLUnionType({
   },
 });
 
-const CommentType: GraphQLObjectType<CommentData, Context> = new GraphQLObjectType({
-  name: 'Comment',
-  description: 'A role within TeachHub',
-  fields: {
-    id: {
-      type: GraphQLID,
+const CommentType: GraphQLObjectType<CommentData, AuthenticatedContext> =
+  new GraphQLObjectType({
+    name: 'Comment',
+    description: 'A role within TeachHub',
+    fields: {
+      id: {
+        type: GraphQLID,
+      },
+      body: {
+        type: GraphQLString,
+      },
+      createdAt: {
+        type: GraphQLString,
+      },
+      updatedAt: {
+        type: GraphQLString,
+      },
+      githubUserId: {
+        type: GraphQLString,
+      },
+      githubUsername: {
+        type: GraphQLString,
+      },
     },
-    body: {
-      type: GraphQLString,
-    },
-    createdAt: {
-      type: GraphQLString,
-    },
-    updatedAt: {
-      type: GraphQLString,
-    },
-    githubUserId: {
-      type: GraphQLString,
-    },
-    githubUsername: {
-      type: GraphQLString,
-    },
-  },
-});
+  });
 
 export const NonExistentSubmissionType = new GraphQLObjectType<
   { submitterId: number; assignmentId: number; isGroup: boolean },
@@ -259,7 +260,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
     },
     comments: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(CommentType))),
-      resolve: async (submission, _, ctx: Context) => {
+      resolve: async (submission, _, ctx) => {
         const token = getToken(ctx);
         if (!token) throw new Error('Token required');
 
@@ -268,11 +269,11 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
         if (!pullRequestUrl) return [];
 
         const { courseId } = await findAssignment({
-          assignmentId: String(submission.assignmentId),
+          assignmentId: submission.assignmentId,
         });
         if (!courseId) throw new Error('Missing assignment or courseId');
 
-        const { organization } = await findCourse({ courseId: String(courseId) });
+        const { organization } = await findCourse({ courseId: courseId });
         if (!organization) throw new Error('Course missing github organization');
 
         try {
