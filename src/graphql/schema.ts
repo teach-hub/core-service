@@ -204,7 +204,7 @@ const Query: GraphQLObjectType<null, Context> = new GraphQLObjectType({
       type: ViewerType,
       resolve: async (_source, _args, ctx) => {
         if (!isContextAuthenticated(ctx)) {
-          throw buildUnauthorizedError();
+          return buildUnauthorizedError();
         }
 
         return getViewer(ctx);

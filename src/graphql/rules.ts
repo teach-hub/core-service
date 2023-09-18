@@ -135,7 +135,8 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
 
 const isAuthenticated = buildRule((_, __, context) => {
   if (!isContextAuthenticated(context)) {
-    throw buildUnauthorizedError();
+    context.logger.info('Viewer is not authenticated');
+    return buildUnauthorizedError();
   }
 
   return true;
