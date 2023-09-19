@@ -252,6 +252,7 @@ type RootMutationType {
 
   """Creates a user and authorizes it"""
   registerUser(file: String, lastName: String, name: String, notificationEmail: String): UserType!
+  removeReviewers(assignmentId: ID!, courseId: ID!, reviewers: [ID!]!): AssignmentType!
 
   """Sets the github organization of a course"""
   setOrganization(courseId: ID!, organizationName: String!): CourseType

@@ -89,6 +89,15 @@ export const bulkCreateModel = async <T extends Model, U>(
   return created.map(buildModelObject);
 };
 
+export const destroyModel = async <T extends Model>(
+  sequelizeModel: ModelStatic<T>,
+  whereQuery: WhereOptions<T>
+): Promise<number> => {
+  const result = await sequelizeModel.destroy({ where: whereQuery });
+
+  return result;
+};
+
 export const updateModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   values: CreationAttributes<T>,

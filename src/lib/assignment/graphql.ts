@@ -22,6 +22,7 @@ import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import { findAllSubmissions } from '../submission/submissionsService';
 import {
+  deleteReviewers,
   createReviewers,
   findReviewer,
   findReviewers,
@@ -446,6 +447,39 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       return await updateAssignment(fixedId, assignmentData);
     },
   },
+  removeReviewers: {
+    type: new GraphQLNonNull(AssignmentType),
+    args: {
+      reviewers: {
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    resolve: async (_, args, context) => {
+      try {
+        const { assignmentId: encodedAssignmentId, reviewers: encodedReviewers } = args;
+
+        const reviewerIds = encodedReviewers.map(fromGlobalIdAsNumber);
+        const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+
+        // TODO. Validar que no tengan una correccion ya hecha.
+        const result = await deleteReviewers({ ids: reviewerIds });
+
+        context.logger.info('Revoved reviewers from assignment', { reviewerIds, result });
+
+        return findAssignment({ assignmentId: assignmentId });
+      } catch (e) {
+        context.logger.error('Error removing reviewers', e);
+        throw e;
+      }
+    },
+  },
+
   // Esto vive aca porque si bien el manejo es de reviewers
   // meterlo en reviewers genera un dependencia circular.
   assignReviewers: {
