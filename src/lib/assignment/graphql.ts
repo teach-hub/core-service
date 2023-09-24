@@ -36,6 +36,7 @@ import {
 import { findAllRoles, isTeacherRole } from '../role/roleService';
 import { findAllGroups, GroupFields } from '../group/service';
 import { findAllGroupParticipants } from '../groupParticipant/service';
+import { findReview } from '../review/service';
 
 import {
   AssignReviewersInputType,
@@ -448,7 +449,8 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
     },
   },
   removeReviewers: {
-    type: new GraphQLNonNull(AssignmentType),
+    // Set nullable to avoid 500 error if error raises
+    type: AssignmentType,
     args: {
       reviewers: {
         type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
@@ -467,7 +469,12 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         const reviewerIds = encodedReviewers.map(fromGlobalIdAsNumber);
         const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
 
-        // TODO. Validar que no tengan una correccion ya hecha.
+        const hasReviewed = !!(await findReview({ reviewerId: reviewerIds[0] }));
+
+        if (hasReviewed) {
+          throw new Error('ALREADY_REVIEWED - Reviewers already reviewed');
+        }
+
         const result = await deleteReviewers({ ids: reviewerIds });
 
         context.logger.info('Revoved reviewers from assignment', { reviewerIds, result });
@@ -479,11 +486,10 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       }
     },
   },
-
   // Esto vive aca porque si bien el manejo es de reviewers
   // meterlo en reviewers genera un dependencia circular.
   assignReviewers: {
-    type: new GraphQLNonNull(AssignmentType),
+    type: AssignmentType,
     args: {
       input: AssignReviewersInputType.input,
       courseId: {
@@ -525,7 +531,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         return assignment;
       } catch (e) {
         context.logger.error('Error on assignReviewers mutation', { error: String(e) });
-        return [];
+        throw e;
       }
     },
   },

@@ -50,7 +50,6 @@ export async function updateReview(
   id: number,
   data: Omit<ReviewFields, 'id'>
 ): Promise<ReviewFields> {
-
   return updateModel(ReviewModel, data, buildModelFields, {
     id: Number(id),
   });
@@ -73,12 +72,15 @@ export async function findAllReviews(
 export async function findReview({
   reviewId,
   submissionId,
+  reviewerId,
 }: {
   reviewId?: number;
   submissionId?: number;
+  reviewerId?: number;
 }): Promise<ReviewFields> {
   return findModel(ReviewModel, buildModelFields, {
     ...(reviewId ? { id: reviewId } : {}),
-    ...(submissionId ? { submissionId: submissionId } : {}),
+    ...(submissionId ? { submissionId } : {}),
+    ...(reviewerId ? { reviewerId } : {}),
   });
 }
