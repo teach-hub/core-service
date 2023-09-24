@@ -22,11 +22,11 @@ type AssignmentType {
   """Whether now is between assignment dates"""
   isOpenForSubmissions: Boolean!
   link: String
-  nonExistentSubmissions: [NonExistentSubmissionType!]!
+  nonExistentSubmissions(onlyReviewerSubmissions: Boolean!): [NonExistentSubmissionType!]!
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
   startDate: String
-  submissions: [SubmissionType!]!
+  submissions(onlyReviewerSubmissions: Boolean!): [SubmissionType!]!
   title: String
   viewerReviewer: ReviewerType
   viewerSubmission: SubmissionType
