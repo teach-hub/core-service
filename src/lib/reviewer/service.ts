@@ -1,5 +1,11 @@
+import { Op } from 'sequelize';
 import ReviewerModel from './model';
-import { bulkCreateModel, findAllModels, findModel } from '../../sequelize/serviceUtils';
+import {
+  destroyModel,
+  bulkCreateModel,
+  findAllModels,
+  findModel,
+} from '../../sequelize/serviceUtils';
 import type { Nullable, Optional } from '../../types';
 
 export type ReviewerFields = {
@@ -35,6 +41,10 @@ export function createReviewers(
   data: Omit<ReviewerFields, 'id'>[]
 ): Promise<ReviewerFields[]> {
   return bulkCreateModel(ReviewerModel, data, buildModelFields);
+}
+
+export function deleteReviewers({ ids }: { ids: number[] }): Promise<number> {
+  return destroyModel(ReviewerModel, { id: { [Op.in]: ids } });
 }
 
 export const findReviewer = async ({

@@ -19,9 +19,11 @@ import {
   updateAssignment,
 } from './assignmentService';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import { findAllSubmissions } from '../submission/submissionsService';
 import {
+  deleteReviewers,
   createReviewers,
   findReviewer,
   findReviewers,
@@ -35,6 +37,7 @@ import {
 import { findAllRoles, isTeacherRole } from '../role/roleService';
 import { findAllGroups, GroupFields } from '../group/service';
 import { findAllGroupParticipants } from '../groupParticipant/service';
+import { findReview } from '../review/service';
 
 import {
   AssignReviewersInputType,
@@ -44,8 +47,6 @@ import {
 import { findUser } from '../user/userService';
 import { NonExistentSubmissionType, SubmissionType } from '../submission/internalGraphql';
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
-
-import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import type { AuthenticatedContext } from 'src/context';
 
@@ -446,10 +447,48 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       return await updateAssignment(fixedId, assignmentData);
     },
   },
+  removeReviewers: {
+    // Set nullable to avoid 500 error if error raises
+    type: AssignmentType,
+    args: {
+      reviewers: {
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    resolve: async (_, args, context) => {
+      try {
+        const { assignmentId: encodedAssignmentId, reviewers: encodedReviewers } = args;
+
+        const reviewerIds = encodedReviewers.map(fromGlobalIdAsNumber);
+        const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+
+        const review = await findReview({ reviewerId: reviewerIds[0] });
+
+        if (isDefinedAndNotEmpty(review)) {
+          throw new Error('ALREADY_REVIEWED - Reviewers already reviewed');
+        }
+
+        const result = await deleteReviewers({ ids: reviewerIds });
+
+        context.logger.info('Removed reviewers from assignment', { reviewerIds, result });
+
+        return findAssignment({ assignmentId: assignmentId });
+      } catch (e) {
+        context.logger.error('Error removing reviewers', e);
+        throw e;
+      }
+    },
+  },
   // Esto vive aca porque si bien el manejo es de reviewers
   // meterlo en reviewers genera un dependencia circular.
   assignReviewers: {
-    type: new GraphQLNonNull(AssignmentType),
+    type: AssignmentType,
     args: {
       input: AssignReviewersInputType.input,
       courseId: {
@@ -465,7 +504,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
         const assignment = await findAssignment({ assignmentId: assignmentId });
 
-        if (!assignment) {
+        if (!isDefinedAndNotEmpty(assignment)) {
           throw new Error('Assignment not found');
         }
 
@@ -491,7 +530,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         return assignment;
       } catch (e) {
         context.logger.error('Error on assignReviewers mutation', { error: String(e) });
-        return [];
+        throw e;
       }
     },
   },
