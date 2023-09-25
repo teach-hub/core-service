@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { omit } from 'lodash';
 
 import Course, { CoursePeriod } from './courseModel';
@@ -12,28 +13,27 @@ import {
 
 import type { OrderingOptions } from '../../utils';
 import type { WhereOptions } from 'sequelize';
-import { Op } from 'sequelize';
-import type { Nullable, Optional } from '../../types';
+import type { Optional } from '../../types';
 
 export type CourseFields = {
-  id: Optional<number>;
-  name: Optional<string>;
+  id: number;
+  name: string;
   organization: Optional<string>;
-  subjectId: Optional<number>;
-  period: Optional<CoursePeriod>;
-  year: Optional<number>;
-  active: Optional<boolean>;
+  subjectId: number;
+  period: CoursePeriod;
+  year: number;
+  active: boolean;
 };
 
-const buildModelFields = (course: Nullable<Course>): CourseFields => {
+const buildModelFields = (course: Course): CourseFields => {
   return {
-    id: course?.id,
-    name: course?.name,
-    organization: course?.githubOrganization,
-    subjectId: course?.subjectId,
-    period: course?.period,
-    year: course?.year,
-    active: course?.active,
+    id: course.id,
+    name: course.name,
+    organization: course.githubOrganization,
+    subjectId: course.subjectId,
+    period: course.period,
+    year: course.year,
+    active: course.active,
   };
 };
 
@@ -59,7 +59,7 @@ const validate = async (data: CourseFields): Promise<void> => {
   }
 };
 
-export async function createCourse(data: CourseFields): Promise<CourseFields> {
+export async function createCourse(data: CourseFields): Promise<CourseFields | null> {
   const dataWithActiveFlag = { ...data, active: true };
 
   await validate(dataWithActiveFlag);
@@ -71,7 +71,6 @@ export async function updateCourse(
   id: number,
   data: CourseFields
 ): Promise<CourseFields> {
-  // 'id' no existe en data pero ¯\_(ツ)_/¯
   await validate({ id: Number(id), ...omit(data, 'id') });
 
   return updateModel(Course, fixData(data), buildModelFields, buildQuery(id));
@@ -85,7 +84,7 @@ export async function findCourse({
   courseId,
 }: {
   courseId: number;
-}): Promise<CourseFields> {
+}): Promise<CourseFields | null> {
   return findModel(Course, buildModelFields, buildQuery(courseId));
 }
 

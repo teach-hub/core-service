@@ -16,7 +16,7 @@ export const buildInvite = async ({
     findCourse({ courseId }),
   ]);
 
-  if (!role.id || !course.id) {
+  if (!role.id || !course) {
     throw new Error('Role or course not found');
   }
 

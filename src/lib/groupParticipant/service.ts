@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import {
   countModels,
   createModel,
@@ -7,27 +9,24 @@ import {
 } from '../../sequelize/serviceUtils';
 
 import GroupParticipantModel from './model';
+
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
-import { Op } from 'sequelize';
 
 export type GroupParticipantFields = {
-  id: Optional<number>;
-  assignmentId: Optional<number>;
-  groupId: Optional<number>;
-  userRoleId: Optional<number>;
-  active: Optional<boolean>;
+  id: number;
+  assignmentId: number;
+  groupId: number;
+  userRoleId: number;
+  active: boolean;
 };
 
-const buildModelFields = (
-  groupParticipant: Nullable<GroupParticipantModel>
-): GroupParticipantFields => {
+const buildModelFields = (groupParticipant: GroupParticipantModel): GroupParticipantFields => {
   return {
-    id: groupParticipant?.id,
-    assignmentId: groupParticipant?.assignmentId,
-    groupId: groupParticipant?.groupId,
-    userRoleId: groupParticipant?.userRoleId,
-    active: groupParticipant?.active,
+    id: groupParticipant.id,
+    assignmentId: groupParticipant.assignmentId,
+    groupId: groupParticipant.groupId,
+    userRoleId: groupParticipant.userRoleId,
+    active: groupParticipant.active,
   };
 };
 
@@ -41,7 +40,7 @@ type FindGroupParticipantsFilter = OrderingOptions & {
 
 export async function createGroupParticipant(
   data: GroupParticipantFields
-): Promise<GroupParticipantFields> {
+): Promise<GroupParticipantFields | null> {
   const dataWithActiveField = {
     ...data,
     active: true,
@@ -88,7 +87,7 @@ export async function findGroupParticipant({
   groupParticipantId,
   forAssignmentId,
   forUserRoleId,
-}: FindGroupParticipantFilters): Promise<GroupParticipantFields> {
+}: FindGroupParticipantFilters): Promise<GroupParticipantFields | null> {
   const whereClause = {
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),

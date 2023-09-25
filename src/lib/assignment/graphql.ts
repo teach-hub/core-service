@@ -119,7 +119,7 @@ export const AssignmentType = new GraphQLObjectType({
             });
           }
 
-          return reviewer.id ? reviewer : null;
+          return reviewer?.id ? reviewer : null;
         } catch (error) {
           ctx.logger.error('An error happened while returning reviewer', { error });
           return null;

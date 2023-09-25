@@ -10,14 +10,15 @@ import {
 } from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
+import type { Optional } from 'src/types';
 
 class Submission extends Model<InferAttributes<Submission>, InferCreationAttributes<Submission>> {
   declare id: CreationOptional<number>;
   declare submitterId: number;
   declare assignmentId: number;
   declare pullRequestUrl: string;
-  declare submittedAt: Date | null;
-  declare submittedAgainAt: Date | null;
+  declare submittedAt: Date;
+  declare submittedAgainAt: Optional<Date>
 
   static initialize = (db: Sequelize) => {
     return Submission.init(

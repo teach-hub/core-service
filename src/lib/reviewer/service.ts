@@ -6,21 +6,20 @@ import {
   findAllModels,
   findModel,
 } from '../../sequelize/serviceUtils';
-import type { Nullable, Optional } from '../../types';
 
 export type ReviewerFields = {
-  id: Optional<number>;
-  reviewerUserId: Optional<number>;
-  assignmentId: Optional<number>;
-  revieweeId: Optional<number>;
+  id: number;
+  reviewerUserId: number;
+  assignmentId: number;
+  revieweeId: number;
 };
 
-const buildModelFields = (reviewer: Nullable<ReviewerModel>): ReviewerFields => {
+const buildModelFields = (reviewer: ReviewerModel): ReviewerFields => {
   return {
-    id: reviewer?.id,
-    reviewerUserId: reviewer?.reviewerUserId,
-    assignmentId: reviewer?.assignmentId,
-    revieweeId: reviewer?.revieweeId,
+    id: reviewer.id,
+    reviewerUserId: reviewer.reviewerUserId,
+    assignmentId: reviewer.assignmentId,
+    revieweeId: reviewer.revieweeId,
   };
 };
 
@@ -55,7 +54,7 @@ export const findReviewer = async ({
   revieweeId?: number;
   reviewerUserId?: number;
   assignmentId?: number;
-}): Promise<ReviewerFields> => {
+}): Promise<ReviewerFields | null> => {
   const query = {
     ...(reviewerUserId ? { reviewerUserId } : {}),
     ...(revieweeId ? { revieweeId } : {}),

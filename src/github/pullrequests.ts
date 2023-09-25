@@ -20,7 +20,7 @@ export const listOpenPRs = async (
   courseId: number,
   octoClient: Octokit
 ): Promise<PullRequest[]> => {
-  const { organization } = await findCourse({ courseId });
+  const { organization } = (await findCourse({ courseId }))!;
 
   if (!organization) {
     logger.error('Organization not found for course', { courseId });

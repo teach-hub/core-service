@@ -8,21 +8,20 @@ import {
 
 import GroupModel from './model';
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
 
 export type GroupFields = {
-  id: Optional<number>;
-  name: Optional<string>;
-  courseId: Optional<number>;
-  active: Optional<boolean>;
+  id: number;
+  name: string;
+  courseId: number;
+  active: boolean;
 };
 
-const buildModelFields = (group: Nullable<GroupModel>): GroupFields => {
+const buildModelFields = (group: GroupModel): GroupFields => {
   return {
-    id: group?.id,
-    name: group?.name,
-    courseId: group?.courseId,
-    active: group?.active,
+    id: group.id,
+    name: group.name,
+    courseId: group.courseId,
+    active: group.active,
   };
 };
 
@@ -32,7 +31,7 @@ type FindGroupsFilter = OrderingOptions & {
   name?: string;
 };
 
-export async function createGroup(data: GroupFields): Promise<GroupFields> {
+export async function createGroup(data: GroupFields): Promise<GroupFields | null> {
   const dataWithActiveField = {
     ...data,
     active: true,
@@ -61,6 +60,6 @@ export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFie
   return findAllModels(GroupModel, options, buildModelFields, whereClause);
 }
 
-export async function findGroup({ groupId }: { groupId: number }): Promise<GroupFields> {
+export async function findGroup({ groupId }: { groupId: number }): Promise<GroupFields | null> {
   return findModel(GroupModel, buildModelFields, { id: groupId });
 }

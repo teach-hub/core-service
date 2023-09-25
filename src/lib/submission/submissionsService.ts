@@ -1,5 +1,3 @@
-import { isNil } from 'lodash';
-
 import SubmissionModel from './model';
 
 import {
@@ -16,24 +14,18 @@ import { findUserRoleInCourse } from '../userRole/userRoleService';
 import type { GroupFields } from '../group/service';
 import type { UserFields } from '../user/userService';
 import type { OrderingOptions } from '../../utils';
+import type { Optional } from 'src/types';
 
 export type SubmissionFields = {
   id: number;
   assignmentId: number;
   submitterId: number;
-  submittedAt: Date | null;
-  submittedAgainAt: Date | null;
+  submittedAt: Date;
+  submittedAgainAt: Optional<Date>;
   pullRequestUrl: string;
 };
 
-const buildModelFields = (
-  submission: null | undefined | SubmissionModel
-): SubmissionFields => {
-  if (isNil(submission)) {
-    // @ts-expect-error: FIXME
-    return null;
-  }
-
+const buildModelFields = (submission: SubmissionModel): SubmissionFields => {
   return {
     id: submission.id,
     assignmentId: submission.assignmentId,
@@ -55,7 +47,7 @@ export async function findSubmission({
   submissionId,
 }: {
   submissionId: number;
-}): Promise<SubmissionFields> {
+}): Promise<SubmissionFields | null> {
   return findModel(SubmissionModel, buildModelFields, { id: submissionId });
 }
 
@@ -96,7 +88,7 @@ export async function createSubmission({
   submitterUserId,
   assignmentId,
   pullRequestUrl,
-}: CreateSubmissionInput): Promise<SubmissionFields> {
+}: CreateSubmissionInput): Promise<SubmissionFields | null> {
   const assignment = await findAssignment({ assignmentId });
   const now = new Date();
   const startDate = assignment.startDate && new Date(assignment.startDate);

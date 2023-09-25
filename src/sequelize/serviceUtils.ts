@@ -1,7 +1,7 @@
 import { isNumber, type OrderingOptions } from '../utils';
 
-import type { Nullable } from '../types';
 import type {
+  Attributes,
   CreationAttributes,
   Model,
   ModelStatic,
@@ -43,19 +43,14 @@ export const countModels = async <T extends Model>(
 
 export const findModel = async <M extends Model, U>(
   sequelizeModel: ModelStatic<M>,
-  buildModelObject: (model: Nullable<M>) => U,
+  buildModelObject: (model: M) => U,
   whereQuery: WhereOptions<M>
-): Promise<U> => {
+): Promise<U | null> => {
   const model = await sequelizeModel.findOne({
     where: whereQuery,
   });
 
-  // FIXME
-  // TODO. No deberiamos llamar a buildModelObject si no encontramos el
-  // objeto. No tiene sentido.
-  // Deberiamos simplemente devolver null.
-
-  return buildModelObject(model);
+  return model ? buildModelObject(model): null;
 };
 
 export const existsModel = async <T extends Model>(
@@ -100,7 +95,7 @@ export const destroyModel = async <T extends Model>(
 
 export const updateModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
-  values: CreationAttributes<T>,
+  values: Partial<Attributes<T>>,
   buildModelObject: (model: T) => U,
   whereQuery: WhereOptions<T>
 ): Promise<U> => {

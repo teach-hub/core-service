@@ -9,27 +9,27 @@ import {
 
 import RepositoryModel from './model';
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
+import type { Optional } from '../../types';
 
 export type RepositoryFields = {
-  id: Optional<number>;
-  courseId: Optional<number>;
-  userId: Optional<number>;
+  id: number;
+  courseId: number;
+  userId: number;
   groupId: Optional<number>;
-  name: Optional<string>;
-  githubId: Optional<number>;
-  active: Optional<boolean>;
+  name: string;
+  githubId: number;
+  active: boolean;
 };
 
-const buildModelFields = (repository: Nullable<RepositoryModel>): RepositoryFields => {
+const buildModelFields = (repository: RepositoryModel): RepositoryFields => {
   return {
-    id: repository?.id,
-    courseId: repository?.courseId,
-    userId: repository?.courseId,
-    groupId: repository?.groupId,
-    name: repository?.name,
-    githubId: repository?.githubId,
-    active: repository?.active,
+    id: repository.id,
+    courseId: repository.courseId,
+    userId: repository.courseId,
+    groupId: repository.groupId,
+    name: repository.name,
+    githubId: repository.githubId,
+    active: repository.active,
   };
 };
 
@@ -42,7 +42,7 @@ type FindRepositoriesFilter = OrderingOptions & {
 
 export async function createRepository(
   data: RepositoryFields
-): Promise<RepositoryFields> {
+): Promise<RepositoryFields | null> {
   const dataWithActiveField = {
     ...data,
     active: true,
@@ -52,7 +52,7 @@ export async function createRepository(
 }
 
 export async function bulkCreateRepository(
-  repositoriesData: RepositoryFields[]
+  repositoriesData: Omit<RepositoryFields, 'id'>[]
 ): Promise<RepositoryFields[]> {
   const dataWithActiveFieldList = repositoriesData.map(data => {
     return {
@@ -96,6 +96,6 @@ export async function findRepository({
   repositoryId,
 }: {
   repositoryId: number;
-}): Promise<RepositoryFields> {
+}): Promise<RepositoryFields | null> {
   return findModel(RepositoryModel, buildModelFields, { id: repositoryId });
 }

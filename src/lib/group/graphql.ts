@@ -37,7 +37,7 @@ export const GroupType = new GraphQLObjectType({
   fields: getGroupFields({ addId: true }),
 });
 
-const findGroupCallback = (id: number): Promise<GroupFields> =>
+const findGroupCallback = (id: number): Promise<GroupFields | null> =>
   findGroup({ groupId: id });
 
 const adminGroupsFields = buildEntityFields<GroupFields>({

@@ -26,29 +26,29 @@ const isValidPermission = (p: Permission | string): p is Permission =>
   ALL_PERMISSIONS.includes(p);
 
 type RoleCommonFields = {
-  id: Optional<number>;
-  name: Optional<string>;
+  id: number;
+  name: string;
   parentRoleId: Optional<number>;
-  active: Optional<boolean>;
+  active: boolean;
   isTeacher: Optional<boolean>;
 };
 
 export type RoleFields = RoleCommonFields & {
-  permissions: Optional<Permission[]>;
+  permissions: Permission[];
 };
 
 export type RoleAttrs = RoleCommonFields & {
-  permissions: Optional<string>;
+  permissions: string;
 };
 
-const toRoleFields = (role: Nullable<RoleModel>): RoleFields => {
+const toRoleFields = (role: RoleModel): RoleFields => {
   return {
-    id: role?.id,
-    name: role?.name,
-    permissions: role?.permissions ? decodePermissions(role?.permissions) : [],
-    parentRoleId: role?.parentRoleId,
-    active: role?.active,
-    isTeacher: role?.isTeacher,
+    id: role.id,
+    name: role.name,
+    permissions: role.permissions ? decodePermissions(role.permissions) : [],
+    parentRoleId: role.parentRoleId,
+    active: role.active,
+    isTeacher: role.isTeacher,
   };
 };
 
@@ -67,7 +67,7 @@ const buildQuery = (id: number): Sequelize.WhereOptions<RoleModel> => {
   return { id };
 };
 
-export async function createRole(data: RoleFields): Promise<RoleFields> {
+export async function createRole(data: RoleFields): Promise<RoleFields | null> {
   if (data.permissions && data.permissions.some(x => !isValidPermission(x))) {
     throw new Error('Role has invalid permission(s)');
   }
@@ -95,7 +95,7 @@ export async function countRoles(): Promise<number> {
   return countModels<RoleModel>(RoleModel);
 }
 
-export async function findRole({ roleId }: { roleId: number }): Promise<RoleFields> {
+export async function findRole({ roleId }: { roleId: number }): Promise<RoleFields | null> {
   return findModel(RoleModel, toRoleFields, buildQuery(roleId));
 }
 
@@ -116,12 +116,12 @@ export async function consolidateRoles(
 ): Promise<Omit<RoleFields, 'parentRoleId'>> {
   const allPermissions: string[] = [...(role.permissions ? role.permissions : [])];
 
-  let targetRole = role;
+  let targetRole: RoleFields | null = role;
 
-  while (targetRole.parentRoleId) {
-    const parent = await findRole({ roleId: targetRole.parentRoleId });
+  while (targetRole?.parentRoleId) {
+    const parent: RoleFields | null = await findRole({ roleId: targetRole.parentRoleId });
 
-    allPermissions.push(...(parent.permissions ? parent.permissions : []));
+    allPermissions.push(...(parent?.permissions ? parent.permissions : []));
 
     targetRole = parent;
   }
