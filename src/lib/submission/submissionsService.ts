@@ -91,8 +91,8 @@ export async function createSubmission({
 }: CreateSubmissionInput): Promise<SubmissionFields | null> {
   const assignment = await findAssignment({ assignmentId });
   const now = new Date();
-  const startDate = assignment.startDate && new Date(assignment.startDate);
-  const endDate = assignment.endDate && new Date(assignment.endDate);
+  const startDate = assignment?.startDate && new Date(assignment.startDate);
+  const endDate = assignment?.endDate && new Date(assignment.endDate);
 
   const isTooEarly = !!(startDate && now < startDate);
   const isTooLate = !!(endDate && now > endDate);

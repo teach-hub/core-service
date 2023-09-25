@@ -118,7 +118,7 @@ export const reviewMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
 
         // Si la submission ya fue re-entregada (submittedAgainAt).
         // Entonces nosotros tambien tenemos que actualizar reviewedAgainAt
-        const isReSubmission = !!submission.submittedAgainAt;
+        const isReSubmission = !!submission?.submittedAgainAt;
 
         if (isReSubmission && !review.reviewedAgainAt) {
           updatedReview['reviewedAgainAt'] = new Date();
@@ -147,6 +147,11 @@ export const findReviewerAndCheckIfIsReviewerForSubmission = async ({
   const submission = await findSubmission({
     submissionId: submissionId,
   });
+
+  if (!submission) {
+    throw new Error('Submission not found');
+  }
+
   /* Find reviewer, matching current viewer id for submission assignment */
   const currentReviewer = await findReviewer({
     reviewerUserId: viewerId,

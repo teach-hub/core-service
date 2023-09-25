@@ -8,7 +8,6 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
-import type { Nullable, Optional } from '../../types';
 import type User from '../user/userModel';
 import type Course from '../course/courseModel';
 import type { OrderingOptions } from '../../utils';
@@ -66,7 +65,11 @@ export async function countUserRoles(): Promise<number> {
   return countModels<UserRoleModel>(UserRoleModel);
 }
 
-export async function findUserRole({ id }: { id: number }): Promise<UserRoleFields | null> {
+export async function findUserRole({
+  id,
+}: {
+  id: number;
+}): Promise<UserRoleFields | null> {
   return findModel(UserRoleModel, buildModelFields, buildQuery(id));
 }
 

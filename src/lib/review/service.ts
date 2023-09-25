@@ -8,7 +8,7 @@ import {
 
 import ReviewModel from './model';
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
+import type { Optional } from '../../types';
 
 export type ReviewFields = {
   id: number;
@@ -36,7 +36,11 @@ type FindReviewsFilter = OrderingOptions & {
   forSubmissionId?: number;
 };
 
-export async function createReview(data: ReviewFields): Promise<ReviewFields | null> {
+export async function createReview(
+  data: Omit<ReviewFields, 'id' | 'reviewedAt' | 'reviewedAgainAt'> & {
+    reviewedAgainAt?: Date;
+  }
+): Promise<ReviewFields | null> {
   const completedData = {
     ...data,
     revisionRequested: data.revisionRequested || false,
@@ -48,7 +52,7 @@ export async function createReview(data: ReviewFields): Promise<ReviewFields | n
 
 export async function updateReview(
   id: number,
-  data: Omit<ReviewFields, 'id'>
+  data: Partial<Omit<ReviewFields, 'id'>>
 ): Promise<ReviewFields> {
   return updateModel(ReviewModel, data, buildModelFields, {
     id: Number(id),

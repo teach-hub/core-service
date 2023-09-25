@@ -20,7 +20,9 @@ export type GroupParticipantFields = {
   active: boolean;
 };
 
-const buildModelFields = (groupParticipant: GroupParticipantModel): GroupParticipantFields => {
+const buildModelFields = (
+  groupParticipant: GroupParticipantModel
+): GroupParticipantFields => {
   return {
     id: groupParticipant.id,
     assignmentId: groupParticipant.assignmentId,
@@ -39,7 +41,7 @@ type FindGroupParticipantsFilter = OrderingOptions & {
 };
 
 export async function createGroupParticipant(
-  data: GroupParticipantFields
+  data: Omit<GroupParticipantFields, 'id'>
 ): Promise<GroupParticipantFields | null> {
   const dataWithActiveField = {
     ...data,

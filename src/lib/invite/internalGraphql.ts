@@ -91,7 +91,7 @@ export const inviteMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
         active: true,
       });
 
-      if (!userRole.courseId) {
+      if (!userRole?.courseId) {
         throw new Error('Error creating user role');
       }
 

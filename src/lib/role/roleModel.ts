@@ -1,13 +1,12 @@
 import {
   INTEGER,
-  DATE,
   TEXT,
   BOOLEAN,
   Sequelize,
   Model,
   InferAttributes,
   InferCreationAttributes,
-  CreationOptional
+  CreationOptional,
 } from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
@@ -22,7 +21,7 @@ class Role extends Model<InferAttributes<Role>, InferCreationAttributes<Role>> {
   declare active: boolean;
   declare isTeacher: Optional<boolean>;
 
-  static initialize = (db: Sequelize)  => {
+  static initialize = (db: Sequelize) => {
     return Role.init(
       {
         id: {

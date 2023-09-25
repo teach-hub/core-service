@@ -18,7 +18,7 @@ export type AssignmentFields = {
   id: number;
   startDate: Optional<string>;
   endDate: Optional<string>;
-  link: Optional<string>
+  link: Optional<string>;
   title: string;
   courseId: number;
   description: Optional<string>;
@@ -49,9 +49,8 @@ type FindAssignmentsFilter = OrderingOptions & {
 };
 
 export async function createAssignment(
-  data: AssignmentFields
+  data: Omit<AssignmentFields, 'id'>
 ): Promise<AssignmentFields | null> {
-
   if (!data.courseId) {
     throw new Error('courseId is required');
   }
@@ -68,7 +67,7 @@ export async function createAssignment(
 
 export async function updateAssignment(
   id: number,
-  data: AssignmentFields
+  data: Partial<Omit<AssignmentFields, 'id'>>
 ): Promise<AssignmentFields> {
   const dataWithActiveField = {
     ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
@@ -101,6 +100,6 @@ export async function findAssignment({
   assignmentId,
 }: {
   assignmentId: number;
-}): Promise<AssignmentFields> {
+}): Promise<AssignmentFields | null> {
   return findModel(AssignmentModel, buildModelFields, { id: assignmentId });
 }

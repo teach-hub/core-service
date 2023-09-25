@@ -426,7 +426,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
     type: AssignmentType,
     args: getAssignmentFields({ addId: false }),
     resolve: async (_, args, ctx) => {
-      const assignmentData: AssignmentFields = parseAssignmentData(args);
+      const assignmentData: Omit<AssignmentFields, 'id'> = parseAssignmentData(args);
 
       ctx.logger.info('Creating assignment with data', assignmentData);
 
@@ -438,7 +438,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
     type: AssignmentType,
     args: getAssignmentFields({ addId: true }),
     resolve: async (_, args, ctx) => {
-      const assignmentData: AssignmentFields = parseAssignmentData(args);
+      const assignmentData: Omit<AssignmentFields, 'id'> = parseAssignmentData(args);
       ctx.logger.info(`Updating assignment with data: ` + JSON.stringify(assignmentData));
 
       const { id } = args;
@@ -536,8 +536,9 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
   },
 };
 
+// FIXME
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const parseAssignmentData = (args: any): AssignmentFields => {
+const parseAssignmentData = (args: any): Omit<AssignmentFields, 'id'> => {
   const {
     courseId,
     title,
@@ -545,13 +546,11 @@ const parseAssignmentData = (args: any): AssignmentFields => {
     endDate,
     link,
     allowLateSubmissions,
-    id,
     active,
     isGroup,
     description,
   } = args;
 
-  const fixedId = id ? fromGlobalIdAsNumber(id) : undefined;
   const fixedCourseId = fromGlobalIdAsNumber(courseId);
 
   return {
@@ -564,6 +563,5 @@ const parseAssignmentData = (args: any): AssignmentFields => {
     allowLateSubmissions,
     description,
     courseId: fixedCourseId,
-    id: fixedId,
   };
 };

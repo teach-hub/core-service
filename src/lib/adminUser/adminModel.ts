@@ -1,38 +1,38 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  TEXT,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface AdminUserAttributes {
-  readonly id?: number;
-  readonly email?: string;
-  readonly password?: string;
-  readonly name?: string;
-  readonly lastName?: string;
-}
+class AdminUser extends Model<
+  InferAttributes<AdminUser>,
+  InferCreationAttributes<AdminUser>
+> {
+  declare id: CreationOptional<number>;
+  declare email: string;
+  declare password: string;
+  declare name: string;
+  declare lastName: string;
 
-class AdminUser
-  extends Sequelize.Model<AdminUserAttributes>
-  implements AdminUserAttributes
-{
-  readonly id!: number;
-  readonly email!: string;
-  readonly password!: string;
-  readonly name!: string;
-  readonly lastName!: string;
-
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return AdminUser.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
-        email: Sequelize.TEXT,
-        password: Sequelize.TEXT,
-        name: Sequelize.TEXT,
+        email: TEXT,
+        password: TEXT,
+        name: TEXT,
         lastName: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           field: 'last_name',
         },
       },

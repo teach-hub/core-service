@@ -31,7 +31,9 @@ type FindGroupsFilter = OrderingOptions & {
   name?: string;
 };
 
-export async function createGroup(data: GroupFields): Promise<GroupFields | null> {
+export async function createGroup(
+  data: Omit<GroupFields, 'id'>
+): Promise<GroupFields | null> {
   const dataWithActiveField = {
     ...data,
     active: true,
@@ -40,7 +42,10 @@ export async function createGroup(data: GroupFields): Promise<GroupFields | null
   return createModel(GroupModel, dataWithActiveField, buildModelFields);
 }
 
-export async function updateGroup(id: number, data: Omit<GroupFields, 'id'>): Promise<GroupFields> {
+export async function updateGroup(
+  id: number,
+  data: Omit<GroupFields, 'id'>
+): Promise<GroupFields> {
   return updateModel(GroupModel, data, buildModelFields, { id });
 }
 
@@ -60,6 +65,10 @@ export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFie
   return findAllModels(GroupModel, options, buildModelFields, whereClause);
 }
 
-export async function findGroup({ groupId }: { groupId: number }): Promise<GroupFields | null> {
+export async function findGroup({
+  groupId,
+}: {
+  groupId: number;
+}): Promise<GroupFields | null> {
   return findModel(GroupModel, buildModelFields, { id: groupId });
 }

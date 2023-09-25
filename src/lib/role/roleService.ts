@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 
 import { OrderingOptions } from '../../utils';
 import { ALL_PERMISSIONS, Permission } from '../../consts';
-import { Nullable, Optional } from '../../types';
+import { Optional } from '../../types';
 import {
   countModels,
   createModel,
@@ -95,7 +95,11 @@ export async function countRoles(): Promise<number> {
   return countModels<RoleModel>(RoleModel);
 }
 
-export async function findRole({ roleId }: { roleId: number }): Promise<RoleFields | null> {
+export async function findRole({
+  roleId,
+}: {
+  roleId: number;
+}): Promise<RoleFields | null> {
   return findModel(RoleModel, toRoleFields, buildQuery(roleId));
 }
 

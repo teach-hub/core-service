@@ -109,7 +109,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
             });
             const viewerRole = await findRole({ roleId: userRole.roleId! });
 
-            return consolidateRoles(viewerRole);
+            return viewerRole && consolidateRoles(viewerRole);
           },
         },
         teachersUserRoles: {
@@ -226,6 +226,11 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
               const assignment = await findAssignment({
                 assignmentId: submission.assignmentId,
               });
+
+              if (!assignment) {
+                throw new Error('Assignment not found');
+              }
+
               return {
                 ...submission,
                 isGroup: assignment.isGroup,
@@ -309,8 +314,14 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
         `Setting organization ${organizationName} for course ${courseId}`
       );
 
+      const currentCourseData = await findCourse({ courseId });
+
+      if (!currentCourseData) {
+        throw new Error(`Course ${courseId} not found`);
+      }
+
       const courseFields = {
-        ...(await findCourse({ courseId })),
+        ...currentCourseData,
         organization: organizationName,
       };
 
