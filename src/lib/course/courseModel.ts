@@ -1,59 +1,61 @@
-import Sequelize from 'sequelize';
+import {
+  ENUM,
+  INTEGER,
+  TEXT,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
+import type { Optional } from 'src/types';
+
 export type CoursePeriod = '1' | '2';
 
-interface CourseAttributes {
-  readonly id?: number;
-  readonly name?: string;
-  readonly githubOrganization?: string;
-  readonly subjectId?: number;
-  readonly period?: CoursePeriod;
-  readonly year?: number;
-  readonly active?: boolean;
-}
+class CourseModel extends Model<InferAttributes<CourseModel>, InferCreationAttributes<CourseModel>> {
+  declare id: CreationOptional<number>;
+  declare name: string;
+  declare githubOrganization: Optional<string>;
+  declare subjectId: number;
+  declare period: CoursePeriod;
+  declare year: number;
+  declare active: boolean;
 
-class CourseModel extends Sequelize.Model<CourseAttributes> implements CourseAttributes {
-  readonly id!: number;
-  readonly name!: string;
-  readonly githubOrganization!: string;
-  readonly subjectId!: number;
-  readonly period!: CoursePeriod;
-  readonly year!: number;
-  readonly active!: boolean;
-
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return CourseModel.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         name: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           allowNull: false,
         },
         githubOrganization: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           field: 'github_organization',
         },
         subjectId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'subject_id',
           allowNull: false,
         },
         period: {
-          type: Sequelize.ENUM('1', '2'),
+          type: ENUM('1', '2'),
           allowNull: false,
         },
         year: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           allowNull: false,
         },
         active: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
         },
       },

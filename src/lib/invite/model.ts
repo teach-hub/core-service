@@ -1,40 +1,43 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  DATE,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface InviteAttributes {
-  readonly id?: number;
-  readonly courseId?: number;
-  readonly roleId?: number;
-  readonly expiresAt?: Date;
-}
+import type { Optional } from 'src/types';
 
-class Invite extends Sequelize.Model<InviteAttributes> {
-  readonly id!: number;
-  readonly courseId!: number;
-  readonly roleId!: number;
-  readonly expiresAt!: Date;
+class Invite extends Model<InferAttributes<Invite>, InferCreationAttributes<Invite>> {
+  declare id: CreationOptional<number>;
+  declare courseId: number;
+  declare roleId: number;
+  declare expiresAt: Optional<Date>;
 
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return Invite.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         courseId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'course_id',
           allowNull: false,
         },
         roleId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'role_id',
           allowNull: false,
         },
         expiresAt: {
-          type: Sequelize.DATE,
+          type: DATE,
           field: 'expires_at',
         },
       },

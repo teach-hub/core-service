@@ -1,44 +1,47 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface UserRoleAttributes {
-  readonly id?: number;
-  readonly roleId?: number;
-  readonly userId?: number;
-  readonly courseId?: number;
-  readonly active?: boolean;
-}
+class UserRole extends Model<InferAttributes<UserRole>, InferCreationAttributes<UserRole>> {
+  declare id: CreationOptional<number>;
+  declare roleId: number;
+  declare userId: number;
+  declare courseId: number;
+  declare active: boolean;
 
-class UserRole extends Sequelize.Model<UserRoleAttributes> implements UserRoleAttributes {
-  readonly id!: number;
-  readonly roleId!: number;
-  readonly userId!: number;
-  readonly courseId!: number;
-  readonly active!: boolean;
-
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return UserRole.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         roleId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'role_id',
+          allowNull: false
         },
         userId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'user_id',
+          allowNull: false
         },
         courseId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'course_id',
+          allowNull: false
         },
         active: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
         },
       },

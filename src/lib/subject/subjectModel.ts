@@ -1,34 +1,33 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  TEXT,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface SubjectAttributes {
-  readonly id?: number;
-  readonly name?: string;
-  readonly code?: string;
-  readonly active?: boolean;
-}
+class Subject extends Model<InferAttributes<Subject>, InferCreationAttributes<Subject>> {
+  declare id: CreationOptional<number>;
+  declare name: string;
+  declare code: string;
+  declare active: boolean;
 
-class SubjectModel
-  extends Sequelize.Model<SubjectAttributes>
-  implements SubjectAttributes
-{
-  readonly id!: number;
-  readonly name!: string;
-  readonly code!: string;
-  readonly active!: boolean;
-
-  static initialize = (db: Sequelize.Sequelize) => {
-    return SubjectModel.init(
+  static initialize = (db: Sequelize) => {
+    return Subject.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
-        name: Sequelize.TEXT,
-        code: Sequelize.TEXT,
-        active: Sequelize.BOOLEAN,
+        name: TEXT,
+        code: TEXT,
+        active: BOOLEAN,
       },
       {
         sequelize: db,
@@ -40,4 +39,4 @@ class SubjectModel
   };
 }
 
-export default SubjectModel;
+export default Subject;

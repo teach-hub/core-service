@@ -73,10 +73,10 @@ export const createModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   values: CreationAttributes<T>,
   buildModelObject: (model: T) => U
-): Promise<U> => {
+): Promise<U | null> => {
   const created = await sequelizeModel.create(values);
 
-  return buildModelObject(created);
+  return created ? buildModelObject(created): null;
 };
 
 export const bulkCreateModel = async <T extends Model, U>(

@@ -1,38 +1,40 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  TEXT,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface GroupAttributes {
-  readonly id?: number;
-  readonly name?: string;
-  readonly courseId?: number;
-  readonly active?: boolean;
-}
+class Group extends Model<InferAttributes<Group>, InferCreationAttributes<Group>> {
+  declare id: CreationOptional<number>;
+  declare name: string;
+  declare courseId: number;
+  declare active: boolean;
 
-class Group extends Sequelize.Model<GroupAttributes> implements GroupAttributes {
-  readonly id!: number;
-  readonly name!: string;
-  readonly courseId!: number;
-  readonly active!: boolean;
-
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return Group.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         name: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           allowNull: false,
         },
         active: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
         },
         courseId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'course_id',
           allowNull: false,
         },

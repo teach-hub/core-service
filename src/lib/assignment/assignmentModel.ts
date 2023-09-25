@@ -1,77 +1,72 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  DATE,
+  TEXT,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface AssignmentAttributes {
-  readonly id?: number;
-  readonly startDate?: Date;
-  readonly endDate?: Date;
-  readonly link?: string;
-  readonly title?: string;
-  readonly courseId?: number;
-  readonly description?: string;
-  readonly allowLateSubmissions?: boolean;
-  readonly active?: boolean;
-  readonly isGroup?: boolean;
-}
+class Assignment extends Model<InferAttributes<Assignment>, InferCreationAttributes<Assignment>> {
 
-class Assignment
-  extends Sequelize.Model<AssignmentAttributes>
-  implements AssignmentAttributes
-{
-  readonly id!: number;
-  readonly startDate!: Date;
-  readonly endDate!: Date;
-  readonly link!: string;
-  readonly title!: string;
-  readonly courseId!: number;
-  readonly description!: string;
-  readonly allowLateSubmissions!: boolean;
-  readonly active!: boolean;
-  readonly isGroup!: boolean;
+  declare id: CreationOptional<number>;
+  declare startDate: Date | undefined;
+  declare endDate: Date | undefined;
+  declare link: string | undefined;
+  declare title: string;
+  declare courseId: number;
+  declare description: string | undefined;
+  declare allowLateSubmissions: boolean;
+  declare active: boolean;
+  declare isGroup: boolean;
 
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return Assignment.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         startDate: {
-          type: Sequelize.DATE,
+          type: DATE,
           field: 'start_date',
         },
         endDate: {
-          type: Sequelize.DATE,
+          type: DATE,
           field: 'end_date',
         },
         link: {
-          type: Sequelize.TEXT,
+          type: TEXT,
         },
         title: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           allowNull: false,
         },
         description: {
-          type: Sequelize.TEXT,
+          type: TEXT,
         },
         allowLateSubmissions: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
           field: 'allow_late_submissions',
         },
         active: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
         },
         isGroup: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
           field: 'is_group',
         },
         courseId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'course_id',
           allowNull: false,
         },

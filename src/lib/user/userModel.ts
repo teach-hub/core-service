@@ -1,60 +1,59 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  TEXT,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface UserAttributes {
-  readonly id?: number;
-  readonly githubId?: string;
-  readonly name?: string;
-  readonly lastName?: string;
-  readonly notificationEmail?: string;
-  readonly file?: string;
-  readonly active?: boolean;
-}
+class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare id: CreationOptional<number>;
+  declare githubId: string;
+  declare name: string;
+  declare lastName: string;
+  declare notificationEmail: string;
+  declare file: string;
+  declare active: boolean;
 
-class User extends Sequelize.Model<UserAttributes> implements UserAttributes {
-  readonly id!: number;
-  readonly githubId!: string;
-  readonly name!: string;
-  readonly lastName!: string;
-  readonly notificationEmail!: string;
-  readonly file!: string;
-  readonly active!: boolean;
-
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return User.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         githubId: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           field: 'github_id',
           allowNull: false,
         },
         name: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           allowNull: false,
         },
         lastName: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           field: 'last_name',
           allowNull: false,
         },
         notificationEmail: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           field: 'notification_email',
           allowNull: false,
         },
         /* Padron */
         file: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           allowNull: false,
         },
         active: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
         },
       },

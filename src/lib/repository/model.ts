@@ -1,61 +1,59 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  TEXT,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface RepositoryAttributes {
-  readonly id?: number;
-  readonly courseId?: number;
-  readonly userId?: number;
-  readonly groupId?: number;
-  readonly githubId?: number;
-  readonly name?: string;
-  readonly active?: boolean;
-}
+import type { Optional } from 'src/types';
 
-class RepositoryModel
-  extends Sequelize.Model<RepositoryAttributes>
-  implements RepositoryAttributes
-{
-  readonly id!: number;
-  readonly courseId!: number;
-  readonly userId!: number;
-  readonly groupId!: number;
-  readonly githubId!: number;
-  readonly name!: string;
-  readonly active!: boolean;
+class Repository extends Model<InferAttributes<Repository>, InferCreationAttributes<Repository>> {
+  declare id: CreationOptional<number>;
+  declare courseId: number;
+  declare userId: Optional<number>;
+  declare groupId: Optional<number>;
+  declare githubId: number;
+  declare name: string;
+  declare active: boolean;
 
-  static initialize = (db: Sequelize.Sequelize) => {
-    return RepositoryModel.init(
+  static initialize = (db: Sequelize) => {
+    return Repository.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         courseId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'course_id',
           allowNull: false,
         },
         userId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'user_id',
         },
         groupId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'group_id',
         },
         githubId: {
           field: 'github_id',
-          type: Sequelize.TEXT,
+          type: TEXT,
           allowNull: false,
         },
         name: {
-          type: Sequelize.TEXT,
+          type: TEXT,
           allowNull: false,
         },
         active: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
         },
       },
@@ -69,4 +67,4 @@ class RepositoryModel
   };
 }
 
-export default RepositoryModel;
+export default Repository;

@@ -1,49 +1,46 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface GroupParticipantAttributes {
-  readonly id?: number;
-  readonly groupId?: number;
-  readonly assignmentId?: number;
-  readonly userRoleId?: number;
-  readonly active?: boolean;
-}
+class GroupParticipant extends Model<InferAttributes<GroupParticipant>, InferCreationAttributes<GroupParticipant>> {
+  declare id: CreationOptional<number>;
+  declare groupId: number;
+  declare assignmentId: number;
+  declare userRoleId: number;
+  declare active: boolean;
 
-class GroupParticipant
-  extends Sequelize.Model<GroupParticipantAttributes>
-  implements GroupParticipantAttributes
-{
-  readonly id!: number;
-  readonly groupId!: number;
-  readonly assignmentId!: number;
-  readonly userRoleId!: number;
-  readonly active!: boolean;
-
-  static initialize = (db: Sequelize.Sequelize) => {
+  static initialize = (db: Sequelize) => {
     return GroupParticipant.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         active: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           allowNull: false,
         },
         groupId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'group_id',
           allowNull: false,
         },
         assignmentId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'assignment_id',
           allowNull: false,
         },
         userRoleId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'user_role_id',
           allowNull: false,
         },
