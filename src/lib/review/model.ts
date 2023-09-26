@@ -1,60 +1,61 @@
-import Sequelize from 'sequelize';
-
 import { DatabaseConstants } from '../../consts';
 
-interface ReviewAttributes {
-  readonly id?: number;
-  readonly submissionId?: number;
-  readonly reviewerId?: number;
-  readonly grade?: number;
-  readonly revisionRequested?: boolean;
-  readonly reviewedAt?: Date | null;
-  readonly reviewedAgainAt?: Date | null;
-}
+import {
+  INTEGER,
+  DATE,
+  BOOLEAN,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
-class Review extends Sequelize.Model<ReviewAttributes> implements ReviewAttributes {
-  readonly id!: number;
-  readonly submissionId!: number;
-  readonly reviewerId!: number;
-  readonly grade!: number;
-  readonly revisionRequested!: boolean;
-  readonly reviewedAt?: Date | null;
-  readonly reviewedAgainAt?: Date | null;
+import type { Optional } from 'src/types';
 
-  static initialize = (db: Sequelize.Sequelize) => {
+class Review extends Model<InferAttributes<Review>, InferCreationAttributes<Review>> {
+  declare id: CreationOptional<number>;
+  declare submissionId: number;
+  declare reviewerId: number;
+  declare grade: Optional<number>;
+  declare revisionRequested: Optional<boolean>;
+  declare reviewedAt: Date;
+  declare reviewedAgainAt: Optional<Date>;
+
+  static initialize = (db: Sequelize) => {
     return Review.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         submissionId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'submission_id',
           allowNull: false,
         },
         reviewerId: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'reviewer_id',
           allowNull: false,
         },
         grade: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           field: 'grade',
         },
         revisionRequested: {
-          type: Sequelize.BOOLEAN,
+          type: BOOLEAN,
           field: 'revision_requested',
         },
         reviewedAt: {
           field: 'created_at',
-          type: Sequelize.DATE,
+          type: DATE,
           allowNull: false,
         },
         reviewedAgainAt: {
           field: 'updated_at',
-          type: Sequelize.DATE,
+          type: DATE,
         },
       },
       {

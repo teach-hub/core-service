@@ -9,35 +9,36 @@ import {
 } from '../../sequelize/serviceUtils';
 
 import AssignmentModel from './assignmentModel';
-import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
 import { dateToString } from '../../utils/dates';
 
+import type { OrderingOptions } from '../../utils';
+import type { Optional } from 'src/types';
+
 export type AssignmentFields = {
-  id: Optional<number>;
+  id: number;
   startDate: Optional<string>;
   endDate: Optional<string>;
   link: Optional<string>;
-  title: Optional<string>;
-  courseId: Optional<number>;
+  title: string;
+  courseId: number;
   description: Optional<string>;
-  allowLateSubmissions: Optional<boolean>;
-  active: Optional<boolean>;
-  isGroup: Optional<boolean>;
+  allowLateSubmissions: boolean;
+  active: boolean;
+  isGroup: boolean;
 };
 
-const buildModelFields = (assignment: Nullable<AssignmentModel>): AssignmentFields => {
+const buildModelFields = (assignment: AssignmentModel): AssignmentFields => {
   return {
-    id: assignment?.id,
-    link: assignment?.link,
-    startDate: assignment?.startDate && dateToString(assignment.startDate),
-    endDate: assignment?.endDate && dateToString(assignment.endDate),
-    title: assignment?.title,
-    description: assignment?.description,
-    allowLateSubmissions: assignment?.allowLateSubmissions,
-    courseId: assignment?.courseId,
-    active: assignment?.active,
-    isGroup: assignment?.isGroup,
+    id: assignment.id,
+    link: assignment.link,
+    startDate: assignment.startDate && dateToString(assignment.startDate),
+    endDate: assignment.endDate && dateToString(assignment.endDate),
+    title: assignment.title,
+    description: assignment.description,
+    allowLateSubmissions: assignment.allowLateSubmissions,
+    courseId: assignment.courseId,
+    active: assignment.active,
+    isGroup: assignment.isGroup,
   };
 };
 
@@ -48,8 +49,12 @@ type FindAssignmentsFilter = OrderingOptions & {
 };
 
 export async function createAssignment(
-  data: AssignmentFields
-): Promise<AssignmentFields> {
+  data: Omit<AssignmentFields, 'id'>
+): Promise<AssignmentFields | null> {
+  if (!data.courseId) {
+    throw new Error('courseId is required');
+  }
+
   const dataWithActiveField = {
     ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
     ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
@@ -62,7 +67,7 @@ export async function createAssignment(
 
 export async function updateAssignment(
   id: number,
-  data: AssignmentFields
+  data: Partial<Omit<AssignmentFields, 'id'>>
 ): Promise<AssignmentFields> {
   const dataWithActiveField = {
     ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
@@ -95,6 +100,6 @@ export async function findAssignment({
   assignmentId,
 }: {
   assignmentId: number;
-}): Promise<AssignmentFields> {
+}): Promise<AssignmentFields | null> {
   return findModel(AssignmentModel, buildModelFields, { id: assignmentId });
 }

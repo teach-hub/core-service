@@ -14,26 +14,26 @@ import { findAllUserRoles } from '../userRole/userRoleService';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
+import type { Optional } from '../../types';
 
 export type UserFields = {
-  id: Optional<number>;
-  name: Optional<string>;
-  lastName: Optional<string>;
-  githubId: Optional<string>;
-  file: Optional<string>;
-  notificationEmail: Optional<string>;
-  active: Optional<boolean>;
+  id: number;
+  name: string;
+  lastName: string;
+  githubId: string;
+  file: string;
+  notificationEmail: string;
+  active: boolean;
 };
 
-const buildModelFields = (user: Nullable<UserModel>): UserFields => ({
-  id: user?.id,
-  name: user?.name,
-  lastName: user?.lastName,
-  githubId: user?.githubId,
-  active: user?.active,
-  file: user?.file,
-  notificationEmail: user?.notificationEmail,
+const buildModelFields = (user: UserModel): UserFields => ({
+  id: user.id,
+  name: user.name,
+  lastName: user.lastName,
+  githubId: user.githubId,
+  active: user.active,
+  file: user.file,
+  notificationEmail: user.notificationEmail,
 });
 
 const buildQuery = ({
@@ -56,8 +56,12 @@ const buildQuery = ({
   return query;
 };
 
-export async function createUser(data: Partial<UserFields>): Promise<UserFields> {
-  const dataWithActiveField = { ...data, active: true };
+export async function createUser(data: Omit<UserFields, 'id' | 'active'>): Promise<UserFields | null> {
+  if (!data.githubId) {
+    throw new Error('Github ID is required');
+  }
+
+  const dataWithActiveField = { ...data, githubId: data.githubId!, active: true };
 
   const githubIdAlreadyUsed = await existsModel(UserModel, {
     githubId: dataWithActiveField.githubId,
@@ -75,7 +79,7 @@ export const updateUser = async (id: number, data: UserFields): Promise<UserFiel
   // Es decir si el github id va a colisionar con alguien mas.
   const collidingUser = await findUserByQuery({ githubId: data.githubId });
 
-  if (collidingUser.id != Number(id)) {
+  if (collidingUser?.id != Number(id)) {
     throw new Error('Github ID already used');
   }
 
@@ -84,15 +88,15 @@ export const updateUser = async (id: number, data: UserFields): Promise<UserFiel
 
 export const countUsers = (): Promise<number> => countModels<UserModel>(UserModel);
 
-const findUserByQuery = async (query: WhereOptions<UserModel>): Promise<UserFields> => {
+const findUserByQuery = async (query: WhereOptions<UserModel>): Promise<UserFields | null> => {
   return findModel(UserModel, buildModelFields, query);
 };
 
-export const findUser = async ({ userId }: { userId: number }): Promise<UserFields> => {
+export const findUser = async ({ userId }: { userId: number }): Promise<UserFields | null> => {
   return findUserByQuery(buildQuery({ id: userId }));
 };
 
-export const findUserWithGithubId = async (githubId: string): Promise<UserFields> => {
+export const findUserWithGithubId = async (githubId: string): Promise<UserFields | null> => {
   return findUserByQuery(buildQuery({ githubId }));
 };
 

@@ -1,59 +1,57 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  DATE,
+  TEXT,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
+import type { Optional } from 'src/types';
 
-export interface SubmissionAttributes {
-  readonly id?: number;
-  readonly submitterId?: number;
-  readonly assignmentId?: number;
-  readonly pullRequestUrl?: string;
-  readonly submittedAt?: Date | null;
-  readonly submittedAgainAt?: Date | null;
-}
+class Submission extends Model<InferAttributes<Submission>, InferCreationAttributes<Submission>> {
+  declare id: CreationOptional<number>;
+  declare submitterId: number;
+  declare assignmentId: number;
+  declare pullRequestUrl: string;
+  declare submittedAt: Date;
+  declare submittedAgainAt: Optional<Date>
 
-class SubmissionModel
-  extends Sequelize.Model<SubmissionAttributes>
-  implements SubmissionAttributes
-{
-  readonly id!: number;
-  readonly submitterId!: number;
-  readonly assignmentId!: number;
-  readonly pullRequestUrl!: string;
-  readonly submittedAt!: Date | null;
-  readonly submittedAgainAt!: Date | null;
-
-  static initialize = (db: Sequelize.Sequelize) => {
-    return SubmissionModel.init(
+  static initialize = (db: Sequelize) => {
+    return Submission.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
           allowNull: false,
         },
         submitterId: {
           field: 'submitter_id',
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           allowNull: false,
         },
         assignmentId: {
           field: 'assignment_id',
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           allowNull: false,
         },
         pullRequestUrl: {
-          type: Sequelize.STRING,
+          type: TEXT,
           field: 'pull_request_url',
           allowNull: false,
         },
         submittedAt: {
           field: 'created_at',
-          type: Sequelize.DATE,
+          type: DATE,
           allowNull: false,
         },
         submittedAgainAt: {
           field: 'updated_at',
-          type: Sequelize.DATE,
+          type: DATE,
         },
       },
       {
@@ -66,4 +64,4 @@ class SubmissionModel
   };
 }
 
-export default SubmissionModel;
+export default Submission;

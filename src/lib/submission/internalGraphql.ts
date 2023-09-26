@@ -268,19 +268,25 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
 
         if (!pullRequestUrl) return [];
 
-        const { courseId } = await findAssignment({
+        const assignment = await findAssignment({
           assignmentId: submission.assignmentId,
         });
-        if (!courseId) throw new Error('Missing assignment or courseId');
 
-        const { organization } = await findCourse({ courseId: courseId });
-        if (!organization) throw new Error('Course missing github organization');
+        if (!assignment) {
+          throw new Error('Missing assignment or courseId');
+        }
+
+        const course = await findCourse({ courseId: assignment.courseId });
+
+        if (!course?.organization) {
+          throw new Error('Course missing github organization');
+        }
 
         try {
           const comments = await getPullRequestComments({
             octokit: initOctokit(token),
             pullRequestUrl,
-            organization,
+            organization: course.organization,
           });
 
           return comments

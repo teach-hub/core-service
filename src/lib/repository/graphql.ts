@@ -52,7 +52,7 @@ export const InternalRepositoryType = new GraphQLObjectType({
   fields: getRepositoryFields({ addId: true }),
 });
 
-const findRepositoryCallback = (id: number): Promise<RepositoryFields> =>
+const findRepositoryCallback = (id: number): Promise<RepositoryFields | null> =>
   findRepository({ repositoryId: id });
 
 const adminRepositoriesFields = buildEntityFields<RepositoryFields>({

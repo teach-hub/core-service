@@ -1,43 +1,40 @@
-import Sequelize from 'sequelize';
+import {
+  INTEGER,
+  Sequelize,
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
+} from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-interface ReviewerAttributes {
-  id?: number;
-  assignmentId?: number;
-  reviewerUserId?: number;
-  revieweeId?: number;
-}
+class Reviewer extends Model<InferAttributes<Reviewer>, InferCreationAttributes<Reviewer>> {
+  declare id: CreationOptional<number>;
+  declare reviewerUserId: number;
+  declare assignmentId: number;
+  declare revieweeId: number;
 
-class ReviewerModel
-  extends Sequelize.Model<ReviewerAttributes>
-  implements ReviewerAttributes
-{
-  readonly id!: number;
-  readonly reviewerUserId!: number;
-  readonly assignmentId!: number;
-  readonly revieweeId!: number;
-
-  static initialize = (db: Sequelize.Sequelize) => {
-    return ReviewerModel.init(
+  static initialize = (db: Sequelize) => {
+    return Reviewer.init(
       {
         id: {
-          type: Sequelize.INTEGER,
+          type: INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         reviewerUserId: {
-          type: Sequelize.NUMBER,
+          type: INTEGER,
           field: 'reviewer_user_id',
           allowNull: false,
         },
         assignmentId: {
-          type: Sequelize.NUMBER,
+          type: INTEGER,
           field: 'assignment_id',
           allowNull: false,
         },
         revieweeId: {
-          type: Sequelize.NUMBER,
+          type: INTEGER,
           field: 'reviewee_id',
           allowNull: false,
         },
@@ -52,4 +49,4 @@ class ReviewerModel
   };
 }
 
-export default ReviewerModel;
+export default Reviewer;

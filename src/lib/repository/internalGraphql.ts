@@ -195,7 +195,7 @@ export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         maintainersGithubUsernames,
       });
 
-      const repositoryFieldList: RepositoryFields[] =
+      const repositoryFieldList: Omit<RepositoryFields, 'id'>[] =
         createRepositoriesResult.createdRepositoriesData
           .map(createdRepositoryData => {
             return buildRepositoryFields({
@@ -233,7 +233,7 @@ const buildRepositoryFields = ({
   createdRepositoryData: GithubCreatedRepositoryData;
   repositoriesData: RepositoryStudentsData[];
   courseId: number;
-}): RepositoryFields => {
+}): Omit<RepositoryFields, 'id'> => {
   // Recover repository data from  matching repository name
   const currentData = repositoriesData.find(
     (data: RepositoryStudentsData) => data.name === createdRepositoryData.name
@@ -255,11 +255,10 @@ const buildRepositoryFields = ({
 
   return {
     courseId,
-    userId: userId,
+    userId: userId!,
     groupId: currentData.groupId,
     name: createdRepositoryData.name,
     githubId: createdRepositoryData.id,
     active: true,
-    id: undefined,
   };
 };

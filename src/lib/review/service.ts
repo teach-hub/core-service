@@ -8,27 +8,27 @@ import {
 
 import ReviewModel from './model';
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
+import type { Optional } from '../../types';
 
 export type ReviewFields = {
-  id?: Optional<number>;
-  submissionId: Optional<number>;
-  reviewerId: Optional<number>;
+  id: number;
+  submissionId: number;
+  reviewerId: number;
   grade: Optional<number>;
   revisionRequested: Optional<boolean>;
-  reviewedAt?: Optional<Nullable<Date>>;
-  reviewedAgainAt?: Optional<Nullable<Date>>;
+  reviewedAt: Date;
+  reviewedAgainAt: Optional<Date>;
 };
 
-const buildModelFields = (review: Nullable<ReviewModel>): ReviewFields => {
+const buildModelFields = (review: ReviewModel): ReviewFields => {
   return {
-    id: review?.id,
-    submissionId: review?.submissionId,
-    reviewerId: review?.reviewerId,
-    grade: review?.grade,
-    revisionRequested: review?.revisionRequested,
-    reviewedAt: review?.reviewedAt,
-    reviewedAgainAt: review?.reviewedAgainAt,
+    id: review.id,
+    submissionId: review.submissionId,
+    reviewerId: review.reviewerId,
+    grade: review.grade,
+    revisionRequested: review.revisionRequested,
+    reviewedAt: review.reviewedAt,
+    reviewedAgainAt: review.reviewedAgainAt,
   };
 };
 
@@ -36,7 +36,11 @@ type FindReviewsFilter = OrderingOptions & {
   forSubmissionId?: number;
 };
 
-export async function createReview(data: ReviewFields): Promise<ReviewFields> {
+export async function createReview(
+  data: Omit<ReviewFields, 'id' | 'reviewedAt' | 'reviewedAgainAt'> & {
+    reviewedAgainAt?: Date;
+  }
+): Promise<ReviewFields | null> {
   const completedData = {
     ...data,
     revisionRequested: data.revisionRequested || false,
@@ -48,7 +52,7 @@ export async function createReview(data: ReviewFields): Promise<ReviewFields> {
 
 export async function updateReview(
   id: number,
-  data: Omit<ReviewFields, 'id'>
+  data: Partial<Omit<ReviewFields, 'id'>>
 ): Promise<ReviewFields> {
   return updateModel(ReviewModel, data, buildModelFields, {
     id: Number(id),
@@ -77,7 +81,7 @@ export async function findReview({
   reviewId?: number;
   submissionId?: number;
   reviewerId?: number;
-}): Promise<ReviewFields> {
+}): Promise<ReviewFields | null> {
   return findModel(ReviewModel, buildModelFields, {
     ...(reviewId ? { id: reviewId } : {}),
     ...(submissionId ? { submissionId } : {}),

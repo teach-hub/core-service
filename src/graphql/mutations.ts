@@ -7,11 +7,11 @@ import {
   GraphQLFieldConfigArgumentMap,
 } from 'graphql';
 
-import type { Context } from 'src/types';
+import type { Nullable, Context } from 'src/types';
 
 type CreateMutationOptions<T> = {
   args: GraphQLFieldConfigArgumentMap;
-  callback: (args: T) => Promise<T>;
+  callback: (args: T) => Promise<Nullable<T>>;
 };
 
 type UpdateMutationOptions<T> = {
@@ -20,7 +20,7 @@ type UpdateMutationOptions<T> = {
 };
 
 type DeleteOptions<T> = {
-  findCallback: (id: number) => Promise<T>;
+  findCallback: (id: number) => Promise<Nullable<T>>;
 };
 
 type MutationsParams<T> = {

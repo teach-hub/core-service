@@ -61,7 +61,7 @@ export const InternalAssignmentType = new GraphQLObjectType({
   fields: getAssignmentFields({ addId: true }),
 });
 
-const findAssignmentCallback = (id: number): Promise<AssignmentFields> =>
+const findAssignmentCallback = (id: number): Promise<AssignmentFields | null> =>
   findAssignment({ assignmentId: id });
 
 const adminAssignmentsFields = buildEntityFields<AssignmentFields>({

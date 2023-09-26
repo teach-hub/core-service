@@ -57,7 +57,11 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
       resolve: async participant => {
         const participantUserRole = await findUserRole({ id: participant.userRoleId });
 
-        return await findUser({ userId: participantUserRole.userId! });
+        if (!participantUserRole) {
+          throw new Error('User role not found');
+        }
+
+        return await findUser({ userId: participantUserRole.userId });
       },
     },
     groupId: {
@@ -142,12 +146,14 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       const group = await createGroup({
         name: groupName,
         courseId,
-        id: undefined,
         active: true,
       });
 
+      if (!group) {
+        throw new Error('Group could not be created');
+      }
+
       return await createGroupParticipant({
-        id: undefined,
         assignmentId: assignmentId,
         groupId: group.id,
         userRoleId: userRole.id,
@@ -198,7 +204,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       );
 
       return await createGroupParticipant({
-        id: undefined,
         assignmentId: assignmentId,
         groupId: groupId,
         userRoleId: userRole.id,
@@ -247,14 +252,16 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       const group = await createGroup({
         name: groupName,
         courseId,
-        id: undefined,
         active: true,
       });
+
+      if (!group) {
+        throw new Error('Group could not be created');
+      }
 
       return await Promise.all(
         participantUserRoleIds.map(async userRoleId => {
           return await createGroupParticipant({
-            id: undefined,
             assignmentId: assignmentId,
             groupId: group.id,
             userRoleId: userRoleId,
@@ -301,7 +308,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       return await Promise.all(
         participantUserRoleIds.map(async userRoleId => {
           return await createGroupParticipant({
-            id: undefined,
             assignmentId: assignmentId,
             groupId: groupId,
             userRoleId: userRoleId,

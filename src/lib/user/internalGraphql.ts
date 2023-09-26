@@ -21,7 +21,6 @@ import { toGlobalId } from '../../graphql/utils';
 import { getGithubUserId, getGithubUsernameFromGithubId } from '../../github/githubUser';
 
 import { getToken } from '../../utils/request';
-import { isDefinedAndNotEmpty } from '../../utils/object';
 import { initOctokit } from '../../github/config';
 
 import type { AuthenticatedContext } from '../../context';
@@ -38,7 +37,7 @@ export const getAuthenticatedUserFromToken = async (
   const currentUserGithubId = await getGithubUserId(token);
   const user = await findUserWithGithubId(currentUserGithubId);
 
-  if (isDefinedAndNotEmpty(user)) {
+  if (user) {
     return user;
   }
 
@@ -142,12 +141,16 @@ export const userMutations: GraphQLFieldConfigMap<unknown, AuthenticatedContext>
 /**
  * @deprecated: Usar findUser en su lugar.
  */
-export const getViewer = async (ctx: AuthenticatedContext): Promise<UserFields> => {
+export const getViewer = async (ctx: AuthenticatedContext): Promise<UserFields | null> => {
   const { viewerUserId } = ctx;
 
   ctx.logger.info(`Found viewer with user ID ${viewerUserId}`);
 
   const viewer = await findUser({ userId: viewerUserId });
+
+  if (!viewer) {
+    return null;
+  }
 
   return {
     id: viewer.id,

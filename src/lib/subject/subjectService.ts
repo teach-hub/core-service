@@ -1,6 +1,5 @@
-import type Sequelize from 'sequelize';
-
 import Subject from './subjectModel';
+
 import {
   countModels,
   createModel,
@@ -11,25 +10,25 @@ import {
 } from '../../sequelize/serviceUtils';
 
 import type { OrderingOptions } from '../../utils';
-import type { Nullable, Optional } from '../../types';
+import type { WhereOptions } from 'sequelize';
 
 type SubjectFields = {
-  id: Optional<number>;
-  name: Optional<string>;
-  code: Optional<string>;
-  active: Optional<boolean>;
+  id: number;
+  name: string;
+  code: string;
+  active: boolean;
 };
 
-const buildModelFields = (subject: Nullable<Subject>): SubjectFields => {
+const buildModelFields = (subject: Subject): SubjectFields => {
   return {
-    id: subject?.id,
-    name: subject?.name,
-    code: subject?.code,
-    active: subject?.active,
+    id: subject.id,
+    name: subject.name,
+    code: subject.code,
+    active: subject.active,
   };
 };
 
-const buildQuery = (id: number): Sequelize.WhereOptions<Subject> => {
+const buildQuery = (id: number): WhereOptions<Subject> => {
   return { id };
 };
 
@@ -46,7 +45,7 @@ const validate = async (data: Omit<SubjectFields, 'id'>) => {
   if (nameAlreadyUsed) throw new Error('Name is already used');
 };
 
-export async function createSubject(data: SubjectFields): Promise<SubjectFields> {
+export async function createSubject(data: SubjectFields): Promise<SubjectFields | null> {
   const dataWithActiveField = { ...data, active: true };
 
   await validate(dataWithActiveField);
@@ -68,7 +67,7 @@ export const findSubject = async ({
   subjectId,
 }: {
   subjectId: number;
-}): Promise<SubjectFields> => findModel(Subject, buildModelFields, buildQuery(subjectId));
+}): Promise<SubjectFields | null> => findModel(Subject, buildModelFields, buildQuery(subjectId));
 
 export const findAllSubjects = async (
   options: OrderingOptions

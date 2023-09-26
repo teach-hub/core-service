@@ -13,23 +13,22 @@ import {
 import AdminUserModel from './adminModel';
 
 import type { WhereOptions } from 'sequelize';
-import type { Nullable, Optional } from '../../types';
 
 type AdminUserFields = {
-  id: Optional<number>;
-  email: Optional<string>;
-  password: Optional<string>;
-  name: Optional<string>;
-  lastName: Optional<string>;
+  id: number;
+  email: string;
+  password: string;
+  name: string;
+  lastName: string;
 };
 
-const buildModelFields = (adminUser: Nullable<AdminUserModel>): AdminUserFields => {
+const buildModelFields = (adminUser: AdminUserModel): AdminUserFields => {
   return {
-    id: adminUser?.id,
-    email: adminUser?.email,
-    password: adminUser?.password,
-    name: adminUser?.name,
-    lastName: adminUser?.lastName,
+    id: adminUser.id,
+    email: adminUser.email,
+    password: adminUser.password,
+    name: adminUser.name,
+    lastName: adminUser.lastName,
   };
 };
 
@@ -49,7 +48,7 @@ const validate = async (data: Omit<AdminUserFields, 'id'>): Promise<void> => {
 
 export async function createAdminUser(
   data: Omit<AdminUserFields, 'id'>
-): Promise<AdminUserFields> {
+): Promise<AdminUserFields | null> {
   const dataWithPassword = {
     ...data,
     password: data.password ? data.password : crypto.randomBytes(20).toString('hex'),
@@ -78,7 +77,7 @@ export async function findAdminUser({
   adminUserId,
 }: {
   adminUserId: number;
-}): Promise<AdminUserFields> {
+}): Promise<AdminUserFields | null> {
   return findModel(AdminUserModel, buildModelFields, buildQuery(adminUserId));
 }
 
