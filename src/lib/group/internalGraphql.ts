@@ -34,13 +34,20 @@ export const InternalGroupType: GraphQLObjectType = new GraphQLObjectType<
           dbId: s.courseId!,
         }),
     },
+    assignmentId: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: s =>
+        toGlobalId({
+          entityName: 'assignment',
+          dbId: s.assignmentId!,
+        }),
+    },
     usersForAssignment: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
-      description: 'Users withing a group for a submission',
+      description: 'Users within a group for a submission',
       resolve: async (group, _, __) => {
         const groupParticipants = await findAllGroupParticipants({
           forGroupId: group.id,
-          forAssignmentId: group.assignmentId,
         });
 
         // Find user roles for every participant, and then the users for each of them

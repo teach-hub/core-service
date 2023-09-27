@@ -14,7 +14,6 @@ import type { OrderingOptions } from '../../utils';
 
 export type GroupParticipantFields = {
   id: number;
-  assignmentId: number;
   groupId: number;
   userRoleId: number;
   active: boolean;
@@ -25,19 +24,10 @@ const buildModelFields = (
 ): GroupParticipantFields => {
   return {
     id: groupParticipant.id,
-    assignmentId: groupParticipant.assignmentId,
     groupId: groupParticipant.groupId,
     userRoleId: groupParticipant.userRoleId,
     active: groupParticipant.active,
   };
-};
-
-type FindGroupParticipantsFilter = OrderingOptions & {
-  forAssignmentId?: GroupParticipantModel['assignmentId'];
-  forGroupId?: GroupParticipantModel['groupId'];
-  forGroupIds?: GroupParticipantModel['groupId'][];
-  forUserRoleId?: GroupParticipantModel['userRoleId'];
-  active?: boolean;
 };
 
 export async function createGroupParticipant(
@@ -62,13 +52,20 @@ export async function countGroupParticipants(): Promise<number> {
   return countModels<GroupParticipantModel>(GroupParticipantModel);
 }
 
+type FindGroupParticipantsFilter = OrderingOptions & {
+  // forAssignmentId?: GroupParticipantModel['assignmentId'];
+  forGroupId?: GroupParticipantModel['groupId'];
+  forGroupIds?: GroupParticipantModel['groupId'][];
+  forUserRoleId?: GroupParticipantModel['userRoleId'];
+  active?: boolean;
+};
+
 export async function findAllGroupParticipants(
   options: FindGroupParticipantsFilter
 ): Promise<GroupParticipantFields[]> {
-  const { forGroupId, forGroupIds, forUserRoleId, forAssignmentId, active } = options;
+  const { forGroupId, forGroupIds, forUserRoleId, active } = options;
 
   const whereClause = {
-    ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
     ...(forGroupId ? { groupId: forGroupId } : {}),
     ...(forGroupIds ? { groupId: { [Op.in]: forGroupIds } } : {}),
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
@@ -80,19 +77,16 @@ export async function findAllGroupParticipants(
 
 type FindGroupParticipantFilters = {
   groupParticipantId?: GroupParticipantModel['id'];
-  forAssignmentId?: GroupParticipantModel['assignmentId'];
   forUserRoleId?: GroupParticipantModel['userRoleId'];
   active?: boolean;
 };
 
 export async function findGroupParticipant({
   groupParticipantId,
-  forAssignmentId,
   forUserRoleId,
 }: FindGroupParticipantFilters): Promise<GroupParticipantFields | null> {
   const whereClause = {
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
-    ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
     ...(groupParticipantId ? { id: groupParticipantId } : {}),
   };
 

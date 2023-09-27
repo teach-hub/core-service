@@ -20,9 +20,6 @@ export const getGroupParticipantFields = ({ addId }: { addId: boolean }) => ({
         },
       }
     : {}),
-  assignmentId: {
-    type: GraphQLID,
-  },
   userRoleId: {
     type: GraphQLID,
   },

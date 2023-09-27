@@ -36,14 +36,6 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
           dbId: s.id,
         }),
     },
-    assignmentId: {
-      type: new GraphQLNonNull(GraphQLID),
-      resolve: s =>
-        toGlobalId({
-          entityName: 'assignment',
-          dbId: s.assignmentId,
-        }),
-    },
     userRoleId: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: s =>
@@ -144,6 +136,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       );
 
       const group = await createGroup({
+        assignmentId: assignmentId,
         name: groupName,
         courseId,
         active: true,
@@ -154,7 +147,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       }
 
       return await createGroupParticipant({
-        assignmentId: assignmentId,
         groupId: group.id,
         userRoleId: userRole.id,
         active: true,
@@ -204,7 +196,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       );
 
       return await createGroupParticipant({
-        assignmentId: assignmentId,
         groupId: groupId,
         userRoleId: userRole.id,
         active: true,
@@ -252,6 +243,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       const group = await createGroup({
         name: groupName,
         courseId,
+        assignmentId,
         active: true,
       });
 
@@ -262,7 +254,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       return await Promise.all(
         participantUserRoleIds.map(async userRoleId => {
           return await createGroupParticipant({
-            assignmentId: assignmentId,
             groupId: group.id,
             userRoleId: userRoleId,
             active: true,
@@ -308,7 +299,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       return await Promise.all(
         participantUserRoleIds.map(async userRoleId => {
           return await createGroupParticipant({
-            assignmentId: assignmentId,
             groupId: groupId,
             userRoleId: userRoleId,
             active: true,

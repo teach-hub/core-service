@@ -12,6 +12,7 @@ import type { OrderingOptions } from '../../utils';
 export type GroupFields = {
   id: number;
   name: string;
+  assignmentId: number;
   courseId: number;
   active: boolean;
 };
@@ -21,6 +22,7 @@ const buildModelFields = (group: GroupModel): GroupFields => {
     id: group.id,
     name: group.name,
     courseId: group.courseId,
+    assignmentId: group.assignmentId,
     active: group.active,
   };
 };

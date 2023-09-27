@@ -6,6 +6,7 @@ BEGIN;
   ADD COLUMN assignment_id INTEGER REFERENCES teachhub.assignments(id) NOT NULL;
 
   ALTER TABLE teachhub.groups
-  DROP COLUMN assignment_id;
+  DROP COLUMN assignment_id,
+  DROP CONSTRAINT group_name_unique;
 
 COMMIT;

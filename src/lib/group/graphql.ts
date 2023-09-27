@@ -23,6 +23,9 @@ export const getGroupFields = ({ addId }: { addId: boolean }) => ({
   courseId: {
     type: GraphQLID,
   },
+  assignmentId: {
+    type: GraphQLID,
+  },
   name: {
     type: GraphQLString,
   },
