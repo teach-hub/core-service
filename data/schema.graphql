@@ -93,7 +93,6 @@ type CreateRepositoriesResponse {
 """A group participant within TeachHub"""
 type InternalGroupParticipantType {
   active: Boolean
-  assignmentId: ID!
   group: InternalGroupType!
   groupId: ID!
   groupUsers: [UserType!]!
@@ -105,11 +104,12 @@ type InternalGroupParticipantType {
 """A group within TeachHub"""
 type InternalGroupType {
   active: Boolean
+  assignmentId: ID!
   courseId: ID!
   id: ID!
   name: String
 
-  """Users withing a group for a submission"""
+  """Users within a group for a submission"""
   usersForAssignment: [UserType!]!
 }
 

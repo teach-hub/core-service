@@ -257,8 +257,8 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
             }
 
             const userRole = await findUserRoleInCourse({
-              courseId: Number(course.id),
-              userId: Number(viewer.id),
+              courseId: course.id,
+              userId: viewer.id,
             });
 
             return await findAllGroupParticipants({

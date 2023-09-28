@@ -75,7 +75,7 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
       resolve: async groupParticipant => {
         const groupParticipants = await findAllGroupParticipants({
           forGroupId: groupParticipant.groupId,
-          forAssignmentId: groupParticipant.assignmentId,
+          // forAssignmentId: groupParticipant.assignmentId,
         });
 
         const userRoles = await findAllUserRoles({
@@ -136,10 +136,9 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       );
 
       const group = await createGroup({
-        assignmentId: assignmentId,
         name: groupName,
         courseId,
-        active: true,
+        assignmentId,
       });
 
       if (!group) {
@@ -188,7 +187,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
 
       const userRole = await findUserRoleInCourse({
         courseId,
-        userId: Number(viewer.id),
+        userId: viewer.id,
       });
 
       context.logger.info(
@@ -196,7 +195,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       );
 
       return await createGroupParticipant({
-        groupId: groupId,
+        groupId,
         userRoleId: userRole.id,
         active: true,
       });
@@ -244,7 +243,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
         name: groupName,
         courseId,
         assignmentId,
-        active: true,
       });
 
       if (!group) {
@@ -252,13 +250,13 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       }
 
       return await Promise.all(
-        participantUserRoleIds.map(async userRoleId => {
-          return await createGroupParticipant({
+        participantUserRoleIds.map(async userRoleId =>
+          createGroupParticipant({
             groupId: group.id,
             userRoleId: userRoleId,
             active: true,
-          });
-        })
+          })
+        )
       );
     },
   },
@@ -297,13 +295,13 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       );
 
       return await Promise.all(
-        participantUserRoleIds.map(async userRoleId => {
-          return await createGroupParticipant({
-            groupId: groupId,
-            userRoleId: userRoleId,
+        participantUserRoleIds.map(async userRoleId =>
+          createGroupParticipant({
+            groupId,
+            userRoleId,
             active: true,
-          });
-        })
+          })
+        )
       );
     },
   },
