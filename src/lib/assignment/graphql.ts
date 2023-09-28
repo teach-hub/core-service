@@ -50,6 +50,9 @@ import { InternalGroupParticipantType } from '../groupParticipant/internalGraphq
 
 import type { AuthenticatedContext } from 'src/context';
 import { Optional } from '../../types';
+import { sendEmail } from '../../notifications/mail';
+import { findCourse } from '../course/courseService';
+import { findSubject } from '../subject/subjectService';
 
 const PreviewReviewersFilterType = {
   input: {
@@ -574,6 +577,55 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         context.logger.error('Error on assignReviewers mutation', { error: String(e) });
         throw e;
       }
+    },
+  },
+  /* Notifications are sent in the context of an assignment */
+  sendNotification: {
+    type: new GraphQLNonNull(GraphQLBoolean),
+    args: {
+      recipients: {
+        type: new GraphQLList(new GraphQLNonNull(GraphQLString)),
+      },
+      body: {
+        type: new GraphQLNonNull(GraphQLString),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    resolve: async (_, { assignmentId, recipients, body, senderUserId }, context) => {
+      const assignment = await findAssignment({
+        assignmentId: fromGlobalIdAsNumber(assignmentId),
+      });
+      if (!assignment) throw Error(`Assignment ${assignmentId} not found`);
+
+      const course = await findCourse({
+        courseId: assignment.courseId,
+      });
+      if (!course) throw new Error(`Course ${assignment.courseId} not found`);
+
+      const courseSubject = await findSubject({
+        subjectId: course.subjectId,
+      });
+      if (!courseSubject) throw new Error(`Subject ${course.subjectId} not found`);
+
+      /* Viewer is the one responsible of the notification */
+      const senderUser = await findUser({
+        userId: context.viewerUserId,
+      });
+      if (!senderUser) throw new Error(`User ${senderUserId} not found`);
+
+      /*
+       * Add complete information in mail subject. Example:
+       * "78.10: Notificación de Juan Perez sobre el trabajo práctico Introducción a la programación"
+       * */
+      const subject = `${courseSubject.code}: Notificación de ${senderUser.name} ${senderUser.lastName} sobre el trabajo práctico ${assignment.title}`;
+
+      return await sendEmail({
+        recipients,
+        subject,
+        body,
+      });
     },
   },
 };
