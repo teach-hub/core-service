@@ -592,6 +592,10 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       assignmentId: {
         type: new GraphQLNonNull(GraphQLID),
       },
+      courseId: {
+        // Required for permission check of rules
+        type: new GraphQLNonNull(GraphQLID),
+      },
     },
     resolve: async (_, { assignmentId, recipients, body, senderUserId }, context) => {
       const assignment = await findAssignment({

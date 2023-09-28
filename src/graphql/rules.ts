@@ -14,7 +14,7 @@ import { findUser, UserFields } from '../lib/user/userService';
 import { Permission } from '../consts';
 
 import { isDevEnv } from '../utils';
-import { isContextAuthenticated, Context } from '../context';
+import { Context, isContextAuthenticated } from '../context';
 
 const buildRule: ReturnType<typeof rule> = fn =>
   rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
@@ -238,6 +238,10 @@ export default shield<null, Context, unknown>(
       updateReview: chain(
         isAuthenticated,
         viewerHasPermissionInCourse(Permission.SetReview)
+      ),
+      sendNotification: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.SendNotifications)
       ),
     },
   },
