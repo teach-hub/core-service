@@ -39,7 +39,6 @@ import { findAllGroupParticipants } from '../groupParticipant/service';
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findAllGroups } from '../group/service';
-import { isDefinedAndNotEmpty } from '../../utils/object';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findSubmission } from '../submission/submissionsService';
 
@@ -192,7 +191,10 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
               const assignment = await findAssignment({
                 assignmentId: fixedAssignmentId,
               });
-              if (isDefinedAndNotEmpty(assignment)) return [assignment];
+
+              if (assignment) {
+                return [assignment];
+              }
               return [];
             }
 
@@ -271,7 +273,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
             new GraphQLList(new GraphQLNonNull(InternalGroupType))
           ),
           description: 'Groups within a course',
-          resolve: async (course, _, __) => {
+          resolve: async course => {
             return await findAllGroups({
               forCourseId: course.id,
             });

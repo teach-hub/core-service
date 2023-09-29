@@ -233,11 +233,11 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
 
       await validateGroupOnCreation({ groupName, courseId, assignmentId });
 
-      context.logger.info(
-        `Creating group with name ${groupName} for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
-          ', '
-        )}`
-      );
+      const logText = `Creating group with name ${groupName} for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
+        ', '
+      )}`;
+
+      context.logger.info(logText);
 
       const group = await createGroup({
         name: groupName,

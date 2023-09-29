@@ -19,7 +19,6 @@ import {
   updateAssignment,
 } from './assignmentService';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
-import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import { findAllSubmissions, SubmissionFields } from '../submission/submissionsService';
 import {
@@ -209,7 +208,7 @@ export const AssignmentType = new GraphQLObjectType({
           forSubmitterId: submitterId,
         });
 
-        if (!isDefinedAndNotEmpty(submission)) {
+        if (!submission) {
           return null;
         }
 
@@ -492,7 +491,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
 
         const review = await findReview({ reviewerId: reviewerIds[0] });
 
-        if (isDefinedAndNotEmpty(review)) {
+        if (review) {
           throw new Error('ALREADY_REVIEWED - Reviewers already reviewed');
         }
 
@@ -526,7 +525,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
         const assignment = await findAssignment({ assignmentId: assignmentId });
 
-        if (!isDefinedAndNotEmpty(assignment)) {
+        if (!assignment) {
           throw new Error('Assignment not found');
         }
 
