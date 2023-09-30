@@ -48,6 +48,7 @@ export enum Permission {
   SetReview = 'setReview',
   ViewGroups = 'viewGroups',
   ManageGroups = 'manageGroups',
+  SendNotifications = 'sendNotifications',
 }
 
 export const ALL_PERMISSIONS: string[] = Object.values(Permission);
