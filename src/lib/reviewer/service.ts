@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import ReviewerModel from './model';
 import {
-  destroyModel,
   bulkCreateModel,
+  destroyModel,
   findAllModels,
   findModel,
 } from '../../sequelize/serviceUtils';
@@ -23,17 +23,24 @@ const buildModelFields = (reviewer: ReviewerModel): ReviewerFields => {
   };
 };
 
-export const findReviewers = async ({ assignmentId }: { assignmentId: number }) => {
-  const reviewers = await findAllModels(
+export const findReviewers = async ({
+  assignmentId,
+  reviewerUserId,
+}: {
+  assignmentId: number;
+  reviewerUserId?: number;
+}) => {
+  const query = {
+    ...(reviewerUserId ? { reviewerUserId } : {}),
+    ...(assignmentId ? { assignmentId } : {}),
+  };
+
+  return await findAllModels(
     ReviewerModel,
     { sortOrder: 'ASC', sortField: 'id' },
     buildModelFields,
-    {
-      assignmentId,
-    }
+    query
   );
-
-  return reviewers;
 };
 
 export function createReviewers(

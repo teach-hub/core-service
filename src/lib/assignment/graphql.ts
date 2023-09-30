@@ -21,10 +21,10 @@ import {
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { isDefinedAndNotEmpty } from '../../utils/object';
 
-import { findAllSubmissions } from '../submission/submissionsService';
+import { findAllSubmissions, SubmissionFields } from '../submission/submissionsService';
 import {
-  deleteReviewers,
   createReviewers,
+  deleteReviewers,
   findReviewer,
   findReviewers,
   ReviewerFields,
@@ -49,6 +49,7 @@ import { NonExistentSubmissionType, SubmissionType } from '../submission/interna
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 
 import type { AuthenticatedContext } from 'src/context';
+import { Optional } from '../../types';
 
 const PreviewReviewersFilterType = {
   input: {
@@ -154,8 +155,21 @@ export const AssignmentType = new GraphQLObjectType({
     },
     submissions: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SubmissionType))),
-      resolve: async (assignment, _, ctx: AuthenticatedContext) => {
-        const submissions = await findAllSubmissions({ forAssignmentId: assignment.id });
+      args: {
+        onlyReviewerSubmissions: {
+          type: new GraphQLNonNull(GraphQLBoolean),
+        },
+      },
+      resolve: async (assignment, { onlyReviewerSubmissions }, ctx) => {
+        let submissions = await findAllSubmissions({ forAssignmentId: assignment.id });
+
+        submissions = !onlyReviewerSubmissions
+          ? submissions
+          : await filterSubmissionsWhereUserIsReviewer({
+              assignmentId: assignment.id,
+              submissions,
+              userId: ctx.viewerUserId,
+            });
 
         ctx.logger.info('Returning submissions', { submissions });
 
@@ -357,13 +371,39 @@ export const AssignmentType = new GraphQLObjectType({
       type: new GraphQLNonNull(
         new GraphQLList(new GraphQLNonNull(NonExistentSubmissionType))
       ),
-      resolve: async (assignment, _, ctx) => {
+      args: {
+        onlyReviewerSubmissions: {
+          type: new GraphQLNonNull(GraphQLBoolean),
+        },
+      },
+      resolve: async (assignment, { onlyReviewerSubmissions }, ctx) => {
         try {
           const submissions = await findAllSubmissions({
             forAssignmentId: assignment.id,
           });
           const allSubmittersIds = submissions.map(submission => submission.submitterId);
           const isGroup = assignment.isGroup === true;
+
+          /*
+           * Note:
+           *   - Undefined will be considered as if no filtering is required
+           *   - Empty list will be considered that viewer is reviewer to no submission
+           * */
+          const viewerRevieweeIds: Optional<number[]> = !onlyReviewerSubmissions
+            ? undefined
+            : await getReviewerRevieweeIds({
+                assignmentId: assignment.id,
+                userId: ctx.viewerUserId,
+              });
+
+          if (viewerRevieweeIds && viewerRevieweeIds.length === 0) {
+            return []; // Not allowed to view any submission
+          }
+
+          const viewerCanViewReviewee = (revieweeId: number) => {
+            if (!viewerRevieweeIds) return true; // No filtering
+            return viewerRevieweeIds.includes(revieweeId);
+          };
 
           if (!isGroup) {
             /* Find all user roles and keep the ones from students */
@@ -378,7 +418,9 @@ export const AssignmentType = new GraphQLObjectType({
             );
 
             /* Compare users with submissions to the ones that did not submit */
-            const courseUsersIds = courseRoles.map(userRole => userRole.userId);
+            const courseUsersIds = courseRoles
+              .map(userRole => userRole.userId)
+              .filter(userId => userId && viewerCanViewReviewee(userId));
             const nonExistentSubmittersIds = difference(courseUsersIds, allSubmittersIds);
 
             return nonExistentSubmittersIds.map(submitterId => ({
@@ -398,10 +440,10 @@ export const AssignmentType = new GraphQLObjectType({
               if (groupParticipant.groupId)
                 assignmentGroupIdsSet.add(groupParticipant.groupId);
             });
-            const nonExistentSubmittersIds = difference(
-              Array.from(assignmentGroupIdsSet),
-              allSubmittersIds
+            const groupIds = Array.from(assignmentGroupIdsSet).filter(
+              groupId => groupId && viewerCanViewReviewee(groupId)
             );
+            const nonExistentSubmittersIds = difference(groupIds, allSubmittersIds);
 
             return nonExistentSubmittersIds.map(submitterId => ({
               assignmentId: assignment.id,
@@ -564,4 +606,39 @@ const parseAssignmentData = (args: any): Omit<AssignmentFields, 'id'> => {
     description,
     courseId: fixedCourseId,
   };
+};
+
+const filterSubmissionsWhereUserIsReviewer = async ({
+  submissions,
+  assignmentId,
+  userId,
+}: {
+  submissions: SubmissionFields[];
+  assignmentId: number;
+  userId: number;
+}) => {
+  const viewerRevieweeIds = await getReviewerRevieweeIds({
+    assignmentId: assignmentId,
+    userId: userId,
+  });
+  return submissions.filter(submission =>
+    viewerRevieweeIds.includes(submission.submitterId)
+  );
+};
+
+const getReviewerRevieweeIds = async ({
+  assignmentId,
+  userId,
+}: {
+  assignmentId: number;
+  userId: number;
+}) => {
+  return (
+    await findReviewers({
+      assignmentId: assignmentId,
+      reviewerUserId: userId,
+    })
+  )
+    .map(x => x.revieweeId)
+    .filter(Boolean) as number[];
 };
