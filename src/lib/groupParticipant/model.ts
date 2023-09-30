@@ -5,12 +5,15 @@ import {
   Model,
   InferAttributes,
   InferCreationAttributes,
-  CreationOptional
+  CreationOptional,
 } from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-class GroupParticipant extends Model<InferAttributes<GroupParticipant>, InferCreationAttributes<GroupParticipant>> {
+class GroupParticipant extends Model<
+  InferAttributes<GroupParticipant>,
+  InferCreationAttributes<GroupParticipant>
+> {
   declare readonly id: CreationOptional<number>;
   declare readonly groupId: number;
   declare readonly userRoleId: number;
@@ -46,15 +49,6 @@ class GroupParticipant extends Model<InferAttributes<GroupParticipant>, InferCre
         timestamps: false,
       }
     );
-  };
-
-  // FIXME. No copiar
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static associate = (models: any) => {
-    const { GroupModel, UserRoleModel } = models;
-
-    GroupParticipant.belongsTo(GroupModel, { foreignKey: 'group_id' });
-    GroupParticipant.belongsTo(UserRoleModel, { foreignKey: 'user_role_id' });
   };
 }
 

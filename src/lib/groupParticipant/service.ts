@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import {
   countModels,
   createModel,
+  destroyModel,
   findAllModels,
   findModel,
   updateModel,
@@ -41,6 +42,12 @@ export async function createGroupParticipant(
   return createModel(GroupParticipantModel, dataWithActiveField, buildModelFields);
 }
 
+export async function deleteGroupParticipants(
+  filters: FindGroupParticipantFilters
+): Promise<number> {
+  return destroyModel(GroupParticipantModel, filters);
+}
+
 export async function updateGroupParticipant(
   id: number,
   data: Omit<GroupParticipantFields, 'id'>
@@ -53,7 +60,6 @@ export async function countGroupParticipants(): Promise<number> {
 }
 
 type FindGroupParticipantsFilter = OrderingOptions & {
-  // forAssignmentId?: GroupParticipantModel['assignmentId'];
   forGroupId?: GroupParticipantModel['groupId'];
   forGroupIds?: GroupParticipantModel['groupId'][];
   forUserRoleId?: GroupParticipantModel['userRoleId'];
@@ -78,15 +84,18 @@ export async function findAllGroupParticipants(
 type FindGroupParticipantFilters = {
   groupParticipantId?: GroupParticipantModel['id'];
   forUserRoleId?: GroupParticipantModel['userRoleId'];
+  forGroupId?: number;
   active?: boolean;
 };
 
 export async function findGroupParticipant({
   groupParticipantId,
   forUserRoleId,
+  forGroupId,
 }: FindGroupParticipantFilters): Promise<GroupParticipantFields | null> {
   const whereClause = {
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
+    ...(forGroupId ? { groupId: forGroupId } : {}),
     ...(groupParticipantId ? { id: groupParticipantId } : {}),
   };
 

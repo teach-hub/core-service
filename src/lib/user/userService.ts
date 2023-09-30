@@ -136,7 +136,7 @@ export const findAllUsers = async (filter: FindUsersFilter): Promise<UserFields[
   const { id } = filter;
 
   const whereClause = {
-    ...(id ? { id: id } : {}),
+    ...(id ? { id } : {}),
   };
 
   return findAllModels(UserModel, filter, buildModelFields, whereClause);

@@ -10,7 +10,11 @@ import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import { getGroupParticipantFields } from './graphql';
 import { createGroup, findAllGroups, findGroup } from '../group/service';
-import { createGroupParticipant, findAllGroupParticipants } from './service';
+import {
+  createGroupParticipant,
+  updateGroupParticipant,
+  findAllGroupParticipants,
+} from './service';
 import { getViewer, UserType } from '../user/internalGraphql';
 import {
   findAllUserRoles,
@@ -75,7 +79,6 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
       resolve: async groupParticipant => {
         const groupParticipants = await findAllGroupParticipants({
           forGroupId: groupParticipant.groupId,
-          // forAssignmentId: groupParticipant.assignmentId,
         });
 
         const userRoles = await findAllUserRoles({
@@ -145,7 +148,22 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
         throw new Error('Group could not be created');
       }
 
-      return await createGroupParticipant({
+      const assignmentGroups = await findAllGroups({ forAssignmentId: assignmentId });
+
+      const userGroupParticipants = await findAllGroupParticipants({
+        forUserRoleId: userRole.id,
+        forGroupIds: assignmentGroups.map(g => g.id),
+      });
+
+      context.logger.info('Current user group participants', { userGroupParticipants });
+
+      if (userGroupParticipants.length > 1) {
+        throw new Error('User has more than group in assignment');
+      }
+
+      const [currentGroupParticipant] = userGroupParticipants;
+
+      return updateGroupParticipant(currentGroupParticipant.id, {
         groupId: group.id,
         userRoleId: userRole.id,
         active: true,
