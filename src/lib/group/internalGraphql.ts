@@ -42,9 +42,9 @@ export const InternalGroupType: GraphQLObjectType = new GraphQLObjectType<
           dbId: s.assignmentId!,
         }),
     },
-    usersForAssignment: {
+    members: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
-      description: 'Users within a group for a submission',
+      description: 'Who are the members of this group?',
       resolve: async (group, _, __) => {
         const groupParticipants = await findAllGroupParticipants({
           forGroupId: group.id,

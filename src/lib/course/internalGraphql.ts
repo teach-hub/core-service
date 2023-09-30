@@ -242,11 +242,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
             return submission;
           },
         },
-
-        // TODO.
-        // Ojo porque esto en realidad es un InternalGroupParticipantType.
-        // Tal vez viewerGroupParticipants ?
-        viewerGroups: {
+        viewerGroupParticipants: {
           type: new GraphQLNonNull(
             new GraphQLList(new GraphQLNonNull(InternalGroupParticipantType))
           ),

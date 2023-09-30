@@ -107,7 +107,6 @@ export const AssignmentType = new GraphQLObjectType({
             }
 
             const [viewerGroupParticipant] = await findAllGroupParticipants({
-              // forAssignmentId: assignment.id,
               forUserRoleId: viewerCourseUserRole.id,
             });
 
@@ -194,7 +193,6 @@ export const AssignmentType = new GraphQLObjectType({
             userId: Number(ctx.viewerUserId),
           });
           const [viewerGroupParticipant] = await findAllGroupParticipants({
-            // forAssignmentId: assignment.id,
             forUserRoleId: viewerRole.id,
           });
           if (!viewerGroupParticipant) return null;

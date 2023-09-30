@@ -81,7 +81,7 @@ type CourseType {
   userRoles: [UserRoleType!]
 
   """Viewer groups within the course"""
-  viewerGroups: [InternalGroupParticipantType!]!
+  viewerGroupParticipants: [InternalGroupParticipantType!]!
   viewerRole: RoleType!
   year: Int!
 }
@@ -107,10 +107,10 @@ type InternalGroupType {
   assignmentId: ID!
   courseId: ID!
   id: ID!
-  name: String
 
-  """Users within a group for a submission"""
-  usersForAssignment: [UserType!]!
+  """Who are the members of this group?"""
+  members: [UserType!]!
+  name: String
 }
 
 """A review from a submission within TeachHub"""
