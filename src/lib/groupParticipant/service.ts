@@ -45,7 +45,13 @@ export async function createGroupParticipant(
 export async function deleteGroupParticipants(
   filters: FindGroupParticipantFilters
 ): Promise<number> {
-  return destroyModel(GroupParticipantModel, filters);
+  const { groupParticipantId } = filters;
+
+  const whereClause = {
+    ...(groupParticipantId ? { id: groupParticipantId } : {}),
+  };
+
+  return destroyModel(GroupParticipantModel, whereClause);
 }
 
 export async function updateGroupParticipant(
@@ -76,7 +82,7 @@ export async function findAllGroupParticipants(
     ...(forGroupId ? { groupId: forGroupId } : {}),
     ...(forGroupIds ? { groupId: { [Op.in]: forGroupIds } } : {}),
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
-    ...(forUserRoleIds ? { userRoleId: { [Op.in]: forUserRoleId } } : {}),
+    ...(forUserRoleIds ? { userRoleId: { [Op.in]: forUserRoleIds } } : {}),
     ...(active ? { active } : {}),
   };
 

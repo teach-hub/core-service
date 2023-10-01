@@ -3,7 +3,6 @@ import {
   GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLString,
 } from 'graphql';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
@@ -72,9 +71,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
     type: new GraphQLNonNull(InternalGroupParticipantType),
     description: 'Creates a group and adds a participant to it',
     args: {
-      groupName: {
-        type: new GraphQLNonNull(GraphQLString),
-      },
       courseId: {
         type: new GraphQLNonNull(GraphQLID),
       },
@@ -89,11 +85,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
         throw new Error('User not authenticated');
       }
 
-      const {
-        assignmentId: encodedAssignmentId,
-        courseId: encodedCourseId,
-        groupName,
-      } = args;
+      const { assignmentId: encodedAssignmentId, courseId: encodedCourseId } = args;
 
       const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
       const courseId = fromGlobalIdAsNumber(encodedCourseId);
@@ -104,7 +96,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       });
 
       context.logger.info(
-        `Creating group with name ${groupName} for assignment ${assignmentId} for user ${viewer.id}`
+        `Creating group with for assignment ${assignmentId} for user ${viewer.id}`
       );
 
       const createdGroup = await createGroupWithParticipants({
@@ -113,6 +105,7 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
         membersUserRoleIds: [userRole.id],
       });
 
+      // Como es uno solo lo podemos buscar directamente.
       const [participant] = await findAllGroupParticipants({
         forGroupId: createdGroup.id,
       });

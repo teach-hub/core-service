@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash';
 import {
   countModels,
   createModel,
@@ -73,7 +74,12 @@ export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFie
     ...(name ? { name: name } : {}),
   };
 
-  return findAllModels(GroupModel, options, buildModelFields, whereClause);
+  return findAllModels(
+    GroupModel,
+    { sortOrder: 'DESC', sortField: 'id' },
+    buildModelFields,
+    whereClause
+  );
 }
 
 export async function findGroup({
@@ -96,23 +102,32 @@ export async function createGroupWithParticipants(
   // TODO. Usar una transaccion.
   const { courseId, assignmentId, membersUserRoleIds } = createParams;
 
+  if (!membersUserRoleIds.length) {
+    throw new Error('No members provided');
+  }
+
   const targetAssignment = await findAssignment({ assignmentId });
 
   if (!targetAssignment?.isGroup) {
     throw new Error('Assignment is not a group assignment');
   }
 
-  // TODO. Logica de setear nombre secuencial.
+  // Nos aseguramos que los participants no pertenezcan a otro grupo.
+  const courseGroups = await findAllGroups({ forCourseId: courseId });
 
-  // Nos aseguramos que no pertenezcan a otro grupo.
-  const assignmentGroups = await findAllGroups({ forAssignmentId: assignmentId });
+  // Buscamos el mas reciente (id mas alto).
+  const [latestGroup] = sortBy(courseGroups, instance => -instance.id);
 
-  const userGroupParticipantsToDelete = await findAllGroupParticipants({
-    forUserRoleIds: membersUserRoleIds,
-    forGroupIds: assignmentGroups.map(g => g.id),
-  });
+  const assignmentGroups = courseGroups.filter(g => g.assignmentId === assignmentId);
 
-  if (userGroupParticipantsToDelete.length > 0) {
+  const userGroupParticipantsToDelete = assignmentGroups.length
+    ? await findAllGroupParticipants({
+        forUserRoleIds: membersUserRoleIds,
+        forGroupIds: assignmentGroups.map(g => g.id),
+      })
+    : [];
+
+  if (userGroupParticipantsToDelete.length) {
     await Promise.all(
       userGroupParticipantsToDelete.map(gp =>
         deleteGroupParticipants({ groupParticipantId: gp.id })
@@ -120,8 +135,12 @@ export async function createGroupWithParticipants(
     );
   }
 
+  const nextName = latestGroup
+    ? `Grupo ${Number(latestGroup.name.split(' ')[1]) + 1}`
+    : 'Grupo 1';
+
   const group = await createGroup({
-    name: 'Grupo 1',
+    name: nextName,
     courseId,
     assignmentId,
   });

@@ -650,9 +650,6 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
     type: AssignmentType,
     description: 'Creates a group and adds a list of participants to it',
     args: {
-      groupName: {
-        type: new GraphQLNonNull(GraphQLString),
-      },
       courseId: {
         type: new GraphQLNonNull(GraphQLID),
       },
@@ -667,7 +664,6 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       const {
         assignmentId: encodedAssignmentId,
         courseId: encodedCourseId,
-        groupName,
         participantUserRoleIds: encodedParticipantUserRoleIds,
       } = args;
 
@@ -676,7 +672,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       const participantUserRoleIds: number[] =
         encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
 
-      const logText = `Creating group with name ${groupName} for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
+      const logText = `Creating group for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
         ', '
       )}`;
 
