@@ -216,7 +216,7 @@ type RoleType {
 """Root mutation"""
 type RootMutationType {
   """Adds a list of participants to a group"""
-  addParticipantsToGroup(assignmentId: ID!, groupId: ID!, participantUserRoleIds: [ID!]!): [InternalGroupParticipantType]!
+  addParticipantsToGroup(assignmentId: ID!, courseId: ID!, groupId: ID!, participantUserRoleIds: [ID!]!): AssignmentType
   assignReviewers(courseId: ID!, input: AssignReviewersInputType): AssignmentType
 
   """Creates an assignment in a course"""
@@ -226,7 +226,7 @@ type RootMutationType {
   createGroupWithParticipant(assignmentId: ID!, courseId: ID!, groupName: String!): InternalGroupParticipantType!
 
   """Creates a group and adds a list of participants to it"""
-  createGroupWithParticipants(assignmentId: ID!, courseId: ID!, groupName: String!, participantUserRoleIds: [ID!]!): [InternalGroupParticipantType]!
+  createGroupWithParticipants(assignmentId: ID!, courseId: ID!, groupName: String!, participantUserRoleIds: [ID!]!): AssignmentType
 
   """Creates repositories"""
   createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
