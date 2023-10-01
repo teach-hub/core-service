@@ -12,10 +12,11 @@ import {
 import { DatabaseConstants } from '../../consts';
 
 class Group extends Model<InferAttributes<Group>, InferCreationAttributes<Group>> {
-  declare id: CreationOptional<number>;
-  declare name: string;
-  declare courseId: number;
-  declare active: boolean;
+  declare readonly id: CreationOptional<number>;
+  declare readonly name: string;
+  declare readonly courseId: number;
+  declare readonly assignmentId: number;
+  declare readonly active: boolean;
 
   static initialize = (db: Sequelize) => {
     return Group.init(
@@ -38,6 +39,11 @@ class Group extends Model<InferAttributes<Group>, InferCreationAttributes<Group>
           field: 'course_id',
           allowNull: false,
         },
+        assignmentId: {
+          type: INTEGER,
+          field: 'assignment_id',
+          allowNull: false,
+        },
       },
       {
         sequelize: db,
@@ -51,8 +57,9 @@ class Group extends Model<InferAttributes<Group>, InferCreationAttributes<Group>
   // FIXME. No copiar
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static associate = (models: any) => {
-    const { CourseModel } = models;
+    const { AssignmentModel, CourseModel } = models;
 
+    Group.belongsTo(AssignmentModel, { foreignKey: 'assignment_id' });
     Group.belongsTo(CourseModel, { foreignKey: 'course_id' });
   };
 }

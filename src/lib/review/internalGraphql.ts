@@ -13,7 +13,6 @@ import { getViewer } from '../user/internalGraphql';
 import { findReview, updateReview } from './service';
 import { findSubmission } from '../submission/submissionsService';
 import { dateToString } from '../../utils/dates';
-import { isDefinedAndNotEmpty } from '../../utils/object';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 import { findReviewer } from '../reviewer/service';
 
@@ -96,7 +95,7 @@ export const reviewMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
 
         const id = fromGlobalIdAsNumber(encodedId);
         const review = await findReview({ reviewId: id });
-        if (!isDefinedAndNotEmpty(review)) {
+        if (!review) {
           throw new Error('Review not found');
         }
 

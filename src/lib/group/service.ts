@@ -12,6 +12,7 @@ import type { OrderingOptions } from '../../utils';
 export type GroupFields = {
   id: number;
   name: string;
+  assignmentId: number;
   courseId: number;
   active: boolean;
 };
@@ -21,18 +22,20 @@ const buildModelFields = (group: GroupModel): GroupFields => {
     id: group.id,
     name: group.name,
     courseId: group.courseId,
+    assignmentId: group.assignmentId,
     active: group.active,
   };
 };
 
 type FindGroupsFilter = OrderingOptions & {
   forCourseId?: GroupModel['courseId'];
+  forAssignmentId?: GroupModel['assignmentId'];
   active?: boolean;
   name?: string;
 };
 
 export async function createGroup(
-  data: Omit<GroupFields, 'id'>
+  data: Omit<GroupFields, 'id' | 'active'>
 ): Promise<GroupFields | null> {
   const dataWithActiveField = {
     ...data,
@@ -54,10 +57,11 @@ export async function countGroups(): Promise<number> {
 }
 
 export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFields[]> {
-  const { forCourseId, active, name } = options;
+  const { forCourseId, forAssignmentId, active, name } = options;
 
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
+    ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
     ...(active ? { active: active } : {}),
     ...(name ? { name: name } : {}),
   };

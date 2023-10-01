@@ -101,7 +101,7 @@ export async function findAllUserRoles(
   const whereClause = {
     ...(forUserId ? { userId: forUserId } : {}),
     ...(forCourseId ? { courseId: forCourseId } : {}),
-    ...(id ? { id: id } : {}),
+    ...(id ? { id } : {}),
   };
 
   return findAllModels(UserRoleModel, filter, buildModelFields, whereClause);

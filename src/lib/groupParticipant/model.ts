@@ -5,17 +5,19 @@ import {
   Model,
   InferAttributes,
   InferCreationAttributes,
-  CreationOptional
+  CreationOptional,
 } from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
 
-class GroupParticipant extends Model<InferAttributes<GroupParticipant>, InferCreationAttributes<GroupParticipant>> {
-  declare id: CreationOptional<number>;
-  declare groupId: number;
-  declare assignmentId: number;
-  declare userRoleId: number;
-  declare active: boolean;
+class GroupParticipant extends Model<
+  InferAttributes<GroupParticipant>,
+  InferCreationAttributes<GroupParticipant>
+> {
+  declare readonly id: CreationOptional<number>;
+  declare readonly groupId: number;
+  declare readonly userRoleId: number;
+  declare readonly active: boolean;
 
   static initialize = (db: Sequelize) => {
     return GroupParticipant.init(
@@ -34,11 +36,6 @@ class GroupParticipant extends Model<InferAttributes<GroupParticipant>, InferCre
           field: 'group_id',
           allowNull: false,
         },
-        assignmentId: {
-          type: INTEGER,
-          field: 'assignment_id',
-          allowNull: false,
-        },
         userRoleId: {
           type: INTEGER,
           field: 'user_role_id',
@@ -52,16 +49,6 @@ class GroupParticipant extends Model<InferAttributes<GroupParticipant>, InferCre
         timestamps: false,
       }
     );
-  };
-
-  // FIXME. No copiar
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static associate = (models: any) => {
-    const { AssignmentModel, GroupModel, UserRoleModel } = models;
-
-    GroupParticipant.belongsTo(AssignmentModel, { foreignKey: 'assignment_id' });
-    GroupParticipant.belongsTo(GroupModel, { foreignKey: 'group_id' });
-    GroupParticipant.belongsTo(UserRoleModel, { foreignKey: 'user_role_id' });
   };
 }
 

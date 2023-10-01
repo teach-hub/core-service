@@ -14,7 +14,7 @@ import { findUser, UserFields } from '../lib/user/userService';
 import { Permission } from '../consts';
 
 import { isDevEnv } from '../utils';
-import { Context, isContextAuthenticated } from '../context';
+import { AuthenticatedContext, Context, isContextAuthenticated } from '../context';
 
 const buildRule: ReturnType<typeof rule> = fn =>
   rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
@@ -113,11 +113,11 @@ async function userHasPermissionInCourse({
 }
 
 const viewerHasPermissionInCourse = (permission: Permission) =>
-  buildRule(async (_, args, context) => {
+  buildRule(async (_, args, context: AuthenticatedContext) => {
     const courseId = fromGlobalIdAsNumber(args.courseId);
 
     const [viewer, course] = await Promise.all([
-      findUser(context.viewerUserId),
+      findUser({ userId: context.viewerUserId }),
       findCourse({ courseId }),
     ]);
 
@@ -126,7 +126,7 @@ const viewerHasPermissionInCourse = (permission: Permission) =>
     }
 
     context.logger.info(
-      `Checking if viewer has permission ${permission} in ${course.name}`
+      `Checking if viewer with id ${viewer.id} has permission ${permission} in ${course.name}`
     );
 
     return userHasPermissionInCourse({ user: viewer, course, permission });

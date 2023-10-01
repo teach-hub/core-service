@@ -1,3 +1,4 @@
+import { intersection } from 'lodash';
 import SubmissionModel from './model';
 
 import {
@@ -8,8 +9,9 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 import { findAssignment } from '../assignment/assignmentService';
-import { findGroupParticipant } from '../groupParticipant/service';
+import { findAllGroupParticipants } from '../groupParticipant/service';
 import { findUserRoleInCourse } from '../userRole/userRoleService';
+import { findAllGroups } from '../group/service';
 
 import type { GroupFields } from '../group/service';
 import type { UserFields } from '../user/userService';
@@ -116,16 +118,28 @@ export async function createSubmission({
       courseId: assignment.courseId!,
     });
 
-    const submitterGroupParticipant = await findGroupParticipant({
-      forUserRoleId: submitterUserRole.id,
+    const assignmentGroups = await findAllGroups({
       forAssignmentId: assignment.id,
     });
 
-    if (!submitterGroupParticipant) {
+    const submitterGroups = await findAllGroupParticipants({
+      forUserRoleId: submitterUserRole.id,
+    });
+
+    const submitterAssignmentGroupId = intersection(
+      assignmentGroups.map(group => group.id),
+      submitterGroups.map(group => group.groupId)
+    );
+
+    if (submitterAssignmentGroupId.length > 1) {
+      throw new Error('Submitter belongs to more than one group for this assignment.');
+    }
+
+    if (!submitterAssignmentGroupId) {
       throw new Error('Submitter does not belong to a group for this assignment.');
     }
 
-    submitterId = submitterGroupParticipant.groupId;
+    submitterId = submitterAssignmentGroupId[0];
   } else {
     submitterId = submitterUserId;
   }

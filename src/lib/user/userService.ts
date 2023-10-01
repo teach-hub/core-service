@@ -11,7 +11,6 @@ import {
 import { Op, WhereOptions } from 'sequelize';
 
 import { findAllUserRoles } from '../userRole/userRoleService';
-import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import type { OrderingOptions } from '../../utils';
 import type { Optional } from '../../types';
@@ -56,7 +55,9 @@ const buildQuery = ({
   return query;
 };
 
-export async function createUser(data: Omit<UserFields, 'id' | 'active'>): Promise<UserFields | null> {
+export async function createUser(
+  data: Omit<UserFields, 'id' | 'active'>
+): Promise<UserFields | null> {
   if (!data.githubId) {
     throw new Error('Github ID is required');
   }
@@ -88,21 +89,29 @@ export const updateUser = async (id: number, data: UserFields): Promise<UserFiel
 
 export const countUsers = (): Promise<number> => countModels<UserModel>(UserModel);
 
-const findUserByQuery = async (query: WhereOptions<UserModel>): Promise<UserFields | null> => {
+const findUserByQuery = async (
+  query: WhereOptions<UserModel>
+): Promise<UserFields | null> => {
   return findModel(UserModel, buildModelFields, query);
 };
 
-export const findUser = async ({ userId }: { userId: number }): Promise<UserFields | null> => {
+export const findUser = async ({
+  userId,
+}: {
+  userId: number;
+}): Promise<UserFields | null> => {
   return findUserByQuery(buildQuery({ id: userId }));
 };
 
-export const findUserWithGithubId = async (githubId: string): Promise<UserFields | null> => {
+export const findUserWithGithubId = async (
+  githubId: string
+): Promise<UserFields | null> => {
   return findUserByQuery(buildQuery({ githubId }));
 };
 
 export const existsUserWithGitHubId = async (githubId: string): Promise<boolean> => {
   const user = await findUserWithGithubId(githubId);
-  return isDefinedAndNotEmpty(user);
+  return !!user;
 };
 
 export const findUsersInCourse = async ({
@@ -127,7 +136,7 @@ export const findAllUsers = async (filter: FindUsersFilter): Promise<UserFields[
   const { id } = filter;
 
   const whereClause = {
-    ...(id ? { id: id } : {}),
+    ...(id ? { id } : {}),
   };
 
   return findAllModels(UserModel, filter, buildModelFields, whereClause);

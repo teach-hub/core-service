@@ -11,7 +11,6 @@ import {
 } from 'graphql';
 
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
-import { isDefinedAndNotEmpty } from '../../utils/object';
 
 import {
   createSubmission,
@@ -99,7 +98,7 @@ export const NonExistentSubmissionType = new GraphQLObjectType<
         });
 
         /* Reviewer may or may not be assigned yet */
-        if (isDefinedAndNotEmpty(reviewer)) {
+        if (reviewer) {
           return reviewer;
         }
         return null;
@@ -158,7 +157,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
             submitterId: submission.submitterId,
           });
           const group = await findGroup({ groupId: submission.submitterId });
-          if (!isDefinedAndNotEmpty(group)) {
+          if (!group) {
             return group;
           }
           return { ...group, assignmentId: assignment.id };
@@ -173,9 +172,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
         try {
           const reviewer = await findSubmissionReviewer(submission);
 
-          // TODO. Dejar de tener campos nulleables en los DTO.
-          // `ReviewerFields` tiene campos que son todos null cuando no lo encuentra.
-          if (!isDefinedAndNotEmpty(reviewer)) {
+          if (!reviewer) {
             return null;
           }
 
@@ -211,9 +208,7 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
 
           ctx.logger.info('Returning review', { review });
 
-          // TODO. Dejar de tener campos nulleables en los DTO.
-          // `ReviewFields` tiene campos que son todos null cuando no lo encuentra.
-          if (!isDefinedAndNotEmpty(review)) {
+          if (!review) {
             return null;
           }
 

@@ -81,7 +81,7 @@ type CourseType {
   userRoles: [UserRoleType!]
 
   """Viewer groups within the course"""
-  viewerGroups: [InternalGroupParticipantType!]!
+  viewerGroupParticipants: [InternalGroupParticipantType!]!
   viewerRole: RoleType!
   year: Int!
 }
@@ -93,10 +93,8 @@ type CreateRepositoriesResponse {
 """A group participant within TeachHub"""
 type InternalGroupParticipantType {
   active: Boolean
-  assignmentId: ID!
   group: InternalGroupType!
-  groupId: ID!
-  groupUsers: [UserType!]!
+  groupId: ID
   id: ID!
   user: UserType!
   userRoleId: ID!
@@ -105,12 +103,13 @@ type InternalGroupParticipantType {
 """A group within TeachHub"""
 type InternalGroupType {
   active: Boolean
-  courseId: ID!
+  assignmentId: ID!
+  courseId: ID
   id: ID!
-  name: String
 
-  """Users withing a group for a submission"""
-  usersForAssignment: [UserType!]!
+  """Who are the members of this group?"""
+  members: [UserType!]!
+  name: String
 }
 
 """A review from a submission within TeachHub"""
