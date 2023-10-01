@@ -6,6 +6,13 @@ import {
   updateModel,
 } from '../../sequelize/serviceUtils';
 
+import { findAssignment } from '../assignment/assignmentService';
+import {
+  createGroupParticipant,
+  findAllGroupParticipants,
+  deleteGroupParticipants,
+} from '../groupParticipant/service';
+
 import GroupModel from './model';
 import type { OrderingOptions } from '../../utils';
 
@@ -75,4 +82,63 @@ export async function findGroup({
   groupId: number;
 }): Promise<GroupFields | null> {
   return findModel(GroupModel, buildModelFields, { id: groupId });
+}
+
+type CreateGroupParams = {
+  courseId: number;
+  assignmentId: number;
+  membersUserRoleIds: number[];
+};
+
+export async function createGroupWithParticipants(
+  createParams: CreateGroupParams
+): Promise<GroupFields> {
+  // TODO. Usar una transaccion.
+  const { courseId, assignmentId, membersUserRoleIds } = createParams;
+
+  const targetAssignment = await findAssignment({ assignmentId });
+
+  if (!targetAssignment?.isGroup) {
+    throw new Error('Assignment is not a group assignment');
+  }
+
+  // TODO. Logica de setear nombre secuencial.
+
+  // Nos aseguramos que no pertenezcan a otro grupo.
+  const assignmentGroups = await findAllGroups({ forAssignmentId: assignmentId });
+
+  const userGroupParticipantsToDelete = await findAllGroupParticipants({
+    forUserRoleIds: membersUserRoleIds,
+    forGroupIds: assignmentGroups.map(g => g.id),
+  });
+
+  if (userGroupParticipantsToDelete.length > 0) {
+    await Promise.all(
+      userGroupParticipantsToDelete.map(gp =>
+        deleteGroupParticipants({ groupParticipantId: gp.id })
+      )
+    );
+  }
+
+  const group = await createGroup({
+    name: 'Grupo 1',
+    courseId,
+    assignmentId,
+  });
+
+  if (!group) {
+    throw new Error('Error creating group');
+  }
+
+  await Promise.all(
+    membersUserRoleIds.map(async userRoleId =>
+      createGroupParticipant({
+        userRoleId,
+        groupId: group.id,
+        active: true,
+      })
+    )
+  );
+
+  return group;
 }

@@ -34,7 +34,11 @@ import {
   UserRoleFields,
 } from '../userRole/userRoleService';
 import { findAllRoles, isTeacherRole } from '../role/roleService';
-import { createGroup, findAllGroups, GroupFields } from '../group/service';
+import {
+  createGroupWithParticipants,
+  findAllGroups,
+  GroupFields,
+} from '../group/service';
 import {
   createGroupParticipant,
   findAllGroupParticipants,
@@ -638,6 +642,11 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
     },
   },
   createGroupWithParticipants: {
+    /**
+     * Por que una mutation de groups devuelve un assignment?
+     * Porque el assignment es el que tiene la lista de grupos, y es el que se usa para
+     * mostrar la lista de grupos en el front.
+     */
     type: AssignmentType,
     description: 'Creates a group and adds a list of participants to it',
     args: {
@@ -667,33 +676,17 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       const participantUserRoleIds: number[] =
         encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
 
-      await validateGroupOnCreation({ groupName, courseId, assignmentId });
-
       const logText = `Creating group with name ${groupName} for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
         ', '
       )}`;
 
       context.logger.info(logText);
 
-      const group = await createGroup({
-        name: groupName,
+      await createGroupWithParticipants({
+        membersUserRoleIds: participantUserRoleIds,
         courseId,
         assignmentId,
       });
-
-      if (!group) {
-        throw new Error('Group could not be created');
-      }
-
-      await Promise.all(
-        participantUserRoleIds.map(async userRoleId =>
-          createGroupParticipant({
-            groupId: group.id,
-            userRoleId: userRoleId,
-            active: true,
-          })
-        )
-      );
 
       return findAssignment({ assignmentId });
     },
@@ -818,31 +811,6 @@ const getReviewerRevieweeIds = async ({
 // TODO. De aca para abajo esta duplicado con
 // src/lib/groupParticipant/internalGraphql.ts
 // Hay que mandarlo a una funcion aparte
-
-const validateGroupOnCreation = async ({
-  groupName,
-  courseId,
-  assignmentId,
-}: {
-  groupName: string;
-  courseId: number;
-  assignmentId: number;
-}) => {
-  /* Group name must be available in course */
-  const existingGroup = await findAllGroups({
-    name: groupName,
-    forCourseId: courseId,
-  });
-
-  if (existingGroup.length > 0) {
-    throw new Error('Group name not available');
-  }
-
-  const assignment = await findAssignment({ assignmentId });
-  if (assignment?.isGroup !== true) {
-    throw new Error('Assignment is not a group assignment');
-  }
-};
 
 const validateGroupOnJoin = async ({ assignmentId }: { assignmentId: number }) => {
   const assignment = await findAssignment({ assignmentId });

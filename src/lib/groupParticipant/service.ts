@@ -63,18 +63,20 @@ type FindGroupParticipantsFilter = OrderingOptions & {
   forGroupId?: GroupParticipantModel['groupId'];
   forGroupIds?: GroupParticipantModel['groupId'][];
   forUserRoleId?: GroupParticipantModel['userRoleId'];
+  forUserRoleIds?: GroupParticipantModel['userRoleId'][];
   active?: boolean;
 };
 
 export async function findAllGroupParticipants(
   options: FindGroupParticipantsFilter
 ): Promise<GroupParticipantFields[]> {
-  const { forGroupId, forGroupIds, forUserRoleId, active } = options;
+  const { forGroupId, forGroupIds, forUserRoleId, forUserRoleIds, active } = options;
 
   const whereClause = {
     ...(forGroupId ? { groupId: forGroupId } : {}),
     ...(forGroupIds ? { groupId: { [Op.in]: forGroupIds } } : {}),
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
+    ...(forUserRoleIds ? { userRoleId: { [Op.in]: forUserRoleId } } : {}),
     ...(active ? { active } : {}),
   };
 
