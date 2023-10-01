@@ -106,9 +106,22 @@ export const AssignmentType = new GraphQLObjectType({
               throw new Error('Viewer has no role in course.');
             }
 
-            const [viewerGroupParticipant] = await findAllGroupParticipants({
+            const viewerGroupParticipants = await findAllGroupParticipants({
               forUserRoleId: viewerCourseUserRole.id,
             });
+
+            const assignmentGroups = await findAllGroups({
+              forAssignmentId: assignment.id,
+            });
+
+            const viewerGroupParticipant = viewerGroupParticipants.find(
+              viewerGroupParticipant =>
+                assignmentGroups.map(g => g.id).includes(viewerGroupParticipant.groupId)
+            );
+
+            if (!viewerGroupParticipant) {
+              throw new Error('Viewer is not in any group for this assignment.');
+            }
 
             reviewer = await findReviewer({
               assignmentId: assignment.id,
@@ -185,20 +198,33 @@ export const AssignmentType = new GraphQLObjectType({
     viewerSubmission: {
       type: SubmissionType,
       resolve: async (assignment, _, ctx: AuthenticatedContext) => {
-        let submitterId = ctx.viewerUserId; // By default assume non group assignment
+        // By default assume non group assignment
+        let submitterId = ctx.viewerUserId;
 
         if (assignment.isGroup) {
           const viewerRole = await findUserRoleInCourse({
             courseId: assignment.courseId,
-            userId: Number(ctx.viewerUserId),
+            userId: ctx.viewerUserId,
           });
-          const [viewerGroupParticipant] = await findAllGroupParticipants({
+
+          const viewerGroupParticipants = await findAllGroupParticipants({
             forUserRoleId: viewerRole.id,
           });
-          if (!viewerGroupParticipant) return null;
+
+          const assignmentGroups = await findAllGroups({
+            forAssignmentId: assignment.id,
+          });
+
+          const viewerAssignmentGroup = assignmentGroups.find(group =>
+            viewerGroupParticipants.map(p => p.groupId).includes(group.id)
+          );
+
+          if (!viewerAssignmentGroup) {
+            return null;
+          }
 
           // If group assignment submitter is the group
-          submitterId = Number(viewerGroupParticipant.groupId);
+          submitterId = viewerAssignmentGroup.id;
         }
 
         const [submission] = await findAllSubmissions({
