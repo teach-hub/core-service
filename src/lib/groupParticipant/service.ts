@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Transaction, Op } from 'sequelize';
 
 import {
   countModels,
@@ -32,18 +32,20 @@ const buildModelFields = (
 };
 
 export async function createGroupParticipant(
-  data: Omit<GroupParticipantFields, 'id'>
+  data: Omit<GroupParticipantFields, 'id'>,
+  t?: Transaction
 ): Promise<GroupParticipantFields | null> {
   const dataWithActiveField = {
     ...data,
     active: true,
   };
 
-  return createModel(GroupParticipantModel, dataWithActiveField, buildModelFields);
+  return createModel(GroupParticipantModel, dataWithActiveField, buildModelFields, t);
 }
 
 export async function deleteGroupParticipants(
-  filters: FindGroupParticipantFilters
+  filters: FindGroupParticipantFilters,
+  t?: Transaction
 ): Promise<number> {
   const { groupParticipantId } = filters;
 
@@ -51,7 +53,7 @@ export async function deleteGroupParticipants(
     ...(groupParticipantId ? { id: groupParticipantId } : {}),
   };
 
-  return destroyModel(GroupParticipantModel, whereClause);
+  return destroyModel(GroupParticipantModel, whereClause, t);
 }
 
 export async function updateGroupParticipant(
@@ -74,7 +76,8 @@ type FindGroupParticipantsFilter = OrderingOptions & {
 };
 
 export async function findAllGroupParticipants(
-  options: FindGroupParticipantsFilter
+  options: FindGroupParticipantsFilter,
+  t?: Transaction
 ): Promise<GroupParticipantFields[]> {
   const { forGroupId, forGroupIds, forUserRoleId, forUserRoleIds, active } = options;
 
@@ -86,7 +89,7 @@ export async function findAllGroupParticipants(
     ...(active ? { active } : {}),
   };
 
-  return findAllModels(GroupParticipantModel, options, buildModelFields, whereClause);
+  return findAllModels(GroupParticipantModel, options, buildModelFields, whereClause, t);
 }
 
 type FindGroupParticipantFilters = {

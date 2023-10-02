@@ -1,3 +1,5 @@
+import { db } from '../../db';
+import { Transaction } from 'sequelize';
 import { sortBy } from 'lodash';
 import {
   countModels,
@@ -43,14 +45,15 @@ type FindGroupsFilter = OrderingOptions & {
 };
 
 export async function createGroup(
-  data: Omit<GroupFields, 'id' | 'active'>
+  data: Omit<GroupFields, 'id' | 'active'>,
+  t?: Transaction
 ): Promise<GroupFields | null> {
   const dataWithActiveField = {
     ...data,
     active: true,
   };
 
-  return createModel(GroupModel, dataWithActiveField, buildModelFields);
+  return createModel(GroupModel, dataWithActiveField, buildModelFields, t);
 }
 
 export async function updateGroup(
@@ -64,7 +67,10 @@ export async function countGroups(): Promise<number> {
   return countModels<GroupModel>(GroupModel);
 }
 
-export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFields[]> {
+export async function findAllGroups(
+  options: FindGroupsFilter,
+  t?: Transaction
+): Promise<GroupFields[]> {
   const { forCourseId, forAssignmentId, active, name } = options;
 
   const whereClause = {
@@ -78,7 +84,8 @@ export async function findAllGroups(options: FindGroupsFilter): Promise<GroupFie
     GroupModel,
     { sortOrder: 'DESC', sortField: 'id' },
     buildModelFields,
-    whereClause
+    whereClause,
+    t
   );
 }
 
@@ -99,7 +106,6 @@ type CreateGroupParams = {
 export async function createGroupWithParticipants(
   createParams: CreateGroupParams
 ): Promise<GroupFields> {
-  // TODO. Usar una transaccion.
   const { courseId, assignmentId, membersUserRoleIds } = createParams;
 
   if (!membersUserRoleIds.length) {
@@ -112,52 +118,65 @@ export async function createGroupWithParticipants(
     throw new Error('Assignment is not a group assignment');
   }
 
-  // Nos aseguramos que los participants no pertenezcan a otro grupo.
-  const courseGroups = await findAllGroups({ forCourseId: courseId });
+  const createdGroup = await db.transaction(async t => {
+    // Nos aseguramos que los participants no pertenezcan a otro grupo.
+    const courseGroups = await findAllGroups({ forCourseId: courseId }, t);
 
-  // Buscamos el mas reciente (id mas alto).
-  const [latestGroup] = sortBy(courseGroups, instance => -instance.id);
+    // Buscamos el mas reciente (id mas alto).
+    const [latestGroup] = sortBy(courseGroups, instance => -instance.id);
 
-  const assignmentGroups = courseGroups.filter(g => g.assignmentId === assignmentId);
+    const assignmentGroups = courseGroups.filter(g => g.assignmentId === assignmentId);
 
-  const userGroupParticipantsToDelete = assignmentGroups.length
-    ? await findAllGroupParticipants({
-        forUserRoleIds: membersUserRoleIds,
-        forGroupIds: assignmentGroups.map(g => g.id),
-      })
-    : [];
+    const userGroupParticipantsToDelete = assignmentGroups.length
+      ? await findAllGroupParticipants(
+          {
+            forUserRoleIds: membersUserRoleIds,
+            forGroupIds: assignmentGroups.map(g => g.id),
+          },
+          t
+        )
+      : [];
 
-  if (userGroupParticipantsToDelete.length) {
+    if (userGroupParticipantsToDelete.length) {
+      await Promise.all(
+        userGroupParticipantsToDelete.map(gp =>
+          deleteGroupParticipants({ groupParticipantId: gp.id }, t)
+        )
+      );
+    }
+
+    const nextName = latestGroup
+      ? `Grupo ${Number(latestGroup.name.split(' ')[1]) + 1}`
+      : 'Grupo 1';
+
+    const group = await createGroup(
+      {
+        name: nextName,
+        courseId,
+        assignmentId,
+      },
+      t
+    );
+
+    if (!group) {
+      throw new Error('Error creating group');
+    }
+
     await Promise.all(
-      userGroupParticipantsToDelete.map(gp =>
-        deleteGroupParticipants({ groupParticipantId: gp.id })
+      membersUserRoleIds.map(async userRoleId =>
+        createGroupParticipant(
+          {
+            userRoleId,
+            groupId: group.id,
+            active: true,
+          },
+          t
+        )
       )
     );
-  }
 
-  const nextName = latestGroup
-    ? `Grupo ${Number(latestGroup.name.split(' ')[1]) + 1}`
-    : 'Grupo 1';
-
-  const group = await createGroup({
-    name: nextName,
-    courseId,
-    assignmentId,
+    return group;
   });
 
-  if (!group) {
-    throw new Error('Error creating group');
-  }
-
-  await Promise.all(
-    membersUserRoleIds.map(async userRoleId =>
-      createGroupParticipant({
-        userRoleId,
-        groupId: group.id,
-        active: true,
-      })
-    )
-  );
-
-  return group;
+  return createdGroup;
 }

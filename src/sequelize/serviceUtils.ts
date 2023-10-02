@@ -1,6 +1,7 @@
 import { isNumber, type OrderingOptions } from '../utils';
 
 import type {
+  Transaction,
   Attributes,
   CreationAttributes,
   Model,
@@ -13,7 +14,8 @@ export const findAllModels = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   options: OrderingOptions,
   buildModelObject: (model: T) => U,
-  where: WhereOptions = {}
+  where: WhereOptions = {},
+  transaction?: Transaction
 ): Promise<U[]> => {
   const paginationOptions =
     isNumber(options.perPage) && isNumber(options.page)
@@ -31,6 +33,7 @@ export const findAllModels = async <T extends Model, U>(
     ...paginationOptions,
     order: orderingOptions,
     where,
+    transaction,
   });
 
   return models.map(buildModelObject);
@@ -38,19 +41,22 @@ export const findAllModels = async <T extends Model, U>(
 
 export const countModels = async <T extends Model>(
   sequelizeModel: ModelStatic<T>,
-  whereQuery: WhereOptions<T> = {}
-): Promise<number> => sequelizeModel.count({ where: whereQuery });
+  whereQuery: WhereOptions<T> = {},
+  transaction?: Transaction
+): Promise<number> => sequelizeModel.count({ where: whereQuery, transaction });
 
 export const findModel = async <M extends Model, U>(
   sequelizeModel: ModelStatic<M>,
   buildModelObject: (model: M) => U,
-  whereQuery: WhereOptions<M>
+  whereQuery: WhereOptions<M>,
+  transaction?: Transaction
 ): Promise<U | null> => {
   const model = await sequelizeModel.findOne({
     where: whereQuery,
+    transaction,
   });
 
-  return model ? buildModelObject(model): null;
+  return model ? buildModelObject(model) : null;
 };
 
 export const existsModel = async <T extends Model>(
@@ -67,28 +73,31 @@ export const existsModel = async <T extends Model>(
 export const createModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   values: CreationAttributes<T>,
-  buildModelObject: (model: T) => U
+  buildModelObject: (model: T) => U,
+  transaction?: Transaction
 ): Promise<U | null> => {
-  const created = await sequelizeModel.create(values);
+  const created = await sequelizeModel.create(values, { transaction });
 
-  return created ? buildModelObject(created): null;
+  return created ? buildModelObject(created) : null;
 };
 
 export const bulkCreateModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   values: CreationAttributes<T>[],
-  buildModelObject: (model: T) => U
+  buildModelObject: (model: T) => U,
+  transaction?: Transaction
 ): Promise<U[]> => {
-  const created = await sequelizeModel.bulkCreate(values);
+  const created = await sequelizeModel.bulkCreate(values, { transaction });
 
   return created.map(buildModelObject);
 };
 
 export const destroyModel = async <T extends Model>(
   sequelizeModel: ModelStatic<T>,
-  whereQuery: WhereOptions<T>
+  whereQuery: WhereOptions<T>,
+  transaction?: Transaction
 ): Promise<number> => {
-  const result = await sequelizeModel.destroy({ where: whereQuery });
+  const result = await sequelizeModel.destroy({ where: whereQuery, transaction });
 
   return result;
 };
@@ -97,11 +106,13 @@ export const updateModel = async <T extends Model, U>(
   sequelizeModel: ModelStatic<T>,
   values: Partial<Attributes<T>>,
   buildModelObject: (model: T) => U,
-  whereQuery: WhereOptions<T>
+  whereQuery: WhereOptions<T>,
+  transaction?: Transaction
 ): Promise<U> => {
   const [, [updated]] = await sequelizeModel.update(values, {
     where: whereQuery,
     returning: true,
+    transaction,
   });
 
   return buildModelObject(updated);
