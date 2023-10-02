@@ -1,13 +1,13 @@
 import {
-  ENUM,
-  INTEGER,
-  TEXT,
   BOOLEAN,
-  Sequelize,
-  Model,
+  CreationOptional,
+  ENUM,
   InferAttributes,
   InferCreationAttributes,
-  CreationOptional
+  INTEGER,
+  Model,
+  Sequelize,
+  TEXT,
 } from 'sequelize';
 
 import { DatabaseConstants } from '../../consts';
@@ -16,9 +16,13 @@ import type { Optional } from 'src/types';
 
 export type CoursePeriod = '1' | '2';
 
-class CourseModel extends Model<InferAttributes<CourseModel>, InferCreationAttributes<CourseModel>> {
+class CourseModel extends Model<
+  InferAttributes<CourseModel>,
+  InferCreationAttributes<CourseModel>
+> {
   declare id: CreationOptional<number>;
   declare name: string;
+  declare description: Optional<string>;
   declare githubOrganization: Optional<string>;
   declare subjectId: number;
   declare period: CoursePeriod;
@@ -36,6 +40,10 @@ class CourseModel extends Model<InferAttributes<CourseModel>, InferCreationAttri
         name: {
           type: TEXT,
           allowNull: false,
+        },
+        description: {
+          type: TEXT,
+          allowNull: true,
         },
         githubOrganization: {
           type: TEXT,
