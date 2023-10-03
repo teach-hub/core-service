@@ -203,6 +203,10 @@ export default shield<null, Context, unknown>(
         isAuthenticated,
         viewerHasPermissionInCourse(Permission.SetOrganization)
       ),
+      setDescription: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.SetDescription)
+      ),
       generateInviteCode: chain(
         isAuthenticated,
         viewerHasPermissionInCourse(Permission.InviteUser)

@@ -89,6 +89,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
           },
         },
         name: { type: new GraphQLNonNull(GraphQLString) },
+        description: { type: GraphQLString },
         organization: { type: GraphQLString },
         period: { type: new GraphQLNonNull(GraphQLInt) },
         year: { type: new GraphQLNonNull(GraphQLInt) },
@@ -321,6 +322,40 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
       const courseFields = {
         ...currentCourseData,
         organization: organizationName,
+      };
+
+      return await updateCourse(courseId, courseFields);
+    },
+  },
+  setDescription: {
+    type: CourseType,
+    description: 'Sets the description of a course',
+    args: {
+      description: {
+        type: new GraphQLNonNull(GraphQLString),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    resolve: async (_, args, context: AuthenticatedContext) => {
+      if (!context.viewerUserId) throw new Error('User not authenticated');
+
+      const { description, courseId: encodedCourseId } = args;
+
+      const courseId = fromGlobalIdAsNumber(encodedCourseId);
+
+      context.logger.info(`Setting course ${courseId} description`);
+
+      const currentCourseData = await findCourse({ courseId });
+
+      if (!currentCourseData) {
+        throw new Error(`Course ${courseId} not found`);
+      }
+
+      const courseFields = {
+        ...currentCourseData,
+        description,
       };
 
       return await updateCourse(courseId, courseFields);

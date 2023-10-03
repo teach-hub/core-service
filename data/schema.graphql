@@ -60,6 +60,7 @@ type CourseType {
 
   """Active assignments within the course"""
   assignments(assignmentId: ID): [AssignmentType!]!
+  description: String
 
   """Groups within a course"""
   groups: [InternalGroupType!]!
@@ -253,6 +254,9 @@ type RootMutationType {
   registerUser(file: String, lastName: String, name: String, notificationEmail: String): UserType!
   removeReviewers(assignmentId: ID!, courseId: ID!, reviewers: [ID!]!): AssignmentType
   sendNotification(assignmentId: ID!, body: String!, courseId: ID!, recipients: [String!]): Boolean!
+
+  """Sets the description of a course"""
+  setDescription(courseId: ID!, description: String!): CourseType
 
   """Sets the github organization of a course"""
   setOrganization(courseId: ID!, organizationName: String!): CourseType

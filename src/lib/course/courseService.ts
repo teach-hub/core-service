@@ -1,3 +1,4 @@
+import type { WhereOptions } from 'sequelize';
 import { Op } from 'sequelize';
 import { omit } from 'lodash';
 
@@ -12,12 +13,12 @@ import {
 } from '../../sequelize/serviceUtils';
 
 import type { OrderingOptions } from '../../utils';
-import type { WhereOptions } from 'sequelize';
 import type { Optional } from '../../types';
 
 export type CourseFields = {
   id: number;
   name: string;
+  description: Optional<string>;
   organization: Optional<string>;
   subjectId: number;
   period: CoursePeriod;
@@ -34,6 +35,7 @@ const buildModelFields = (course: Course): CourseFields => {
     period: course.period,
     year: course.year,
     active: course.active,
+    description: course.description,
   };
 };
 

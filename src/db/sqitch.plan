@@ -28,3 +28,4 @@ create_review_table 2023-07-25T02:06:38Z Sebastian Penna <spenna@fi.uba.ar> # Cr
 change_invites_to_expire_after_time 2023-08-26T03:06:52Z Sebastian Penna <spenna@fi.uba.ar> # Change invites to expire after time
 delete_description_from_submissions_table 2023-09-08T03:50:26Z Sebastian Penna <spenna@fi.uba.ar> # Delete description column from submissions table
 make_groups_assignment_aware 2023-09-27T00:34:41Z System Administrator <root@canada> # Groups -- Move assignment_id from group_participants to groups
+add_description_to_course_table 2023-10-02T16:34:24Z Sebastian Penna <spenna@fi.uba.ar> # Add description to course table
