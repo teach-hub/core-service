@@ -1,15 +1,13 @@
 import {
   GraphQLFieldConfigMap,
   GraphQLID,
-  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
-  GraphQLString,
 } from 'graphql';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import { getGroupParticipantFields } from './graphql';
-import { createGroup, findAllGroups, findGroup } from '../group/service';
+import { createGroupWithParticipants, findAllGroups, findGroup } from '../group/service';
 import {
   createGroupParticipant,
   updateGroupParticipant,
@@ -73,9 +71,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
     type: new GraphQLNonNull(InternalGroupParticipantType),
     description: 'Creates a group and adds a participant to it',
     args: {
-      groupName: {
-        type: new GraphQLNonNull(GraphQLString),
-      },
       courseId: {
         type: new GraphQLNonNull(GraphQLID),
       },
@@ -90,16 +85,10 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
         throw new Error('User not authenticated');
       }
 
-      const {
-        assignmentId: encodedAssignmentId,
-        courseId: encodedCourseId,
-        groupName,
-      } = args;
+      const { assignmentId: encodedAssignmentId, courseId: encodedCourseId } = args;
 
       const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
       const courseId = fromGlobalIdAsNumber(encodedCourseId);
-
-      await validateGroupOnCreation({ groupName, courseId, assignmentId });
 
       const userRole = await findUserRoleInCourse({
         courseId,
@@ -107,48 +96,20 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       });
 
       context.logger.info(
-        `Creating group with name ${groupName} for assignment ${assignmentId} for user ${viewer.id}`
+        `Creating group with for assignment ${assignmentId} for user ${viewer.id}`
       );
 
-      const group = await createGroup({
-        name: groupName,
+      const createdGroup = await createGroupWithParticipants({
         courseId,
         assignmentId,
+        membersUserRoleIds: [userRole.id],
       });
 
-      if (!group) {
-        throw new Error('Group could not be created');
-      }
-
-      const assignmentGroups = await findAllGroups({ forAssignmentId: assignmentId });
-
-      const userGroupParticipants = await findAllGroupParticipants({
-        forUserRoleId: userRole.id,
-        forGroupIds: assignmentGroups.map(g => g.id),
+      // Como es uno solo lo podemos buscar directamente.
+      const [participant] = await findAllGroupParticipants({
+        forGroupId: createdGroup.id,
       });
-
-      if (!userGroupParticipants.length) {
-        // User has no group. Let's create one.
-        return createGroupParticipant({
-          groupId: group.id,
-          userRoleId: userRole.id,
-          active: true,
-        });
-      }
-
-      context.logger.info('Current user group participants', { userGroupParticipants });
-
-      if (userGroupParticipants.length > 1) {
-        throw new Error('User has more than group in assignment');
-      }
-
-      const [currentGroupParticipant] = userGroupParticipants;
-
-      return updateGroupParticipant(currentGroupParticipant.id, {
-        groupId: group.id,
-        userRoleId: userRole.id,
-        active: true,
-      });
+      return participant;
     },
   },
   joinGroup: {
@@ -224,135 +185,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
       });
     },
   },
-  createGroupWithParticipants: {
-    type: new GraphQLNonNull(new GraphQLList(InternalGroupParticipantType)),
-    description: 'Creates a group and adds a list of participants to it',
-    args: {
-      groupName: {
-        type: new GraphQLNonNull(GraphQLString),
-      },
-      courseId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      assignmentId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      participantUserRoleIds: {
-        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
-      },
-    },
-    resolve: async (_, args, context) => {
-      const {
-        assignmentId: encodedAssignmentId,
-        courseId: encodedCourseId,
-        groupName,
-        participantUserRoleIds: encodedParticipantUserRoleIds,
-      } = args;
-
-      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
-      const courseId = fromGlobalIdAsNumber(encodedCourseId);
-      const participantUserRoleIds: number[] =
-        encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
-
-      await validateGroupOnCreation({ groupName, courseId, assignmentId });
-
-      const logText = `Creating group with name ${groupName} for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
-        ', '
-      )}`;
-
-      context.logger.info(logText);
-
-      const group = await createGroup({
-        name: groupName,
-        courseId,
-        assignmentId,
-      });
-
-      if (!group) {
-        throw new Error('Group could not be created');
-      }
-
-      return Promise.all(
-        participantUserRoleIds.map(async userRoleId =>
-          createGroupParticipant({
-            groupId: group.id,
-            userRoleId: userRoleId,
-            active: true,
-          })
-        )
-      );
-    },
-  },
-  addParticipantsToGroup: {
-    type: new GraphQLNonNull(new GraphQLList(InternalGroupParticipantType)),
-    description: 'Adds a list of participants to a group',
-    args: {
-      groupId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      assignmentId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      participantUserRoleIds: {
-        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
-      },
-    },
-    resolve: async (_, args, context) => {
-      const {
-        assignmentId: encodedAssignmentId,
-        groupId: encodedGroupId,
-        participantUserRoleIds: encodedParticipantUserRoleIds,
-      } = args;
-
-      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
-      const groupId = fromGlobalIdAsNumber(encodedGroupId);
-      const participantUserRoleIds: number[] =
-        encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
-
-      await validateGroupOnJoin({ assignmentId });
-
-      context.logger.info(
-        `Adding users with roles ${participantUserRoleIds.join(
-          ', '
-        )} to group ${groupId} for assignment ${assignmentId}`
-      );
-
-      return Promise.all(
-        participantUserRoleIds.map(async userRoleId =>
-          createGroupParticipant({
-            groupId,
-            userRoleId,
-            active: true,
-          })
-        )
-      );
-    },
-  },
-};
-
-const validateGroupOnCreation = async ({
-  groupName,
-  courseId,
-  assignmentId,
-}: {
-  groupName: string;
-  courseId: number;
-  assignmentId: number;
-}) => {
-  /* Group name must be available in course */
-  const existingGroup = await findAllGroups({
-    name: groupName,
-    forCourseId: courseId,
-  });
-
-  if (existingGroup.length > 0) {
-    throw new Error('Group name not available');
-  }
-
-  const assignment = await findAssignment({ assignmentId });
-  if (assignment?.isGroup !== true) {
-    throw new Error('Assignment is not a group assignment');
-  }
 };
 
 const validateGroupOnJoin = async ({ assignmentId }: { assignmentId: number }) => {

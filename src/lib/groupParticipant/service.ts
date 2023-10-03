@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Transaction, Op } from 'sequelize';
 
 import {
   countModels,
@@ -32,20 +32,28 @@ const buildModelFields = (
 };
 
 export async function createGroupParticipant(
-  data: Omit<GroupParticipantFields, 'id'>
+  data: Omit<GroupParticipantFields, 'id'>,
+  t?: Transaction
 ): Promise<GroupParticipantFields | null> {
   const dataWithActiveField = {
     ...data,
     active: true,
   };
 
-  return createModel(GroupParticipantModel, dataWithActiveField, buildModelFields);
+  return createModel(GroupParticipantModel, dataWithActiveField, buildModelFields, t);
 }
 
 export async function deleteGroupParticipants(
-  filters: FindGroupParticipantFilters
+  filters: FindGroupParticipantFilters,
+  t?: Transaction
 ): Promise<number> {
-  return destroyModel(GroupParticipantModel, filters);
+  const { groupParticipantId } = filters;
+
+  const whereClause = {
+    ...(groupParticipantId ? { id: groupParticipantId } : {}),
+  };
+
+  return destroyModel(GroupParticipantModel, whereClause, t);
 }
 
 export async function updateGroupParticipant(
@@ -63,22 +71,25 @@ type FindGroupParticipantsFilter = OrderingOptions & {
   forGroupId?: GroupParticipantModel['groupId'];
   forGroupIds?: GroupParticipantModel['groupId'][];
   forUserRoleId?: GroupParticipantModel['userRoleId'];
+  forUserRoleIds?: GroupParticipantModel['userRoleId'][];
   active?: boolean;
 };
 
 export async function findAllGroupParticipants(
-  options: FindGroupParticipantsFilter
+  options: FindGroupParticipantsFilter,
+  t?: Transaction
 ): Promise<GroupParticipantFields[]> {
-  const { forGroupId, forGroupIds, forUserRoleId, active } = options;
+  const { forGroupId, forGroupIds, forUserRoleId, forUserRoleIds, active } = options;
 
   const whereClause = {
     ...(forGroupId ? { groupId: forGroupId } : {}),
     ...(forGroupIds ? { groupId: { [Op.in]: forGroupIds } } : {}),
     ...(forUserRoleId ? { userRoleId: forUserRoleId } : {}),
+    ...(forUserRoleIds ? { userRoleId: { [Op.in]: forUserRoleIds } } : {}),
     ...(active ? { active } : {}),
   };
 
-  return findAllModels(GroupParticipantModel, options, buildModelFields, whereClause);
+  return findAllModels(GroupParticipantModel, options, buildModelFields, whereClause, t);
 }
 
 type FindGroupParticipantFilters = {

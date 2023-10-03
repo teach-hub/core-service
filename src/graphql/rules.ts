@@ -231,6 +231,10 @@ export default shield<null, Context, unknown>(
         isAuthenticated,
         viewerHasPermissionInCourse(Permission.ManageGroups)
       ),
+      addParticipantsToGroup: chain(
+        isAuthenticated,
+        viewerHasPermissionInCourse(Permission.ManageGroups)
+      ),
       createReview: chain(
         isAuthenticated,
         viewerHasPermissionInCourse(Permission.SetReview)

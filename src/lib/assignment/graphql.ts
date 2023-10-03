@@ -34,8 +34,15 @@ import {
   UserRoleFields,
 } from '../userRole/userRoleService';
 import { findAllRoles, isTeacherRole } from '../role/roleService';
-import { findAllGroups, GroupFields } from '../group/service';
-import { findAllGroupParticipants } from '../groupParticipant/service';
+import {
+  createGroupWithParticipants,
+  findAllGroups,
+  GroupFields,
+} from '../group/service';
+import {
+  createGroupParticipant,
+  findAllGroupParticipants,
+} from '../groupParticipant/service';
 import { findReview } from '../review/service';
 
 import {
@@ -417,7 +424,7 @@ export const AssignmentType = new GraphQLObjectType({
           }
 
           const viewerCanViewReviewee = (revieweeId: number) =>
-            viewerRevieweeIds ? viewerRevieweeIds.includes(revieweeId): true;
+            viewerRevieweeIds ? viewerRevieweeIds.includes(revieweeId) : true;
 
           if (!isGroup) {
             /* Find all user roles and keep the ones from students */
@@ -443,7 +450,9 @@ export const AssignmentType = new GraphQLObjectType({
               forAssignmentId: assignment.id,
             });
 
-            const assignmentGroupIds = assignmentGroups.map(g => g.id).filter(viewerCanViewReviewee);
+            const assignmentGroupIds = assignmentGroups
+              .map(g => g.id)
+              .filter(viewerCanViewReviewee);
 
             /* Compare groups with submissions to the ones that did not submit */
             nonExistentSubmittersIds = difference(assignmentGroupIds, allSubmittersIds);
@@ -632,6 +641,102 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       });
     },
   },
+  createGroupWithParticipants: {
+    /**
+     * Por que una mutation de groups devuelve un assignment?
+     * Porque el assignment es el que tiene la lista de grupos, y es el que se usa para
+     * mostrar la lista de grupos en el front.
+     */
+    type: AssignmentType,
+    description: 'Creates a group and adds a list of participants to it',
+    args: {
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      participantUserRoleIds: {
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
+      },
+    },
+    resolve: async (_, args, context) => {
+      const {
+        assignmentId: encodedAssignmentId,
+        courseId: encodedCourseId,
+        participantUserRoleIds: encodedParticipantUserRoleIds,
+      } = args;
+
+      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+      const courseId = fromGlobalIdAsNumber(encodedCourseId);
+      const participantUserRoleIds: number[] =
+        encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
+
+      const logText = `Creating group for assignment ${assignmentId} for user with roles ${participantUserRoleIds.join(
+        ', '
+      )}`;
+
+      context.logger.info(logText);
+
+      await createGroupWithParticipants({
+        membersUserRoleIds: participantUserRoleIds,
+        courseId,
+        assignmentId,
+      });
+
+      return findAssignment({ assignmentId });
+    },
+  },
+  addParticipantsToGroup: {
+    type: AssignmentType,
+    description: 'Adds a list of participants to a group',
+    args: {
+      groupId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      participantUserRoleIds: {
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLID))),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    resolve: async (_, args, context) => {
+      const {
+        assignmentId: encodedAssignmentId,
+        groupId: encodedGroupId,
+        participantUserRoleIds: encodedParticipantUserRoleIds,
+      } = args;
+
+      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+      const groupId = fromGlobalIdAsNumber(encodedGroupId);
+      const participantUserRoleIds: number[] =
+        encodedParticipantUserRoleIds.map(fromGlobalIdAsNumber);
+
+      await validateGroupOnJoin({ assignmentId });
+
+      context.logger.info(
+        `Adding users with roles ${participantUserRoleIds.join(
+          ', '
+        )} to group ${groupId} for assignment ${assignmentId}`
+      );
+
+      await Promise.all(
+        participantUserRoleIds.map(async userRoleId =>
+          createGroupParticipant({
+            groupId,
+            userRoleId,
+            active: true,
+          })
+        )
+      );
+
+      return findAssignment({ assignmentId });
+    },
+  },
 };
 
 // FIXME
@@ -697,4 +802,15 @@ const getReviewerRevieweeIds = async ({
   )
     .map(x => x.revieweeId)
     .filter(Boolean) as number[];
+};
+
+// TODO. De aca para abajo esta duplicado con
+// src/lib/groupParticipant/internalGraphql.ts
+// Hay que mandarlo a una funcion aparte
+
+const validateGroupOnJoin = async ({ assignmentId }: { assignmentId: number }) => {
+  const assignment = await findAssignment({ assignmentId });
+  if (!assignment?.isGroup) {
+    throw new Error('Assignment is not a group assignment');
+  }
 };
