@@ -339,8 +339,7 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
       },
     },
     resolve: async (_, args, context: AuthenticatedContext) => {
-      const token = getToken(context);
-      if (!token) throw new Error('Token required');
+      if (!context.viewerUserId) throw new Error('User not authenticated');
 
       const { description, courseId: encodedCourseId } = args;
 

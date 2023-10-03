@@ -4,6 +4,6 @@ BEGIN;
 
 
   ALTER TABLE teachhub.courses
-  ADD description TEXT DEFAULT null;
+  ADD description TEXT;
 
 COMMIT;
