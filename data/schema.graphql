@@ -32,6 +32,11 @@ type AssignmentType {
   viewerSubmission: SubmissionType
 }
 
+input BaseRepositoryData {
+  includeAllBranches: Boolean!
+  name: String!
+}
+
 """A role within TeachHub"""
 type Comment {
   body: String
@@ -230,7 +235,7 @@ type RootMutationType {
   createGroupWithParticipants(assignmentId: ID!, courseId: ID!, participantUserRoleIds: [ID!]!): AssignmentType
 
   """Creates repositories"""
-  createRepositories(admins: [String!], arePrivate: Boolean, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
+  createRepositories(admins: [String!], arePrivate: Boolean!, baseRepositoryData: BaseRepositoryData, courseId: ID!, maintainers: [String!], names: [String!], organization: String!, repositoriesData: [RepositoryStudentData!]): CreateRepositoriesResponse
 
   """Create a review within a submission"""
   createReview(courseId: ID!, grade: Int, revisionRequested: Boolean!, submissionId: ID!): SubmissionType!
