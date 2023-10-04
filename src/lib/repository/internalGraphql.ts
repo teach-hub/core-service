@@ -50,6 +50,14 @@ const RepositoryStudentsDataInput = new GraphQLInputObjectType({
   }),
 });
 
+const BaseRepositoryDataInput = new GraphQLInputObjectType({
+  name: 'BaseRepositoryData',
+  fields: () => ({
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    includeAllBranches: { type: new GraphQLNonNull(GraphQLBoolean) },
+  }),
+});
+
 export const RepositoryType = new GraphQLObjectType({
   name: 'RepositoryType',
   fields: {
@@ -107,9 +115,12 @@ export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       names: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
       admins: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
       maintainers: { type: new GraphQLList(new GraphQLNonNull(GraphQLString)) },
-      arePrivate: { type: GraphQLBoolean },
+      arePrivate: { type: new GraphQLNonNull(GraphQLBoolean) },
       repositoriesData: {
         type: new GraphQLList(new GraphQLNonNull(RepositoryStudentsDataInput)),
+      },
+      baseRepositoryData: {
+        type: BaseRepositoryDataInput,
       },
     },
     resolve: async (_, args, context) => {
@@ -123,6 +134,7 @@ export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         maintainers: maintainerGlobalIds,
         repositoriesData: repositoriesDataWithGlobalIds,
         arePrivate: arePrivate,
+        baseRepositoryData: baseRepositoryData,
       } = args;
 
       /**
@@ -193,6 +205,10 @@ export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         repositoriesData: githubRepositoryData,
         adminsGithubUsernames,
         maintainersGithubUsernames,
+        baseRepositoryData: baseRepositoryData && {
+          name: baseRepositoryData.name,
+          includeAllBranches: baseRepositoryData.includeAllBranches,
+        },
       });
 
       const repositoryFieldList: Omit<RepositoryFields, 'id'>[] =
