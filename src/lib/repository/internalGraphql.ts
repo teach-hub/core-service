@@ -99,7 +99,13 @@ export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
     type: new GraphQLObjectType({
       name: 'CreateRepositoriesResponse',
       fields: {
+        createdRepositoriesNames: {
+          type: new GraphQLList(new GraphQLNonNull(GraphQLString)),
+        },
         failedRepositoriesNames: {
+          type: new GraphQLList(new GraphQLNonNull(GraphQLString)),
+        },
+        failedAddingCollaboratorRepositoriesNames: {
           type: new GraphQLList(new GraphQLNonNull(GraphQLString)),
         },
       },
@@ -211,20 +217,24 @@ export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
         },
       });
 
-      const repositoryFieldList: Omit<RepositoryFields, 'id'>[] =
-        createRepositoriesResult.createdRepositoriesData
-          .map(createdRepositoryData => {
-            return buildRepositoryFields({
-              createdRepositoryData,
-              courseId,
-              repositoriesData,
-            });
-          })
-          .filter(
-            repositoryField =>
-              repositoryField.userId !== undefined ||
-              repositoryField.groupId !== undefined
-          );
+      const repositoryFieldList: Omit<RepositoryFields, 'id'>[] = [
+        ...createRepositoriesResult.successful,
+        ...createRepositoriesResult.failedAddingCollaborator,
+      ]
+        .map(createdRepositoryData => {
+          return buildRepositoryFields({
+            createdRepositoryData: {
+              name: createdRepositoryData.name,
+              id: createdRepositoryData.id,
+            },
+            courseId,
+            repositoriesData,
+          });
+        })
+        .filter(
+          repositoryField =>
+            repositoryField.userId !== undefined || repositoryField.groupId !== undefined
+        );
 
       try {
         await bulkCreateRepository(repositoryFieldList);
@@ -233,9 +243,10 @@ export const repositoryMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       }
 
       return {
-        failedRepositoriesNames: createRepositoriesResult.failedRepositoriesData.map(
-          x => x.name
-        ),
+        createdRepositoriesNames: createRepositoriesResult.successful.map(r => r.name),
+        failedRepositoriesNames: createRepositoriesResult.failed.map(r => r.name),
+        failedAddingCollaboratorRepositoriesNames:
+          createRepositoriesResult.failedAddingCollaborator.map(r => r.name),
       };
     },
   },

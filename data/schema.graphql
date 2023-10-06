@@ -93,6 +93,8 @@ type CourseType {
 }
 
 type CreateRepositoriesResponse {
+  createdRepositoriesNames: [String!]
+  failedAddingCollaboratorRepositoriesNames: [String!]
   failedRepositoriesNames: [String!]
 }
 
