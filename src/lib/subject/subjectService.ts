@@ -32,17 +32,26 @@ const buildQuery = (id: number): WhereOptions<Subject> => {
   return { id };
 };
 
-const validate = async (data: Omit<SubjectFields, 'id'>) => {
-  const codeAlreadyUsed = await existsModel(Subject, {
-    code: data.code,
-  });
+const validate = async (data: SubjectFields) => {
+  let previousSubject = null;
+  if (data.id) {
+    previousSubject = await findModel(Subject, buildModelFields, buildQuery(data.id));
+  }
 
-  if (codeAlreadyUsed) throw new Error('Code is already used');
-  const nameAlreadyUsed = await existsModel(Subject, {
-    name: data.name,
-  });
+  if (previousSubject?.code !== data.code) {
+    const codeAlreadyUsed = await existsModel(Subject, {
+      code: data.code,
+    });
 
-  if (nameAlreadyUsed) throw new Error('Name is already used');
+    if (codeAlreadyUsed) throw new Error('Code is already used');
+  }
+
+  if (previousSubject?.name !== data.name) {
+    const nameAlreadyUsed = await existsModel(Subject, {
+      name: data.name,
+    });
+    if (nameAlreadyUsed) throw new Error('Name is already used');
+  }
 };
 
 export async function createSubject(data: SubjectFields): Promise<SubjectFields | null> {
@@ -57,7 +66,7 @@ export async function updateSubject(
   id: number,
   data: Omit<SubjectFields, 'id'>
 ): Promise<SubjectFields> {
-  await validate(data);
+  await validate({ ...data, id });
   return updateModel(Subject, data, buildModelFields, buildQuery(id));
 }
 
@@ -67,7 +76,8 @@ export const findSubject = async ({
   subjectId,
 }: {
   subjectId: number;
-}): Promise<SubjectFields | null> => findModel(Subject, buildModelFields, buildQuery(subjectId));
+}): Promise<SubjectFields | null> =>
+  findModel(Subject, buildModelFields, buildQuery(subjectId));
 
 export const findAllSubjects = async (
   options: OrderingOptions
