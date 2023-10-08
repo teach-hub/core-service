@@ -33,6 +33,7 @@ export const listOpenPRs = async (
   });
 
   const findPullRequestsForRepository = async (repositoryName: string) => {
+    console.log('Finding pull requests for repository: ', repositoryName);
     return octoClient.rest.pulls
       .list({
         owner: organization,
@@ -45,7 +46,17 @@ export const listOpenPRs = async (
   const pullRequestsByRepo = await Promise.all(
     courseRepos
       .filter(({ name }) => !isNil(name))
-      .map(({ name }) => findPullRequestsForRepository(name!))
+      .map(async ({ name }) => {
+        /* Avoid making the whole method fail when a pull requests throws an error*/
+        try {
+          return await findPullRequestsForRepository(name!);
+        } catch (e) {
+          logger.error('Error while fetching pull requests from repository ${name}', {
+            error: e,
+          });
+          return [];
+        }
+      })
   );
 
   const pullRequests = flatten(pullRequestsByRepo);
