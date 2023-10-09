@@ -41,7 +41,6 @@ import { initOctokit } from '../github/config';
 
 import { UserPullRequestType } from '../github/graphql';
 
-import { groupParticipantMutations } from '../lib/groupParticipant/internalGraphql';
 import { reviewMutations } from '../lib/review/internalGraphql';
 import InviteModel from '../lib/invite/model';
 import { Context, AuthenticatedContext, isContextAuthenticated } from '../context';
@@ -255,7 +254,6 @@ const Mutation: GraphQLObjectType<null, AuthenticatedContext> = new GraphQLObjec
     ...submissionMutations,
     ...courseMutations,
     ...repositoryMutations,
-    ...groupParticipantMutations,
     ...reviewMutations,
   },
 });

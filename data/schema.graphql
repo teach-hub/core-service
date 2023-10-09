@@ -249,7 +249,7 @@ type RootMutationType {
   generateInviteCode(courseId: ID!, expirationMinutes: Int, roleId: ID!): String!
 
   """Joins viewer to a group"""
-  joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): InternalGroupParticipantType!
+  joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): CourseType
 
   """Exchanges received code for a long-lived token."""
   login(code: String): LoginPayloadType!
