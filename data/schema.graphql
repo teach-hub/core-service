@@ -102,7 +102,7 @@ type CreateRepositoriesResponse {
 type InternalGroupParticipantType {
   active: Boolean
   group: InternalGroupType!
-  groupId: ID
+  groupId: ID!
   id: ID!
   user: UserType!
   userRoleId: ID!
@@ -231,7 +231,7 @@ type RootMutationType {
   createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
 
   """Creates a group and adds a participant to it"""
-  createGroupWithParticipant(assignmentId: ID!, courseId: ID!): InternalGroupParticipantType!
+  createGroupWithParticipant(assignmentId: ID!, courseId: ID!): CourseType
 
   """Creates a group and adds a list of participants to it"""
   createGroupWithParticipants(assignmentId: ID!, courseId: ID!, participantUserRoleIds: [ID!]!): AssignmentType
@@ -249,7 +249,7 @@ type RootMutationType {
   generateInviteCode(courseId: ID!, expirationMinutes: Int, roleId: ID!): String!
 
   """Joins viewer to a group"""
-  joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): InternalGroupParticipantType!
+  joinGroup(assignmentId: ID!, courseId: ID!, groupId: ID!): CourseType
 
   """Exchanges received code for a long-lived token."""
   login(code: String): LoginPayloadType!

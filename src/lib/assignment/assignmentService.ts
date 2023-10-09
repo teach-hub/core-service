@@ -93,7 +93,12 @@ export async function findAllAssignments(
     ...(isGroup ? { isGroup } : {}),
   };
 
-  return findAllModels(AssignmentModel, options, buildModelFields, whereClause);
+  return findAllModels(
+    AssignmentModel,
+    { ...options, sortField: 'id', sortOrder: 'ASC' },
+    buildModelFields,
+    whereClause
+  );
 }
 
 export async function findAssignment({
