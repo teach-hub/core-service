@@ -1,25 +1,13 @@
-import {
-  GraphQLFieldConfigMap,
-  GraphQLID,
-  GraphQLNonNull,
-  GraphQLObjectType,
-} from 'graphql';
-import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
+import { GraphQLID, GraphQLNonNull, GraphQLObjectType } from 'graphql';
+
+import { toGlobalId } from '../../graphql/utils';
 
 import { getGroupParticipantFields } from './graphql';
-import { createGroupWithParticipants, findAllGroups, findGroup } from '../group/service';
-import {
-  createGroupParticipant,
-  updateGroupParticipant,
-  findAllGroupParticipants,
-} from './service';
-import { getViewer, UserType } from '../user/internalGraphql';
-import { findUserRole, findUserRoleInCourse } from '../userRole/userRoleService';
+import { findGroup } from '../group/service';
+import { UserType } from '../user/internalGraphql';
+import { findUserRole } from '../userRole/userRoleService';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findUser } from '../user/userService';
-import { findAssignment } from '../assignment/assignmentService';
-
-import type { AuthenticatedContext } from 'src/context';
 
 export const InternalGroupParticipantType = new GraphQLObjectType({
   name: 'InternalGroupParticipantType',
@@ -60,136 +48,13 @@ export const InternalGroupParticipantType = new GraphQLObjectType({
         return findGroup({ groupId: groupParticipant.groupId });
       },
     },
+    groupId: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: s =>
+        toGlobalId({
+          entityName: 'group',
+          dbId: s.groupId,
+        }),
+    },
   },
 });
-
-export const groupParticipantMutations: GraphQLFieldConfigMap<
-  null,
-  AuthenticatedContext
-> = {
-  createGroupWithParticipant: {
-    type: new GraphQLNonNull(InternalGroupParticipantType),
-    description: 'Creates a group and adds a participant to it',
-    args: {
-      courseId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      assignmentId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-    },
-    resolve: async (_, args, context) => {
-      const viewer = await getViewer(context);
-
-      if (!viewer?.id) {
-        throw new Error('User not authenticated');
-      }
-
-      const { assignmentId: encodedAssignmentId, courseId: encodedCourseId } = args;
-
-      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
-      const courseId = fromGlobalIdAsNumber(encodedCourseId);
-
-      const userRole = await findUserRoleInCourse({
-        courseId,
-        userId: viewer.id,
-      });
-
-      context.logger.info(
-        `Creating group with for assignment ${assignmentId} for user ${viewer.id}`
-      );
-
-      const createdGroup = await createGroupWithParticipants({
-        courseId,
-        assignmentId,
-        membersUserRoleIds: [userRole.id],
-      });
-
-      // Como es uno solo lo podemos buscar directamente.
-      const [participant] = await findAllGroupParticipants({
-        forGroupId: createdGroup.id,
-      });
-      return participant;
-    },
-  },
-  joinGroup: {
-    type: new GraphQLNonNull(InternalGroupParticipantType),
-    description: 'Joins viewer to a group',
-    args: {
-      groupId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      courseId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      assignmentId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-    },
-    resolve: async (_, args, context) => {
-      if (!context.viewerUserId) {
-        throw new Error('User not authenticated');
-      }
-
-      const {
-        assignmentId: encodedAssignmentId,
-        groupId: encodedGroupId,
-        courseId: encodedCourseId,
-      } = args;
-
-      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
-      const groupId = fromGlobalIdAsNumber(encodedGroupId);
-      const courseId = fromGlobalIdAsNumber(encodedCourseId);
-
-      await validateGroupOnJoin({ assignmentId });
-
-      const userRole = await findUserRoleInCourse({
-        courseId,
-        userId: context.viewerUserId,
-      });
-
-      context.logger.info(
-        `Joining group ${groupId} for assignment ${assignmentId} for user ${context.viewerUserId}`
-      );
-
-      const assignmentGroups = await findAllGroups({ forAssignmentId: assignmentId });
-
-      const userAssignmentGroupParticipants = await findAllGroupParticipants({
-        forUserRoleId: userRole.id,
-        forGroupIds: assignmentGroups.map(g => g.id),
-      });
-
-      if (!userAssignmentGroupParticipants.length) {
-        context.logger.info('Creating group participant for user', { userRole, groupId });
-
-        // User has no group participant. Let's create one.
-        return createGroupParticipant({
-          groupId,
-          userRoleId: userRole.id,
-          active: true,
-        });
-      }
-
-      if (userAssignmentGroupParticipants.length > 1) {
-        throw new Error('User has more than group in assignment');
-      }
-
-      const [currentGroupParticipant] = userAssignmentGroupParticipants;
-
-      context.logger.info('Updating group participant for user', { userRole, groupId });
-
-      return updateGroupParticipant(currentGroupParticipant.id, {
-        groupId,
-        userRoleId: userRole.id,
-        active: true,
-      });
-    },
-  },
-};
-
-const validateGroupOnJoin = async ({ assignmentId }: { assignmentId: number }) => {
-  const assignment = await findAssignment({ assignmentId });
-  if (!assignment?.isGroup) {
-    throw new Error('Assignment is not a group assignment');
-  }
-};

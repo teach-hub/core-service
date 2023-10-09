@@ -414,10 +414,10 @@ export const AssignmentType = new GraphQLObjectType({
            * */
           const viewerRevieweeIds: Optional<number[]> = !onlyReviewerSubmissions
             ? undefined
-            : await getReviewerRevieweeIds({
+            : await findReviewers({
                 assignmentId: assignment.id,
-                userId: ctx.viewerUserId,
-              });
+                reviewerUserId: ctx.viewerUserId,
+              }).then(reviewers => reviewers.map(r => r.revieweeId));
 
           if (viewerRevieweeIds && viewerRevieweeIds.length === 0) {
             return []; // Not allowed to view any submission
@@ -778,30 +778,14 @@ const filterSubmissionsWhereUserIsReviewer = async ({
   assignmentId: number;
   userId: number;
 }) => {
-  const viewerRevieweeIds = await getReviewerRevieweeIds({
-    assignmentId: assignmentId,
-    userId: userId,
-  });
+  const viewerRevieweeIds = await findReviewers({
+    assignmentId,
+    reviewerUserId: userId,
+  }).then(y => y.map(x => x.revieweeId));
+
   return submissions.filter(submission =>
     viewerRevieweeIds.includes(submission.submitterId)
   );
-};
-
-const getReviewerRevieweeIds = async ({
-  assignmentId,
-  userId,
-}: {
-  assignmentId: number;
-  userId: number;
-}) => {
-  return (
-    await findReviewers({
-      assignmentId: assignmentId,
-      reviewerUserId: userId,
-    })
-  )
-    .map(x => x.revieweeId)
-    .filter(Boolean) as number[];
 };
 
 // TODO. De aca para abajo esta duplicado con

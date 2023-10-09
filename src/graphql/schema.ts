@@ -41,7 +41,6 @@ import { initOctokit } from '../github/config';
 
 import { UserPullRequestType } from '../github/graphql';
 
-import { groupParticipantMutations } from '../lib/groupParticipant/internalGraphql';
 import { reviewMutations } from '../lib/review/internalGraphql';
 import InviteModel from '../lib/invite/model';
 import { Context, AuthenticatedContext, isContextAuthenticated } from '../context';
@@ -177,9 +176,8 @@ const ViewerType: GraphQLObjectType<UserFields, AuthenticatedContext> =
           const token = getToken(ctx);
           if (!token) throw new Error('Token required');
 
-          return {
-            names: await getGithubUserOrganizationNames(token),
-          };
+          const organizationNames = await getGithubUserOrganizationNames(token);
+          return organizationNames.map(name => ({ name }));
         },
       },
       githubUserName: {
@@ -255,7 +253,6 @@ const Mutation: GraphQLObjectType<null, AuthenticatedContext> = new GraphQLObjec
     ...submissionMutations,
     ...courseMutations,
     ...repositoryMutations,
-    ...groupParticipantMutations,
     ...reviewMutations,
   },
 });
