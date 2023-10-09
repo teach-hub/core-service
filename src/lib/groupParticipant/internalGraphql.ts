@@ -7,13 +7,13 @@ import {
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import { getGroupParticipantFields } from './graphql';
-import { createGroupWithParticipants, findAllGroups, findGroup } from '../group/service';
+import { findAllGroups, findGroup } from '../group/service';
 import {
   createGroupParticipant,
   updateGroupParticipant,
   findAllGroupParticipants,
 } from './service';
-import { getViewer, UserType } from '../user/internalGraphql';
+import { UserType } from '../user/internalGraphql';
 import { findUserRole, findUserRoleInCourse } from '../userRole/userRoleService';
 import { InternalGroupType } from '../group/internalGraphql';
 import { findUser } from '../user/userService';
@@ -67,51 +67,6 @@ export const groupParticipantMutations: GraphQLFieldConfigMap<
   null,
   AuthenticatedContext
 > = {
-  createGroupWithParticipant: {
-    type: new GraphQLNonNull(InternalGroupParticipantType),
-    description: 'Creates a group and adds a participant to it',
-    args: {
-      courseId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      assignmentId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-    },
-    resolve: async (_, args, context) => {
-      const viewer = await getViewer(context);
-
-      if (!viewer?.id) {
-        throw new Error('User not authenticated');
-      }
-
-      const { assignmentId: encodedAssignmentId, courseId: encodedCourseId } = args;
-
-      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
-      const courseId = fromGlobalIdAsNumber(encodedCourseId);
-
-      const userRole = await findUserRoleInCourse({
-        courseId,
-        userId: viewer.id,
-      });
-
-      context.logger.info(
-        `Creating group with for assignment ${assignmentId} for user ${viewer.id}`
-      );
-
-      const createdGroup = await createGroupWithParticipants({
-        courseId,
-        assignmentId,
-        membersUserRoleIds: [userRole.id],
-      });
-
-      // Como es uno solo lo podemos buscar directamente.
-      const [participant] = await findAllGroupParticipants({
-        forGroupId: createdGroup.id,
-      });
-      return participant;
-    },
-  },
   joinGroup: {
     type: new GraphQLNonNull(InternalGroupParticipantType),
     description: 'Joins viewer to a group',

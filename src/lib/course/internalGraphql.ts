@@ -26,6 +26,7 @@ import {
   findRole,
   isTeacherRole,
 } from '../role/roleService';
+import { createGroupWithParticipants } from '../group/service';
 
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
@@ -359,6 +360,45 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
       };
 
       return await updateCourse(courseId, courseFields);
+    },
+  },
+  createGroupWithParticipant: {
+    type: CourseType,
+    description: 'Creates a group and adds a participant to it',
+    args: {
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+    },
+    resolve: async (_, args, context) => {
+      if (!context.viewerUserId) {
+        throw new Error('User not authenticated');
+      }
+
+      const { assignmentId: encodedAssignmentId, courseId: encodedCourseId } = args;
+
+      const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+      const courseId = fromGlobalIdAsNumber(encodedCourseId);
+
+      const userRole = await findUserRoleInCourse({
+        courseId,
+        userId: context.viewerUserId,
+      });
+
+      context.logger.info(
+        `Creating group with for assignment ${assignmentId} for user ${context.viewerUserId}`
+      );
+
+      const createdGroup = await createGroupWithParticipants({
+        courseId,
+        assignmentId,
+        membersUserRoleIds: [userRole.id],
+      });
+
+      return findCourse({ courseId: createdGroup.courseId });
     },
   },
 };
