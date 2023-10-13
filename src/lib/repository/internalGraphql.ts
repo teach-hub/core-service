@@ -18,14 +18,12 @@ import {
 import { getToken } from '../../utils/request';
 
 import { findUser, findUsersInCourse } from '../user/userService';
-import { findCourse } from '../course/courseService';
 
 import { getGithubUsernameFromGithubId } from '../../github/githubUser';
 import { initOctokit } from '../../github/config';
 import { bulkCreateRepository, RepositoryFields } from './service';
 
 import { UserType } from '../user/internalGraphql';
-import { CourseType } from '../course/internalGraphql';
 
 import type { AuthenticatedContext } from 'src/context';
 
@@ -70,15 +68,12 @@ export const RepositoryType = new GraphQLObjectType({
         });
       },
     },
-    course: {
-      type: new GraphQLNonNull(CourseType),
-      resolve: async repository => {
-        return findCourse({ courseId: repository.courseId });
-      },
-    },
     user: {
-      type: new GraphQLNonNull(UserType),
+      type: UserType,
       resolve: async repository => {
+        if (repository.userId === null) {
+          return null;
+        }
         return findUser({ userId: repository.userId });
       },
     },

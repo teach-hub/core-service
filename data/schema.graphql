@@ -88,6 +88,7 @@ type CourseType {
 
   """Viewer groups within the course"""
   viewerGroupParticipants: [InternalGroupParticipantType!]!
+  viewerRepositories: [RepositoryType!]!
   viewerRole: RoleType!
   year: Int!
 }
@@ -96,6 +97,11 @@ type CreateRepositoriesResponse {
   createdRepositoriesNames: [String!]
   failedAddingCollaboratorRepositoriesNames: [String!]
   failedRepositoriesNames: [String!]
+}
+
+"""A github organization"""
+type GithubOrganizationType {
+  name: String!
 }
 
 """A group participant within TeachHub"""
@@ -171,11 +177,10 @@ input RepositoryStudentData {
 
 type RepositoryType {
   active: Boolean!
-  course: CourseType!
   githubId: String!
   id: ID!
   name: String!
-  user: UserType!
+  user: UserType
 }
 
 union RevieweeUnionType = InternalGroupType | UserType
@@ -360,16 +365,11 @@ type UserType {
   notificationEmail: String!
 }
 
-"""Viewer organizations data"""
-type ViewerOrganizations {
-  names: [String!]!
-}
-
 type ViewerType {
   active: Boolean!
 
-  """Get available github organizations for a user"""
-  availableOrganizations: ViewerOrganizations!
+  """Get available github organizations for viewer"""
+  availableOrganizations: [GithubOrganizationType!]!
 
   """Finds a course for the viewer"""
   course(id: ID!): CourseType
@@ -381,12 +381,6 @@ type ViewerType {
   name: String!
   notificationEmail: String!
   openPullRequests(courseId: ID!): [UserPullRequestType!]!
-
-  """Look for all the repositories associated to the viewer"""
-  repositories(
-    """Scope repositories down to this course"""
-    courseId: ID
-  ): [RepositoryType!]!
 
   """User user roles"""
   userRoles: [UserRoleType!]!
