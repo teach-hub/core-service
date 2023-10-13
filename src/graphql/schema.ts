@@ -13,7 +13,6 @@ import { UserFields } from '../lib/user/userService';
 import { findAllUserRoles, findUserRoleInCourse } from '../lib/userRole/userRoleService';
 import { findCourse } from '../lib/course/courseService';
 import { findAllRoles } from '../lib/role/roleService';
-import { findAllRepositories } from '../lib/repository/service';
 
 import { getViewer, userMutations, UserType } from '../lib/user/internalGraphql';
 import { inviteMutations } from '../lib/invite/internalGraphql';
@@ -24,7 +23,7 @@ import {
   CourseType,
 } from '../lib/course/internalGraphql';
 import { RoleType } from '../lib/role/internalGraphql';
-import { repositoryMutations, RepositoryType } from '../lib/repository/internalGraphql';
+import { repositoryMutations } from '../lib/repository/internalGraphql';
 import { assignmentMutations } from '../lib/assignment/graphql';
 import { submissionMutations } from '../lib/submission/internalGraphql';
 
@@ -51,13 +50,13 @@ const UserRoleType = buildUserRoleType({
   courseType: CourseType,
 });
 
-const ViewerOrganizationsType: GraphQLObjectType<unknown, AuthenticatedContext> =
+const GithubOrganizationType: GraphQLObjectType<unknown, AuthenticatedContext> =
   new GraphQLObjectType({
-    name: 'ViewerOrganizations',
-    description: 'Viewer organizations data',
+    name: 'GithubOrganizationType',
+    description: 'A github organization',
     fields: {
-      names: {
-        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
+      name: {
+        type: new GraphQLNonNull(GraphQLString),
       },
     },
   });
@@ -104,41 +103,6 @@ const ViewerType: GraphQLObjectType<UserFields, AuthenticatedContext> =
           }
         },
       },
-      repositories: {
-        description: 'Look for all the repositories associated to the viewer',
-        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(RepositoryType))),
-        args: {
-          courseId: {
-            type: GraphQLID,
-            description: 'Scope repositories down to this course',
-          },
-        },
-        resolve: async (viewer, { courseId }, context) => {
-          if (!viewer.id) {
-            return [];
-          }
-
-          try {
-            const repositoriesFilters = {
-              forUserId: viewer.id,
-              ...(courseId ? { forCourseId: fromGlobalIdAsNumber(courseId) } : {}),
-            };
-
-            context.logger.info('Searching repositories', {
-              filters: repositoriesFilters,
-            });
-
-            const result = await findAllRepositories(repositoriesFilters);
-
-            context.logger.info(`Returning ${result.length} repositories`);
-
-            return result;
-          } catch (e) {
-            context.logger.error('Failed fetching repositories', { error: e });
-            return [];
-          }
-        },
-      },
       userRoles: {
         type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserRoleType))),
         description: 'User user roles',
@@ -170,11 +134,16 @@ const ViewerType: GraphQLObjectType<UserFields, AuthenticatedContext> =
         },
       },
       availableOrganizations: {
-        description: 'Get available github organizations for a user',
-        type: new GraphQLNonNull(ViewerOrganizationsType),
-        resolve: async (_, args, ctx) => {
+        description: 'Get available github organizations for viewer',
+        type: new GraphQLNonNull(
+          new GraphQLList(new GraphQLNonNull(GithubOrganizationType))
+        ),
+        resolve: async (_, __, ctx) => {
           const token = getToken(ctx);
-          if (!token) throw new Error('Token required');
+
+          if (!token) {
+            throw new Error('Token required');
+          }
 
           const organizationNames = await getGithubUserOrganizationNames(token);
           return organizationNames.map(name => ({ name }));
@@ -184,8 +153,13 @@ const ViewerType: GraphQLObjectType<UserFields, AuthenticatedContext> =
         type: new GraphQLNonNull(GraphQLString),
         resolve: async (viewer, _, ctx) => {
           const token = getToken(ctx);
-          if (!token) throw new Error('Token required');
-          if (!viewer.githubId) throw new Error('User missing githubId');
+          if (!token) {
+            throw new Error('Token required');
+          }
+
+          if (!viewer.githubId) {
+            throw new Error('User missing githubId');
+          }
 
           return getGithubUsernameFromGithubId(initOctokit(token), viewer.githubId);
         },
