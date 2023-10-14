@@ -37,7 +37,7 @@ input BaseRepositoryData {
   name: String!
 }
 
-"""A role within TeachHub"""
+"""A github comment within TeachHub"""
 type Comment {
   body: String
   createdAt: String
@@ -45,6 +45,11 @@ type Comment {
   githubUsername: String
   id: ID
   updatedAt: String
+}
+
+type ContributionType {
+  commitsMade: Int!
+  user: UserType!
 }
 
 type CoursePublicDataType {
@@ -310,12 +315,19 @@ type SubjectType {
   name: String!
 }
 
+type SubmissionMetricsType {
+  contributions: [ContributionType!]!
+  firstCommitDate: String
+  lastCommitDate: String
+}
+
 type SubmissionType {
   """Finds an assignment from a submission"""
   assignment: AssignmentType
   assignmentId: ID!
   comments: [Comment!]!
   id: ID!
+  metrics: SubmissionMetricsType
   pullRequestUrl: String!
   review: InternalReviewType
   reviewer: ReviewerType
