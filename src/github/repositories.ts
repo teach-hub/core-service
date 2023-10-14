@@ -213,12 +213,16 @@ export const createRepositories = async ({
 };
 
 export const listCommits = async (
-  { rest: { repos } }: Octokit,
+  { rest: { repos }, paginate }: Octokit,
   organization: string,
   repository: string
 ): Promise<CommitInfo[]> => {
-  return repos.listCommits({ owner: organization, repo: repository }).then(({ data }) => {
-    return data
+  return paginate(repos.listCommits, {
+    owner: organization,
+    repo: repository,
+    per_page: 100,
+  }).then(items =>
+    items
       .map(({ author, commit }) => ({
         authorGithubId: author?.id,
         date: commit.author?.date,
@@ -226,6 +230,6 @@ export const listCommits = async (
       .filter(
         (payload): payload is { authorGithubId: number; date: string } =>
           !!payload.authorGithubId && !!payload.date
-      );
-  });
+      )
+  );
 };

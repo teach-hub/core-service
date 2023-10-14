@@ -129,6 +129,14 @@ export const NonExistentSubmissionType = new GraphQLObjectType<
 const ContributionType = new GraphQLObjectType({
   name: 'ContributionType',
   fields: {
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: c =>
+        toGlobalId({
+          entityName: 'contribution',
+          dbId: c.user.id,
+        }),
+    },
     user: {
       type: new GraphQLNonNull(UserType),
     },
@@ -324,14 +332,13 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
                 return acc;
               }, {} as Record<string, number>);
 
-              return Object.entries(countsByGithubId).map(
-                ([userGithubId, commitsMade]) => {
+              return Object.entries(countsByGithubId)
+                .map(([userGithubId, commitsMade]) => {
                   const user = usersByGithubId[userGithubId];
 
-                  // TODO. Aca tendriamos que validar que sean usuarios del curso.
                   return { user, commitsMade };
-                }
-              );
+                })
+                .filter(({ user }) => !!user);
             },
           },
         },

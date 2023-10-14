@@ -49,6 +49,7 @@ type Comment {
 
 type ContributionType {
   commitsMade: Int!
+  id: ID!
   user: UserType!
 }
 
