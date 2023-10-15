@@ -158,7 +158,7 @@ export const getPullRequestComments = async ({
   }));
 };
 
-const getRepoNameFromUrl = (url: string): Nullable<string> => {
+export const getRepoNameFromUrl = (url: string): Nullable<string> => {
   // Use regular expressions to extract the repo name
   const repoNameMatch = url.match(/github\.com\/[^/]+\/([^/]+)\/pull/);
   if (repoNameMatch && repoNameMatch.length > 1) {

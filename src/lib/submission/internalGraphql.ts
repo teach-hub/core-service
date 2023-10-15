@@ -10,6 +10,8 @@ import {
   GraphQLUnionType,
 } from 'graphql';
 
+import { uniq, minBy, maxBy } from 'lodash';
+
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import {
@@ -18,7 +20,7 @@ import {
   SubmissionFields,
   updateSubmission,
 } from '../submission/submissionsService';
-import { findUser } from '../user/userService';
+import { UserFields, findUser, findUserWithGithubId } from '../user/userService';
 import { findGroup } from '../group/service';
 import { getViewer, UserType } from '../user/internalGraphql';
 
@@ -33,10 +35,16 @@ import {
 import { createReview, findAllReviews, findReview } from '../review/service';
 import { AssignmentType } from '../assignment/graphql';
 import { findAssignment } from '../assignment/assignmentService';
-import { CommentData, getPullRequestComments } from '../../github/pullrequests';
-import { initOctokit } from '../../github/config';
-import { getToken } from '../../utils/request';
 import { findCourse } from '../course/courseService';
+import { getToken } from '../../utils/request';
+
+import {
+  CommentData,
+  getPullRequestComments,
+  getRepoNameFromUrl,
+} from '../../github/pullrequests';
+import { listCommits, CommitInfo } from '../../github/repositories';
+import { initOctokit } from '../../github/config';
 
 import type { AuthenticatedContext } from '../../context';
 
@@ -51,7 +59,7 @@ export const SubmitterUnionType = new GraphQLUnionType({
 const CommentType: GraphQLObjectType<CommentData, AuthenticatedContext> =
   new GraphQLObjectType({
     name: 'Comment',
-    description: 'A role within TeachHub',
+    description: 'A github comment within TeachHub',
     fields: {
       id: {
         type: GraphQLID,
@@ -116,6 +124,26 @@ export const NonExistentSubmissionType = new GraphQLObjectType<
       },
     },
   }),
+});
+
+const ContributionType = new GraphQLObjectType({
+  name: 'ContributionType',
+  fields: {
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: c =>
+        toGlobalId({
+          entityName: 'contribution',
+          dbId: c.user.id,
+        }),
+    },
+    user: {
+      type: new GraphQLNonNull(UserType),
+    },
+    commitsMade: {
+      type: new GraphQLNonNull(GraphQLInt),
+    },
+  },
 });
 
 export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
@@ -253,11 +281,104 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
         }
       },
     },
+    metrics: {
+      type: new GraphQLObjectType({
+        name: 'SubmissionMetricsType',
+        fields: {
+          firstCommitDate: {
+            type: GraphQLString,
+            resolve: async (commits: CommitInfo[]) => {
+              const firstCommit = minBy(commits, commit => commit.date);
+              return firstCommit
+                ? dateToString(new Date(firstCommit.date))
+                : dateToString(new Date());
+            },
+          },
+          lastCommitDate: {
+            type: GraphQLString,
+            resolve: async (commits: CommitInfo[]) => {
+              const firstCommit = maxBy(commits, commit => commit.date);
+              return firstCommit
+                ? dateToString(new Date(firstCommit.date))
+                : dateToString(new Date());
+            },
+          },
+          contributions: {
+            type: new GraphQLNonNull(
+              new GraphQLList(new GraphQLNonNull(ContributionType))
+            ),
+            resolve: async (commits: CommitInfo[]) => {
+              const githubIds = uniq(commits.map(c => String(c.authorGithubId)));
+              const users = githubIds.length
+                ? await Promise.all(githubIds.map(findUserWithGithubId))
+                : [];
+
+              const usersByGithubId = users.reduce((acc, user) => {
+                if (!user) {
+                  return acc;
+                }
+
+                acc[user.githubId] = user;
+                return acc;
+              }, {} as Record<string, UserFields>);
+
+              const countsByGithubId = commits.reduce((acc, commit) => {
+                const userGithubId = commit.authorGithubId;
+
+                let currentCommits = acc[userGithubId] || 0;
+                currentCommits += 1;
+
+                acc[userGithubId] = currentCommits;
+                return acc;
+              }, {} as Record<string, number>);
+
+              return Object.entries(countsByGithubId)
+                .map(([userGithubId, commitsMade]) => {
+                  const user = usersByGithubId[userGithubId];
+
+                  return { user, commitsMade };
+                })
+                .filter(({ user }) => !!user);
+            },
+          },
+        },
+      }),
+      resolve: async (submission, _, context) => {
+        const assignmentId = submission.assignmentId;
+
+        const assignment = await findAssignment({ assignmentId });
+        if (!assignment) {
+          throw new Error('Assignment not found');
+        }
+
+        const course = await findCourse({ courseId: assignment.courseId });
+
+        if (!course?.organization) {
+          return null;
+        }
+
+        const githubToken = getToken(context);
+        if (!githubToken) {
+          throw new Error('Token required');
+        }
+
+        const githubClient = initOctokit(githubToken);
+        const repoName = getRepoNameFromUrl(submission.pullRequestUrl);
+
+        if (!repoName) {
+          throw new Error('Repo name not found');
+        }
+
+        return listCommits(githubClient, course.organization, repoName);
+      },
+    },
     comments: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(CommentType))),
       resolve: async (submission, _, ctx) => {
         const token = getToken(ctx);
-        if (!token) throw new Error('Token required');
+        if (!token) {
+          throw new Error('Token required');
+        }
 
         const pullRequestUrl = submission.pullRequestUrl;
 

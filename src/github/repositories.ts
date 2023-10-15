@@ -1,6 +1,15 @@
 import logger from '../logger';
 import { Octokit } from '@octokit/rest';
 
+type CommitData = Awaited<
+  ReturnType<Octokit['rest']['repos']['listCommits']>
+>['data'][number];
+
+export type CommitInfo = {
+  date: NonNullable<NonNullable<CommitData['commit']['committer']>['date']>;
+  authorGithubId: NonNullable<CommitData['author']>['id'];
+};
+
 export interface BaseRepositoryData {
   name: string;
   includeAllBranches: boolean;
@@ -201,4 +210,26 @@ export const createRepositories = async ({
     ) as GithubRepositorySuccessfulCreationResult[],
     failed: results.filter(r => r.status === RepositoryCreationStatus.FailedOnCreate),
   };
+};
+
+export const listCommits = async (
+  { rest: { repos }, paginate }: Octokit,
+  organization: string,
+  repository: string
+): Promise<CommitInfo[]> => {
+  return paginate(repos.listCommits, {
+    owner: organization,
+    repo: repository,
+    per_page: 100,
+  }).then(items =>
+    items
+      .map(({ author, commit }) => ({
+        authorGithubId: author?.id,
+        date: commit.author?.date,
+      }))
+      .filter(
+        (payload): payload is { authorGithubId: number; date: string } =>
+          !!payload.authorGithubId && !!payload.date
+      )
+  );
 };
