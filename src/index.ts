@@ -21,7 +21,7 @@ import { graphqlHTTP } from 'express-graphql';
 import logger from './logger';
 import { checkDB, initializeModels, writeSchema } from './utils';
 
-import { buildContextForRequest } from './context';
+import { buildContextForAdminRequest, buildContextForRequest } from './context';
 import adminSchema from './graphql/adminSchema';
 import schema from './graphql/schema';
 import permissionsMiddleware from './graphql/rules';
@@ -33,11 +33,14 @@ const app = express();
   initializeModels();
 })();
 
-const buildGraphQLMiddleware = (schema: GraphQLSchema) => {
+const buildGraphQLMiddleware = (
+  schema: GraphQLSchema,
+  contextBuilder: typeof buildContextForRequest
+) => {
   return graphqlHTTP(async (request, response, params) => ({
     pretty: true,
     schema,
-    context: await buildContextForRequest(request, response, logger, params),
+    context: await contextBuilder(request, response, logger, params),
     customFormatErrorFn: (error: Error) => {
       logger.error('GraphQL Error:', error);
       return error;
@@ -52,12 +55,16 @@ app.use(cors());
 // Agregamos como middleware a GraphQL
 app.use(
   '/graphql',
-  buildGraphQLMiddleware(applyMiddleware(schema, permissionsMiddleware))
+  buildGraphQLMiddleware(
+    applyMiddleware(schema, permissionsMiddleware),
+    buildContextForRequest
+  )
 );
 
-// TODO. Permisos sobre el admin schema.
-// https://teachhub.atlassian.net/browse/TH-123
-app.use('/admin/graphql', buildGraphQLMiddleware(adminSchema));
+app.use(
+  '/admin/graphql',
+  buildGraphQLMiddleware(adminSchema, buildContextForAdminRequest)
+);
 
 app.get('/healthz', async (_, response) => {
   try {

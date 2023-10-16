@@ -6,6 +6,7 @@ import {
   countAdminUsers,
   updateAdminUser,
   findAdminUser,
+  findAdminUserByBasic,
 } from './adminService';
 
 import { buildEntityFields } from '../../graphql/fields';
@@ -26,6 +27,10 @@ const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
 
   return fields;
 };
+
+export function getAuthenticatedAdminFromRequest(username: string, password: string) {
+  return findAdminUserByBasic({ username, password });
+}
 
 const AdminUserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'AdminUser',

@@ -22,6 +22,7 @@ import {
   adminGroupParticipantsFields,
 } from '../lib/groupParticipant/graphql';
 import { adminReviewMutations, adminReviewsFields } from '../lib/review/graphql';
+import { authMutations } from '../lib/auth/internalGraphql';
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType<null, Context>({
@@ -45,6 +46,7 @@ const schema = new GraphQLSchema({
     name: 'Mutation',
     description: 'Admin schema root mutation',
     fields: {
+      ...authMutations,
       ...subjectMutations,
       ...courseMutations,
       ...adminUserMutations,

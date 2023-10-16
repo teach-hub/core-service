@@ -81,6 +81,16 @@ export async function findAdminUser({
   return findModel(AdminUserModel, buildModelFields, buildQuery(adminUserId));
 }
 
+export async function findAdminUserByBasic({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}): Promise<AdminUserFields | null> {
+  return findModel(AdminUserModel, buildModelFields, { email: username, password });
+}
+
 export async function findAllAdminUsers(
   options: OrderingOptions
 ): Promise<AdminUserFields[]> {
