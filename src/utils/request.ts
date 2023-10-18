@@ -1,4 +1,4 @@
-import { Context, Optional } from '../types';
+import type { Context, Nullable, Optional } from '../types';
 
 export const getToken = (context: Context): Optional<string> => {
   /*
@@ -6,6 +6,16 @@ export const getToken = (context: Context): Optional<string> => {
    * */
   const authHeader = context.request.headers.authorization;
   return authHeader?.replace('Bearer ', '');
+};
+
+export const getBasicCredentials = (context: Context): Nullable<[string, string]> => {
+  const usernameHeader = context.request.headers.username as string;
+  const passwordHeader = context.request.headers.password as string;
+
+  if (usernameHeader && passwordHeader) {
+    return [usernameHeader, passwordHeader];
+  }
+  return null;
 };
 
 export const buildUnauthorizedError = (): Error => {
