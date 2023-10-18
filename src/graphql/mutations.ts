@@ -7,6 +7,9 @@ import {
   GraphQLFieldConfigArgumentMap,
 } from 'graphql';
 
+import { buildUnauthorizedError } from '../utils/request';
+import { isContextAuthenticated } from '../context';
+
 import type { Nullable, Context } from 'src/types';
 
 type CreateMutationOptions<T> = {
@@ -43,6 +46,10 @@ export function buildEntityMutations<T>({
     args: createArgs,
     description: `Creates ${entityName}`,
     resolve: async (_, { ...rest }, ctx) => {
+      if (!isContextAuthenticated(ctx)) {
+        throw buildUnauthorizedError();
+      }
+
       ctx.logger.info(`Executing mutation create from ${entityName}`);
 
       return createCallback(rest as T);
@@ -54,6 +61,10 @@ export function buildEntityMutations<T>({
     args: updateArgs,
     description: `Updates a ${entityName}`,
     resolve: async (_, { id, ...rest }, ctx) => {
+      if (!isContextAuthenticated(ctx)) {
+        throw buildUnauthorizedError();
+      }
+
       ctx.logger.info(`Executing mutation update from ${entityName}`);
 
       return updateCallback(id, rest as T);
@@ -64,6 +75,10 @@ export function buildEntityMutations<T>({
     type: entityGraphQLType,
     args: { id: { type: new GraphQLNonNull(GraphQLID) } },
     resolve: async (_, { id }, ctx) => {
+      if (!isContextAuthenticated(ctx)) {
+        throw buildUnauthorizedError();
+      }
+
       ctx.logger.info(`Would delete ${entityName}`, { id });
 
       return findCallback(id);

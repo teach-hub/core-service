@@ -9,9 +9,11 @@ import {
 } from 'graphql';
 
 import { RAArgs } from '../graphql/utils';
+import { buildUnauthorizedError } from '../utils/request';
+import { isContextAuthenticated } from '../context';
 
 import type { OrderingOptions } from 'src/utils';
-import type { Context } from 'src/types';
+import type { Context } from 'src/context';
 
 const buildFindTypeObject = <T>(
   type: GraphQLOutputType,
@@ -22,7 +24,11 @@ const buildFindTypeObject = <T>(
     args: { id: { type: GraphQLID } },
     // FIXME. No copiar
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolve: async (_: unknown, { id }: any) => {
+    resolve: async (_: unknown, { id }: any, context: Context) => {
+      if (!isContextAuthenticated(context)) {
+        throw buildUnauthorizedError();
+      }
+
       return findCallback(id);
     },
   };
@@ -39,8 +45,13 @@ const buildFindAllTypeObject = <T>(
     args: RAArgs,
     resolve: async (
       _: unknown,
-      { page, perPage, sortField, sortOrder }: OrderingOptions
+      { page, perPage, sortField, sortOrder }: OrderingOptions,
+      context: Context
     ) => {
+      if (!isContextAuthenticated(context)) {
+        throw buildUnauthorizedError();
+      }
+
       return findAllCallback({ page, perPage, sortField, sortOrder });
     },
   };
@@ -58,7 +69,11 @@ const buildMetaTypeObject = (
       },
     }),
     args: RAArgs,
-    resolve: async () => {
+    resolve: async (_, __, context: Context) => {
+      if (!isContextAuthenticated(context)) {
+        throw buildUnauthorizedError();
+      }
+
       return countCallback().then(count => ({ count }));
     },
   };

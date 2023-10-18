@@ -6,6 +6,8 @@ import {
   GraphQLNonNull,
 } from 'graphql';
 
+import { findAdminUserByBasic } from '../adminUser/adminService';
+
 import type { Context } from '../../types';
 
 export const LoginType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
@@ -36,10 +38,12 @@ export const authMutations: GraphQLFieldConfigMap<unknown, Context> = {
       email: { type: new GraphQLNonNull(GraphQLString) },
       password: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: async () => {
-      // Verify that there's a user with that data.
+    resolve: async (_, { email, password }, { logger }) => {
+      logger.info('Authenticating user', { email });
 
-      return { success: true };
+      const admin = await findAdminUserByBasic({ username: email, password });
+
+      return { success: !!admin };
     },
   },
   logout: {
