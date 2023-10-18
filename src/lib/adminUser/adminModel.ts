@@ -28,8 +28,14 @@ class AdminUser extends Model<
           primaryKey: true,
           autoIncrement: true,
         },
-        email: TEXT,
-        password: TEXT,
+        email: {
+          type: TEXT,
+          allowNull: false,
+        },
+        password: {
+          type: TEXT,
+          allowNull: false,
+        },
         name: TEXT,
         lastName: {
           type: TEXT,

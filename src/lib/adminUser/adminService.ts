@@ -12,8 +12,6 @@ import {
 
 import AdminUserModel from './adminModel';
 
-import type { WhereOptions } from 'sequelize';
-
 type AdminUserFields = {
   id: number;
   email: string;
@@ -32,14 +30,10 @@ const buildModelFields = (adminUser: AdminUserModel): AdminUserFields => {
   };
 };
 
-const buildQuery = (id: number): WhereOptions<AdminUserModel> => {
-  return { id };
-};
-
-const validate = async (data: Omit<AdminUserFields, 'id'>): Promise<void> => {
-  const emailAlreadyUsed = await existsModel(AdminUserModel, {
-    email: data.email,
-  });
+const validate = async ({
+  email,
+}: Omit<AdminUserFields, 'id' | 'password'>): Promise<void> => {
+  const emailAlreadyUsed = await existsModel(AdminUserModel, { email });
 
   if (emailAlreadyUsed) {
     throw new Error('Email already used');
@@ -47,17 +41,38 @@ const validate = async (data: Omit<AdminUserFields, 'id'>): Promise<void> => {
 };
 
 export async function createAdminUser(
-  data: Omit<AdminUserFields, 'id'>
+  data: Omit<AdminUserFields, 'id' | 'password'>
 ): Promise<AdminUserFields | null> {
+  const secret = process.env.PASSWORD_HASH_SECRET;
+
+  if (!secret) {
+    throw new Error('Missing hash secret!');
+  }
+
+  await validate(data);
+
+  const generatedPassword = crypto.randomBytes(10).toString('hex');
+  const encryptedPassword = crypto
+    .createHmac('sha512', secret)
+    .update(generatedPassword)
+    .digest('hex');
+
   const dataWithPassword = {
     ...data,
-    password: data.password ? data.password : crypto.randomBytes(20).toString('hex'),
+    password: encryptedPassword,
   };
 
-  await validate(dataWithPassword);
-  const model = await createModel(AdminUserModel, dataWithPassword, buildModelFields);
+  const createdUser = await createModel(
+    AdminUserModel,
+    dataWithPassword,
+    buildModelFields
+  );
 
-  return model;
+  if (!createdUser) {
+    return null;
+  }
+
+  return { ...createdUser, password: generatedPassword };
 }
 
 export async function updateAdminUser(
@@ -66,7 +81,7 @@ export async function updateAdminUser(
 ): Promise<AdminUserFields> {
   await validate(data);
 
-  return updateModel(AdminUserModel, data, buildModelFields, buildQuery(id));
+  return updateModel(AdminUserModel, data, buildModelFields, { id });
 }
 
 export async function countAdminUsers(): Promise<number> {
@@ -78,7 +93,7 @@ export async function findAdminUser({
 }: {
   adminUserId: number;
 }): Promise<AdminUserFields | null> {
-  return findModel(AdminUserModel, buildModelFields, buildQuery(adminUserId));
+  return findModel(AdminUserModel, buildModelFields, { id: adminUserId });
 }
 
 export async function findAdminUserByBasic({
@@ -88,7 +103,21 @@ export async function findAdminUserByBasic({
   username: string;
   password: string;
 }): Promise<AdminUserFields | null> {
-  return findModel(AdminUserModel, buildModelFields, { email: username, password });
+  const secret = process.env.PASSWORD_HASH_SECRET;
+
+  if (!secret) {
+    throw new Error('Missing hash secret!');
+  }
+
+  const encryptedPassword = crypto
+    .createHmac('sha512', secret)
+    .update(password)
+    .digest('hex');
+
+  return findModel(AdminUserModel, buildModelFields, {
+    email: username,
+    password: encryptedPassword,
+  });
 }
 
 export async function findAllAdminUsers(
