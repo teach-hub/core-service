@@ -14,20 +14,6 @@ import { buildEntityMutations } from '../../graphql/mutations';
 
 import type { Context } from 'src/types';
 
-const getFields = ({ isUpdate }: { isUpdate: boolean }) => {
-  const fields = {
-    ...(isUpdate
-      ? { id: { type: GraphQLID }, password: { type: new GraphQLNonNull(GraphQLString) } }
-      : {}),
-    email: { type: GraphQLString },
-    password: { type: GraphQLString },
-    name: { type: GraphQLString },
-    lastName: { type: GraphQLString },
-  };
-
-  return fields;
-};
-
 export function getAuthenticatedAdminFromRequest(username: string, password: string) {
   return findAdminUserByBasic({ username, password });
 }
@@ -35,7 +21,12 @@ export function getAuthenticatedAdminFromRequest(username: string, password: str
 const AdminUserType: GraphQLObjectType<unknown, Context> = new GraphQLObjectType({
   name: 'AdminUser',
   description: 'An admin user within TeachHub',
-  fields: getFields({ isUpdate: true }),
+  fields: {
+    id: { type: GraphQLID },
+    email: { type: new GraphQLNonNull(GraphQLString) },
+    name: { type: GraphQLString },
+    lastName: { type: GraphQLString },
+  },
 });
 
 const findAdminUserCallback = (id: number) => {
@@ -50,20 +41,55 @@ const adminUserFields = buildEntityFields({
   countCallback: countAdminUsers,
 });
 
-const adminUserMutations = buildEntityMutations({
+const mutations = buildEntityMutations({
   entityGraphQLType: AdminUserType,
   entityName: 'AdminUser',
   createOptions: {
-    args: getFields({ isUpdate: false }),
+    args: {
+      email: { type: new GraphQLNonNull(GraphQLString) },
+      name: { type: GraphQLString },
+      lastName: { type: GraphQLString },
+    },
     callback: createAdminUser,
   },
   updateOptions: {
-    args: getFields({ isUpdate: true }),
+    args: {
+      id: { type: GraphQLID },
+      email: { type: new GraphQLNonNull(GraphQLString) },
+      name: { type: GraphQLString },
+      lastName: { type: GraphQLString },
+    },
     callback: updateAdminUser,
   },
   deleteOptions: {
     findCallback: findAdminUserCallback,
   },
 });
+
+const adminUserMutations = {
+  ...mutations,
+  createAdminUser: {
+    type: new GraphQLObjectType({
+      name: 'CreateAdminUser',
+      fields: {
+        id: { type: GraphQLID },
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        name: { type: GraphQLString },
+        lastName: { type: GraphQLString },
+        password: { type: GraphQLString },
+      },
+    }),
+    args: {
+      email: { type: new GraphQLNonNull(GraphQLString) },
+      name: { type: GraphQLString },
+      lastName: { type: GraphQLString },
+    },
+    resolve: async (_: unknown, args: Record<string, string>) => {
+      const { email, name, lastName } = args;
+
+      return createAdminUser({ email, name, lastName });
+    },
+  },
+};
 
 export { adminUserMutations, adminUserFields };
