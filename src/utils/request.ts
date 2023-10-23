@@ -9,13 +9,15 @@ export const getToken = (context: Context): Optional<string> => {
 };
 
 export const getBasicCredentials = (context: Context): Nullable<[string, string]> => {
-  const usernameHeader = context.request.headers.username as string;
-  const passwordHeader = context.request.headers.password as string;
+  const authHeader = context.request.headers.authorization as string;
 
-  if (usernameHeader && passwordHeader) {
-    return [usernameHeader, passwordHeader];
+  if (!authHeader) {
+    return null;
   }
-  return null;
+
+  const basicAuth = authHeader.replace('Basic ', '');
+  const [username, password] = atob(basicAuth).split(':');
+  return [username, password];
 };
 
 export const buildUnauthorizedError = (): Error => {
