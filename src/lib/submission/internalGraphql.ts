@@ -15,7 +15,6 @@ import { uniq, minBy, maxBy } from 'lodash';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
 import {
-  createSubmission,
   findSubmission,
   SubmissionFields,
   updateSubmission,
@@ -432,47 +431,6 @@ const findSubmissionReviewer = async (submission: SubmissionFields) => {
 };
 
 export const submissionMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> = {
-  createSubmission: {
-    description: 'Creates a new submission for the viewer',
-    type: new GraphQLNonNull(SubmissionType),
-    args: {
-      assignmentId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      courseId: {
-        type: new GraphQLNonNull(GraphQLID),
-      },
-      pullRequestUrl: {
-        type: new GraphQLNonNull(GraphQLString),
-      },
-    },
-    resolve: async (_, args, ctx) => {
-      try {
-        const viewer = await getViewer(ctx);
-
-        const { assignmentId: encodedAssignmentId, pullRequestUrl } = args;
-        const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
-
-        if (!viewer || !viewer.id) {
-          throw new Error('Viewer not found');
-        }
-
-        ctx.logger.info('Creating submission for assignment', {
-          assignmentId,
-          userId: viewer.id,
-        });
-
-        return createSubmission({
-          submitterUserId: viewer.id,
-          assignmentId: Number(assignmentId),
-          pullRequestUrl,
-        });
-      } catch (e) {
-        ctx.logger.error('Error while creating submission', { error: e });
-        throw e;
-      }
-    },
-  },
   submitSubmissionAgain: {
     description: 'Re-submits a submission for the viewer',
     args: {

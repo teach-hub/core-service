@@ -20,7 +20,11 @@ import {
 } from './assignmentService';
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
-import { findAllSubmissions, SubmissionFields } from '../submission/submissionsService';
+import {
+  createSubmission,
+  findAllSubmissions,
+  SubmissionFields,
+} from '../submission/submissionsService';
 import {
   createReviewers,
   deleteReviewers,
@@ -610,7 +614,7 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       const assignment = await findAssignment({
         assignmentId: fromGlobalIdAsNumber(assignmentId),
       });
-      if (!assignment) throw Error(`Assignment ${assignmentId} not found`);
+      if (!assignment) throw new Error(`Assignment ${assignmentId} not found`);
 
       const course = await findCourse({
         courseId: assignment.courseId,
@@ -735,6 +739,47 @@ export const assignmentMutations: GraphQLFieldConfigMap<null, AuthenticatedConte
       );
 
       return findAssignment({ assignmentId });
+    },
+  },
+  createSubmission: {
+    description: 'Creates a new submission for the viewer',
+    type: AssignmentType,
+    args: {
+      assignmentId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      courseId: {
+        type: new GraphQLNonNull(GraphQLID),
+      },
+      pullRequestUrl: {
+        type: new GraphQLNonNull(GraphQLString),
+      },
+    },
+    resolve: async (_, args, ctx) => {
+      try {
+        const { assignmentId: encodedAssignmentId, pullRequestUrl } = args;
+        const assignmentId = fromGlobalIdAsNumber(encodedAssignmentId);
+
+        ctx.logger.info('Creating submission for assignment', {
+          assignmentId,
+          userId: ctx.viewerUserId,
+        });
+
+        const createdSubmission = await createSubmission({
+          submitterUserId: ctx.viewerUserId,
+          assignmentId: Number(assignmentId),
+          pullRequestUrl,
+        });
+
+        if (!createdSubmission) {
+          throw new Error('Error while creating submission');
+        }
+
+        return findAssignment({ assignmentId: createdSubmission.assignmentId });
+      } catch (e) {
+        ctx.logger.error('Error while creating submission', { error: e });
+        throw e;
+      }
     },
   },
 };
