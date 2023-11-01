@@ -50,6 +50,7 @@ export enum Permission {
   ViewGroups = 'viewGroups',
   ManageGroups = 'manageGroups',
   SendNotifications = 'sendNotifications',
+  ViewCourseCharts = 'viewCourseCharts',
 }
 
 export const ALL_PERMISSIONS: string[] = Object.values(Permission);
