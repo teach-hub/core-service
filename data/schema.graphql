@@ -27,7 +27,7 @@ type AssignmentType {
   reviewers: [ReviewerType!]!
   startDate: String
   submissions(onlyReviewerSubmissions: Boolean!): [SubmissionType!]!
-  title: String
+  title: String!
   viewerReviewer: ReviewerType
   viewerSubmission: SubmissionType
 }
@@ -239,7 +239,7 @@ type RootMutationType {
   assignReviewers(courseId: ID!, input: AssignReviewersInputType): AssignmentType
 
   """Creates an assignment in a course"""
-  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
+  createAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, isGroup: Boolean, link: String, startDate: String, title: String!): AssignmentType
 
   """Creates a group and adds a participant to it"""
   createGroupWithParticipant(assignmentId: ID!, courseId: ID!): CourseType
@@ -283,7 +283,7 @@ type RootMutationType {
   submitSubmissionAgain(courseId: ID!, submissionId: ID!): SubmissionType
 
   """Updates an assignment in a course"""
-  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, id: ID!, isGroup: Boolean, link: String, startDate: String, title: String): AssignmentType
+  updateAssignment(active: Boolean, allowLateSubmissions: Boolean, courseId: ID!, description: String, endDate: String, id: ID!, isGroup: Boolean, link: String, startDate: String, title: String!): AssignmentType
 
   """Updates a review grade and / or revision requested status"""
   updateReview(courseId: ID!, grade: Int, id: ID!, revisionRequested: Boolean!): InternalReviewType!
