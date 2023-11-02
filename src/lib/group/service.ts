@@ -1,6 +1,6 @@
 import { db } from '../../db';
 import { Transaction } from 'sequelize';
-import { sortBy } from 'lodash';
+import { sortBy, uniq } from 'lodash';
 import {
   countModels,
   createModel,
@@ -42,6 +42,7 @@ type FindGroupsFilter = OrderingOptions & {
   forCourseId?: GroupModel['courseId'];
   forAssignmentId?: GroupModel['assignmentId'];
   active?: boolean;
+  ignoreActiveFilter?: boolean;
   name?: string;
 };
 
@@ -72,12 +73,12 @@ export async function findAllGroups(
   options: FindGroupsFilter,
   t?: Transaction
 ): Promise<GroupFields[]> {
-  const { forCourseId, forAssignmentId, active, name } = options;
+  const { forCourseId, forAssignmentId, active, name, ignoreActiveFilter } = options;
 
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
-    ...(active ? { active: active } : { active: true }), // If no active value set, always return active groups
+    ...(ignoreActiveFilter ? {} : active ? { active } : { active: true }), // If no active value set, always return active groups
     ...(name ? { name: name } : {}),
   };
 
@@ -121,7 +122,13 @@ export async function createGroupWithParticipants(
 
   const createdGroup = await db.transaction(async t => {
     // Nos aseguramos que los participants no pertenezcan a otro grupo.
-    const courseGroups = await findAllGroups({ forCourseId: courseId }, t);
+    const courseGroups = await findAllGroups(
+      {
+        forCourseId: courseId,
+        ignoreActiveFilter: true, // Search active or inactive groups
+      },
+      t
+    );
 
     // Buscamos el mas reciente (id mas alto).
     const [latestGroup] = sortBy(courseGroups, instance => -instance.id);
@@ -146,7 +153,7 @@ export async function createGroupWithParticipants(
       );
       await Promise.all(
         /* Get distinct group ids and disable each of them, if they end up empty */
-        [...new Set(userGroupParticipantsToDelete.map(gp => gp.groupId))].map(groupId =>
+        uniq(userGroupParticipantsToDelete.map(gp => gp.groupId)).map(groupId =>
           disableGroupIfEmpty({ groupId })
         )
       );
