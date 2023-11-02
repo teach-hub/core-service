@@ -28,7 +28,11 @@ import {
   findRole,
   isTeacherRole,
 } from '../role/roleService';
-import { createGroupWithParticipants } from '../group/service';
+import {
+  createGroupWithParticipants,
+  disableGroupIfEmpty,
+  findAllGroups,
+} from '../group/service';
 
 import { fromGlobalIdAsNumber, toGlobalId } from '../../graphql/utils';
 
@@ -40,12 +44,11 @@ import { getToken } from '../../utils/request';
 import type { AuthenticatedContext } from 'src/context';
 import {
   createGroupParticipant,
-  updateGroupParticipant,
   findAllGroupParticipants,
+  updateGroupParticipant,
 } from '../groupParticipant/service';
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
-import { findAllGroups } from '../group/service';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findSubmission } from '../submission/submissionsService';
 
@@ -505,26 +508,30 @@ export const courseMutations: GraphQLFieldConfigMap<null, AuthenticatedContext> 
         context.logger.info('Creating group participant for user', { userRole, groupId });
 
         // User has no group participant. Let's create one.
-        return createGroupParticipant({
+        await createGroupParticipant({
           groupId,
           userRoleId: userRole.id,
           active: true,
         });
+      } else {
+        if (userAssignmentGroupParticipants.length > 1) {
+          throw new Error('User has more than group in assignment');
+        }
+
+        const [currentGroupParticipant] = userAssignmentGroupParticipants;
+
+        context.logger.info('Updating group participant for user', { userRole, groupId });
+
+        const previousGroupId = currentGroupParticipant.groupId;
+
+        await updateGroupParticipant(currentGroupParticipant.id, {
+          groupId,
+          userRoleId: userRole.id,
+          active: true,
+        });
+
+        await disableGroupIfEmpty({ groupId: previousGroupId });
       }
-
-      if (userAssignmentGroupParticipants.length > 1) {
-        throw new Error('User has more than group in assignment');
-      }
-
-      const [currentGroupParticipant] = userAssignmentGroupParticipants;
-
-      context.logger.info('Updating group participant for user', { userRole, groupId });
-
-      await updateGroupParticipant(currentGroupParticipant.id, {
-        groupId,
-        userRoleId: userRole.id,
-        active: true,
-      });
 
       return findCourse({ courseId });
     },

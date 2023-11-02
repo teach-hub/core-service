@@ -12,12 +12,13 @@ import {
 import { findAssignment } from '../assignment/assignmentService';
 import {
   createGroupParticipant,
-  findAllGroupParticipants,
   deleteGroupParticipants,
+  findAllGroupParticipants,
 } from '../groupParticipant/service';
 
 import GroupModel from './model';
 import type { OrderingOptions } from '../../utils';
+import logger from '../../logger';
 
 export type GroupFields = {
   id: number;
@@ -76,7 +77,7 @@ export async function findAllGroups(
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
-    ...(active ? { active: active } : {}),
+    ...(active ? { active: active } : { active: true }), // If no active value set, always return active groups
     ...(name ? { name: name } : {}),
   };
 
@@ -143,6 +144,12 @@ export async function createGroupWithParticipants(
           deleteGroupParticipants({ groupParticipantId: gp.id }, t)
         )
       );
+      await Promise.all(
+        /* Get distinct group ids and disable each of them, if they end up empty */
+        [...new Set(userGroupParticipantsToDelete.map(gp => gp.groupId))].map(groupId =>
+          disableGroupIfEmpty({ groupId })
+        )
+      );
     }
 
     const nextName = latestGroup
@@ -180,3 +187,18 @@ export async function createGroupWithParticipants(
 
   return createdGroup;
 }
+
+/**
+ * Searches for the group with the given id and disables it (sets active to falsE)
+ * if has no participants left in it.
+ * */
+export const disableGroupIfEmpty = async ({ groupId }: { groupId: number }) => {
+  const groupParticipants = await findAllGroupParticipants({ forGroupId: groupId });
+  if (!groupParticipants.length) {
+    const group = await findGroup({ groupId });
+    if (group) {
+      logger.info(`Disabling group ${groupId}`);
+      await updateGroup(groupId, { ...group, active: false });
+    }
+  }
+};
