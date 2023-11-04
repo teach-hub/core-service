@@ -41,6 +41,7 @@ const buildModelFields = (group: GroupModel): GroupFields => {
 type FindGroupsFilter = OrderingOptions & {
   forCourseId?: GroupModel['courseId'];
   forAssignmentId?: GroupModel['assignmentId'];
+  onlyActiveGroups?: boolean;
   active?: boolean;
   ignoreActiveFilter?: boolean;
   name?: string;
@@ -69,16 +70,20 @@ export async function countGroups(): Promise<number> {
   return countModels<GroupModel>(GroupModel);
 }
 
+/**
+ * Finds all groups that match the given filters.
+ * By default, only active groups are returned
+ * */
 export async function findAllGroups(
   options: FindGroupsFilter,
   t?: Transaction
 ): Promise<GroupFields[]> {
-  const { forCourseId, forAssignmentId, active, name, ignoreActiveFilter } = options;
+  const { forCourseId, forAssignmentId, name, onlyActiveGroups } = options;
 
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
-    ...(ignoreActiveFilter ? {} : active ? { active } : { active: true }), // If no active value set, always return active groups
+    ...(onlyActiveGroups === false ? {} : { active: true }), // By default, only search active groups
     ...(name ? { name: name } : {}),
   };
 
@@ -125,7 +130,7 @@ export async function createGroupWithParticipants(
     const courseGroups = await findAllGroups(
       {
         forCourseId: courseId,
-        ignoreActiveFilter: true, // Search active or inactive groups
+        onlyActiveGroups: false,
       },
       t
     );
