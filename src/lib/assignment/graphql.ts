@@ -93,6 +93,7 @@ export const AssignmentType = new GraphQLObjectType({
         }),
     },
     // Similar a como hacemos con `viewerRole` en `CourseType`.
+    //
     // Este campo deja en el backend la logica de devolver el reviewer
     // del viewer actual (si es que hay uno).
     viewerReviewer: {
@@ -495,34 +496,49 @@ export const AssignmentType = new GraphQLObjectType({
       resolve: async (assignment, _, ctx) => {
         try {
           const isGroup = !!assignment.isGroup;
-          let nonExistentSubmitterId = null;
+          let submitterId = null;
+
+          const viewerUserRole = await findUserRoleInCourse({
+            courseId: assignment.courseId,
+            userId: ctx.viewerUserId,
+          });
+
+          if (!viewerUserRole) {
+            return null;
+          }
 
           if (isGroup) {
-            const viewerRole = await findUserRoleInCourse({
-              courseId: assignment.courseId,
-              userId: ctx.viewerUserId,
-            });
-
             const viewerGroupParticipants = await findAllGroupParticipants({
-              forUserRoleId: viewerRole.id,
+              forUserRoleId: viewerUserRole.id,
             });
 
             const assignmentGroups = await findAllGroups({
               forAssignmentId: assignment.id,
             });
 
-            nonExistentSubmitterId = assignmentGroups.find(group =>
+            submitterId = assignmentGroups.find(group =>
               viewerGroupParticipants.map(p => p.groupId).includes(group.id)
             )?.id;
 
-            if (!nonExistentSubmitterId) {
+            if (!submitterId) {
               return null;
             }
+          } else {
+            submitterId = ctx.viewerUserId;
+          }
+
+          const [viewerSubmission] = await findAllSubmissions({
+            forAssignmentId: assignment.id,
+            forSubmitterId: submitterId,
+          });
+
+          if (viewerSubmission) {
+            return null;
           }
 
           return {
             assignmentId: assignment.id,
-            submitterId: nonExistentSubmitterId,
+            submitterId,
             isGroup,
           };
         } catch (error) {
