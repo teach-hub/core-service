@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 
 import { OrderingOptions } from '../../utils';
 import { ALL_PERMISSIONS, Permission } from '../../consts';
-import { Optional } from '../../types';
+import { Nullable, Optional } from '../../types';
 import {
   countModels,
   createModel,
@@ -86,7 +86,7 @@ export async function updateRole(id: number, data: RoleFields): Promise<RoleFiel
     throw new Error('Role has invalid permission(s)');
   }
 
-  // TODO. Validar que no haya ciclos.
+  if (data.parentRoleId) await validateHierarchyLoops(id, data.parentRoleId);
 
   return updateModel(RoleModel, fixData(data), toRoleFields, buildQuery(id));
 }
@@ -135,3 +135,32 @@ export async function consolidateRoles(
     permissions: allPermissions.filter(isValidPermission),
   };
 }
+
+const validateHierarchyLoops = async (
+  roleId: number,
+  newParentRoleId: number
+): Promise<void> => {
+  const previousRole = await findRole({ roleId });
+  if (!previousRole) {
+    throw new Error('Role not found');
+  }
+
+  if (newParentRoleId) {
+    if (previousRole.parentRoleId !== newParentRoleId) {
+      const newHierarchyRoleIds = [];
+      let currentParentRoleId: Optional<number> = newParentRoleId;
+      while (currentParentRoleId) {
+        const parent: Nullable<RoleFields> = await findRole({
+          roleId: currentParentRoleId,
+        });
+        if (!parent) throw new Error('Parent role not found');
+
+        newHierarchyRoleIds.push(String(parent.id));
+
+        if (newHierarchyRoleIds.includes(String(roleId)))
+          throw new Error('Role hierarchy contains cycles');
+        currentParentRoleId = parent.parentRoleId;
+      }
+    }
+  }
+};
