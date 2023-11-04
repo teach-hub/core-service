@@ -37,7 +37,7 @@ import {
   findUserRoleInCourse,
   UserRoleFields,
 } from '../userRole/userRoleService';
-import { findAllRoles, isTeacherRole } from '../role/roleService';
+import { findRole, findAllRoles, isTeacherRole } from '../role/roleService';
 import {
   createGroupWithParticipants,
   findAllGroups,
@@ -186,13 +186,28 @@ export const AssignmentType = new GraphQLObjectType({
         },
       },
       resolve: async (assignment, { onlyReviewerSubmissions }, ctx) => {
-        let submissions = await findAllSubmissions({ forAssignmentId: assignment.id });
+        const viewerUserRole = await findUserRoleInCourse({
+          courseId: assignment.courseId,
+          userId: ctx.viewerUserId,
+        });
+        const viewerRole = await findRole({ roleId: viewerUserRole.roleId });
 
-        submissions = !onlyReviewerSubmissions
-          ? submissions
-          : await filterSubmissionsWhereUserIsReviewer({
+        if (!viewerRole) {
+          throw new Error('Viewer has no role in course.');
+        }
+
+        if (!isTeacherRole(viewerRole)) {
+          return [];
+        }
+
+        const allSubmissions = await findAllSubmissions({
+          forAssignmentId: assignment.id,
+        });
+        const submissions = !onlyReviewerSubmissions
+          ? allSubmissions
+          : await withUserAsReviewer({
               assignmentId: assignment.id,
-              submissions,
+              submissions: allSubmissions,
               userId: ctx.viewerUserId,
             });
 
@@ -467,6 +482,49 @@ export const AssignmentType = new GraphQLObjectType({
             submitterId,
             isGroup,
           }));
+        } catch (error) {
+          ctx.logger.error('An error happened while returning non existing submissions', {
+            error,
+          });
+          return [];
+        }
+      },
+    },
+    nonExistentViewerSubmission: {
+      type: NonExistentSubmissionType,
+      resolve: async (assignment, _, ctx) => {
+        try {
+          const isGroup = !!assignment.isGroup;
+          let nonExistentSubmitterId = null;
+
+          if (isGroup) {
+            const viewerRole = await findUserRoleInCourse({
+              courseId: assignment.courseId,
+              userId: ctx.viewerUserId,
+            });
+
+            const viewerGroupParticipants = await findAllGroupParticipants({
+              forUserRoleId: viewerRole.id,
+            });
+
+            const assignmentGroups = await findAllGroups({
+              forAssignmentId: assignment.id,
+            });
+
+            nonExistentSubmitterId = assignmentGroups.find(group =>
+              viewerGroupParticipants.map(p => p.groupId).includes(group.id)
+            )?.id;
+
+            if (!nonExistentSubmitterId) {
+              return null;
+            }
+          }
+
+          return {
+            assignmentId: assignment.id,
+            submitterId: nonExistentSubmitterId,
+            isGroup,
+          };
         } catch (error) {
           ctx.logger.error('An error happened while returning non existing submissions', {
             error,
@@ -814,7 +872,7 @@ const parseAssignmentData = (args: any): Omit<AssignmentFields, 'id'> => {
   };
 };
 
-const filterSubmissionsWhereUserIsReviewer = async ({
+const withUserAsReviewer = async ({
   submissions,
   assignmentId,
   userId,

@@ -50,7 +50,7 @@ import {
 import { InternalGroupParticipantType } from '../groupParticipant/internalGraphql';
 import { InternalGroupType } from '../group/internalGraphql';
 import { SubmissionType } from '../submission/internalGraphql';
-import { findSubmission } from '../submission/submissionsService';
+import { findAllSubmissions, findSubmission } from '../submission/submissionsService';
 
 export const CoursePublicDataType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
   new GraphQLObjectType({
