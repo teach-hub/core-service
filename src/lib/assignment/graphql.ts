@@ -225,49 +225,19 @@ export const AssignmentType = new GraphQLObjectType({
     viewerSubmission: {
       type: SubmissionType,
       resolve: async (assignment, _, ctx: AuthenticatedContext) => {
-        // By default assume non group assignment
-        let submitterId = ctx.viewerUserId;
-
-        if (assignment.isGroup) {
-          const viewerRole = await findUserRoleInCourse({
-            courseId: assignment.courseId,
-            userId: ctx.viewerUserId,
-          });
-
-          const viewerGroupParticipants = await findAllGroupParticipants({
-            forUserRoleId: viewerRole.id,
-          });
-
-          const assignmentGroups = await findAllGroups({
-            forAssignmentId: assignment.id,
-          });
-
-          const viewerAssignmentGroup = assignmentGroups.find(group =>
-            viewerGroupParticipants.map(p => p.groupId).includes(group.id)
-          );
-
-          if (!viewerAssignmentGroup) {
-            return null;
-          }
-
-          // If group assignment submitter is the group
-          submitterId = viewerAssignmentGroup.id;
-        }
-
-        const [submission] = await findAllSubmissions({
-          forAssignmentId: assignment.id,
-          forSubmitterId: submitterId,
+        const isGroup = !!assignment.isGroup;
+        const submission = await findUserSubmission({
+          assignment,
+          userId: ctx.viewerUserId,
         });
 
         if (!submission) {
           return null;
         }
 
-        ctx.logger.info('Returning submission', { submission });
-
         return {
           ...submission,
-          isGroup: assignment.isGroup,
+          isGroup,
         };
       },
     },
@@ -496,51 +466,17 @@ export const AssignmentType = new GraphQLObjectType({
       resolve: async (assignment, _, ctx) => {
         try {
           const isGroup = !!assignment.isGroup;
-          let submitterId = null;
 
-          const viewerUserRole = await findUserRoleInCourse({
-            courseId: assignment.courseId,
+          const viewerSubmission = await findUserSubmission({
             userId: ctx.viewerUserId,
-          });
-
-          if (!viewerUserRole) {
-            return null;
-          }
-
-          if (isGroup) {
-            const viewerGroupParticipants = await findAllGroupParticipants({
-              forUserRoleId: viewerUserRole.id,
-            });
-
-            const assignmentGroups = await findAllGroups({
-              forAssignmentId: assignment.id,
-            });
-
-            submitterId = assignmentGroups.find(group =>
-              viewerGroupParticipants.map(p => p.groupId).includes(group.id)
-            )?.id;
-
-            if (!submitterId) {
-              return null;
-            }
-          } else {
-            submitterId = ctx.viewerUserId;
-          }
-
-          const [viewerSubmission] = await findAllSubmissions({
-            forAssignmentId: assignment.id,
-            forSubmitterId: submitterId,
+            assignment,
           });
 
           if (viewerSubmission) {
             return null;
           }
 
-          return {
-            assignmentId: assignment.id,
-            submitterId,
-            isGroup,
-          };
+          return { assignmentId: assignment.id, submitterId: ctx.viewerUserId, isGroup };
         } catch (error) {
           ctx.logger.error('An error happened while returning non existing submissions', {
             error,
@@ -887,6 +823,54 @@ const parseAssignmentData = (args: any): Omit<AssignmentFields, 'id'> => {
     courseId: fixedCourseId,
   };
 };
+
+async function findUserSubmission({
+  userId,
+  assignment,
+}: {
+  userId: number;
+  assignment: AssignmentFields;
+}): Promise<SubmissionFields | null> {
+  const userUserRole = await findUserRoleInCourse({
+    courseId: assignment.courseId,
+    userId,
+  });
+
+  if (!userUserRole) {
+    throw new Error('User is not enrolled in course');
+  }
+
+  let submitterId = userId;
+
+  if (assignment.isGroup) {
+    const userGroupParticipants = await findAllGroupParticipants({
+      forUserRoleId: userUserRole.id,
+    });
+
+    const assignmentGroups = await findAllGroups({
+      forAssignmentId: assignment.id,
+    });
+
+    const userAssignmentGroup = assignmentGroups.find(group =>
+      userGroupParticipants.map(p => p.groupId).includes(group.id)
+    );
+
+    if (!userAssignmentGroup) {
+      // Si el usuario no esta asignado a un grupo
+      // entonces no hay submission.
+      return null;
+    }
+
+    submitterId = userAssignmentGroup.id;
+  }
+
+  const [submission] = await findAllSubmissions({
+    forAssignmentId: assignment.id,
+    forSubmitterId: submitterId,
+  });
+
+  return submission;
+}
 
 const withUserAsReviewer = async ({
   submissions,
