@@ -1,6 +1,6 @@
 import { db } from '../../db';
 import { Transaction } from 'sequelize';
-import { sortBy } from 'lodash';
+import { sortBy, uniq } from 'lodash';
 import {
   countModels,
   createModel,
@@ -12,12 +12,13 @@ import {
 import { findAssignment } from '../assignment/assignmentService';
 import {
   createGroupParticipant,
-  findAllGroupParticipants,
   deleteGroupParticipants,
+  findAllGroupParticipants,
 } from '../groupParticipant/service';
 
 import GroupModel from './model';
 import type { OrderingOptions } from '../../utils';
+import logger from '../../logger';
 
 export type GroupFields = {
   id: number;
@@ -40,7 +41,9 @@ const buildModelFields = (group: GroupModel): GroupFields => {
 type FindGroupsFilter = OrderingOptions & {
   forCourseId?: GroupModel['courseId'];
   forAssignmentId?: GroupModel['assignmentId'];
+  onlyActiveGroups?: boolean;
   active?: boolean;
+  ignoreActiveFilter?: boolean;
   name?: string;
 };
 
@@ -67,16 +70,20 @@ export async function countGroups(): Promise<number> {
   return countModels<GroupModel>(GroupModel);
 }
 
+/**
+ * Finds all groups that match the given filters.
+ * By default, only active groups are returned
+ * */
 export async function findAllGroups(
   options: FindGroupsFilter,
   t?: Transaction
 ): Promise<GroupFields[]> {
-  const { forCourseId, forAssignmentId, active, name } = options;
+  const { forCourseId, forAssignmentId, name, onlyActiveGroups } = options;
 
   const whereClause = {
     ...(forCourseId ? { courseId: forCourseId } : {}),
     ...(forAssignmentId ? { assignmentId: forAssignmentId } : {}),
-    ...(active ? { active: active } : {}),
+    ...(onlyActiveGroups === false ? {} : { active: true }), // By default, only search active groups
     ...(name ? { name: name } : {}),
   };
 
@@ -120,7 +127,13 @@ export async function createGroupWithParticipants(
 
   const createdGroup = await db.transaction(async t => {
     // Nos aseguramos que los participants no pertenezcan a otro grupo.
-    const courseGroups = await findAllGroups({ forCourseId: courseId }, t);
+    const courseGroups = await findAllGroups(
+      {
+        forCourseId: courseId,
+        onlyActiveGroups: false,
+      },
+      t
+    );
 
     // Buscamos el mas reciente (id mas alto).
     const [latestGroup] = sortBy(courseGroups, instance => -instance.id);
@@ -141,6 +154,12 @@ export async function createGroupWithParticipants(
       await Promise.all(
         userGroupParticipantsToDelete.map(gp =>
           deleteGroupParticipants({ groupParticipantId: gp.id }, t)
+        )
+      );
+      await Promise.all(
+        /* Get distinct group ids and disable each of them, if they end up empty */
+        uniq(userGroupParticipantsToDelete.map(gp => gp.groupId)).map(groupId =>
+          disableGroupIfEmpty({ groupId })
         )
       );
     }
@@ -180,3 +199,18 @@ export async function createGroupWithParticipants(
 
   return createdGroup;
 }
+
+/**
+ * Searches for the group with the given id and disables it (sets active to falsE)
+ * if has no participants left in it.
+ * */
+export const disableGroupIfEmpty = async ({ groupId }: { groupId: number }) => {
+  const groupParticipants = await findAllGroupParticipants({ forGroupId: groupId });
+  if (!groupParticipants.length) {
+    const group = await findGroup({ groupId });
+    if (group) {
+      logger.info(`Disabling group ${groupId}`);
+      await updateGroup(groupId, { ...group, active: false });
+    }
+  }
+};
