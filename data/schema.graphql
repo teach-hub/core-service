@@ -23,6 +23,7 @@ type AssignmentType {
   isOpenForSubmissions: Boolean!
   link: String
   nonExistentSubmissions(onlyReviewerSubmissions: Boolean!): [NonExistentSubmissionType!]!
+  nonExistentViewerSubmission: NonExistentSubmissionType
   previewReviewers(input: PreviewReviewersFilterInputType): [ReviewerPreviewType!]!
   reviewers: [ReviewerType!]!
   startDate: String

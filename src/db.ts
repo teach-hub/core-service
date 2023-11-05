@@ -17,7 +17,7 @@ import GroupParticipantModel from './lib/groupParticipant/model';
 
 import logger from './logger';
 
-const DB_URL = process.env.DB_URL || 'postgres://postgres@localhost:5432/teachhub';
+const DB_URL = `postgres://${process.env.DB_URL || 'postgres@localhost:5432/teachhub'}`;
 
 const db = new Sequelize(DB_URL, { logging: false });
 

@@ -1,4 +1,4 @@
-FROM node:16.17-slim
+FROM node:16.20-slim
 
 ADD ./src /teachhub/src/
 ADD ./data /teachhub/data/
@@ -10,7 +10,7 @@ ADD ./entrypoint.sh /teachhub/
 WORKDIR /teachhub/
 
 RUN apt-get update && \
-    apt-get -y install sqitch
+    apt-get -y install sqitch=0.9999-2
 
 # TODO: Multistage builds (devDepdencies + prod deps en build stage)
 # y solo las de prod para correr la app.
