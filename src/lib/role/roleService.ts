@@ -52,7 +52,7 @@ const toRoleFields = (role: RoleModel): RoleFields => {
   };
 };
 
-const fixData = (data: RoleFields): RoleAttrs => {
+const toRoleAttributes = (data: RoleFields): RoleAttrs => {
   return {
     id: data.id,
     name: data.name,
@@ -74,7 +74,7 @@ export async function createRole(data: RoleFields): Promise<RoleFields | null> {
 
   const dataWithActiveField = { ...data, active: true };
 
-  return createModel(RoleModel, fixData(dataWithActiveField), toRoleFields);
+  return createModel(RoleModel, toRoleAttributes(dataWithActiveField), toRoleFields);
 }
 
 export async function updateRole(id: number, data: RoleFields): Promise<RoleFields> {
@@ -88,7 +88,7 @@ export async function updateRole(id: number, data: RoleFields): Promise<RoleFiel
 
   if (data.parentRoleId) await validateHierarchyLoops(id, data.parentRoleId);
 
-  return updateModel(RoleModel, fixData(data), toRoleFields, buildQuery(id));
+  return updateModel(RoleModel, toRoleAttributes(data), toRoleFields, buildQuery(id));
 }
 
 export async function countRoles(): Promise<number> {
