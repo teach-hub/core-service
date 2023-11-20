@@ -33,23 +33,20 @@ export const DatabaseConstants = {
  */
 
 export enum Permission {
-  ViewHome = 'viewHome',
-  EditSubject = 'editSubject',
-  InviteUser = 'inviteUser',
-  CreateAssignment = 'createAssignment',
-  ManageOwnGroups = 'manageOwnGroups',
-  SubmitAssignment = 'submitAssignment',
-  EditAssignment = 'editAssignment',
-  SetOrganization = 'setOrganization',
-  SetDescription = 'setDescription',
-  ViewSubmission = 'viewSubmission',
-  ViewAllSubmissions = 'viewAllSubmissions',
-  CreateRepository = 'createRepository',
   AssignReviewer = 'assignReviewer',
-  SetReview = 'setReview',
-  ViewGroups = 'viewGroups',
+  CreateAssignment = 'createAssignment',
+  CreateRepository = 'createRepository',
+  EditAssignment = 'editAssignment',
+  InviteUser = 'inviteUser',
   ManageGroups = 'manageGroups',
+  ManageOwnGroups = 'manageOwnGroups',
   SendNotifications = 'sendNotifications',
+  SetDescription = 'setDescription',
+  SetOrganization = 'setOrganization',
+  SetReview = 'setReview',
+  SubmitAssignment = 'submitAssignment',
+  /* View permissions are used in front-end */
+  ViewAllSubmissions = 'viewAllSubmissions',
   ViewCourseCharts = 'viewCourseCharts',
 }
 
