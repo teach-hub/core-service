@@ -34,11 +34,11 @@ SELECT setval('teachhub.subjects_id_seq', (select MAX(id) from teachhub.subjects
 -- Data for Name: roles; Type: TABLE DATA; Schema: teachhub; Owner: tomas
 --
 
-INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (1, 'Usuario', NULL, 'viewHome', false, false);
-INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (2, 'Titular', NULL, 'setOrganization, createRepository, editAssignment, createAssignment, inviteUser, editSubject, assignReviewer, viewGroups, viewAllSubmissions', false, true);
+INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (1, 'Usuario', NULL, '', false, false);
+INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (2, 'Titular', NULL, 'setOrganization, createRepository, editAssignment, createAssignment, inviteUser, assignReviewer, viewAllSubmissions', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (3, 'JTP', NULL, '', false, true);
 INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (4, 'Ayudante', NULL, '', false, true);
-INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (5, 'Alumno', NULL, 'manageOwnGroups, submitAssignment, viewSubmission', false, false);
+INSERT INTO teachhub.roles (id, name, parent_role_id, permissions, active, is_teacher) VALUES (5, 'Alumno', NULL, 'manageOwnGroups, submitAssignment', false, false);
 
 SELECT setval('teachhub.roles_id_seq', (select MAX(id) from teachhub.roles));
 
