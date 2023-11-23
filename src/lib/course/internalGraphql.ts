@@ -310,10 +310,13 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
                 forCourseId: course.id,
               };
 
+              const viewerGroupIds = viewerGroupParticipants.map(
+                groupParticipant => groupParticipant.groupId
+              );
+              const viewerHasGroups = !!viewerGroupIds.length;
+
               const groupRepositoriesFilter = {
-                forGroupIds: viewerGroupParticipants.map(
-                  groupParticipant => groupParticipant.groupId
-                ),
+                forGroupIds: viewerGroupIds,
                 forCourseId: course.id,
               };
 
@@ -323,7 +326,7 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
 
               const [individualRepositories, groupRepositories] = await Promise.all([
                 findAllRepositories(individualRepositoriesFilter),
-                findAllRepositories(groupRepositoriesFilter),
+                viewerHasGroups ? findAllRepositories(groupRepositoriesFilter) : [],
               ]);
 
               return individualRepositories.concat(groupRepositories);

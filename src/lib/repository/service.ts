@@ -10,6 +10,7 @@ import {
 import RepositoryModel from './model';
 import type { OrderingOptions } from '../../utils';
 import type { Optional } from '../../types';
+import { Op } from 'sequelize';
 
 export type RepositoryFields = {
   id: number;
@@ -36,7 +37,7 @@ const buildModelFields = (repository: RepositoryModel): RepositoryFields => {
 type FindRepositoriesFilter = OrderingOptions & {
   active?: boolean;
   forUserId?: number;
-  forGroupId?: number;
+  forGroupIds?: number[];
   forCourseId?: number;
 };
 
@@ -80,13 +81,13 @@ export async function countRepositories(): Promise<number> {
 export async function findAllRepositories(
   options: FindRepositoriesFilter
 ): Promise<RepositoryFields[]> {
-  const { active, forUserId, forCourseId, forGroupId } = options;
+  const { active, forUserId, forCourseId, forGroupIds } = options;
 
   const whereClause = {
     ...(active ? { active } : {}),
     ...(forUserId ? { userId: forUserId } : {}),
     ...(forCourseId ? { courseId: forCourseId } : {}),
-    ...(forGroupId ? { courseId: forGroupId } : {}),
+    ...(forGroupIds ? { groupId: { [Op.in]: forGroupIds } } : {}),
   };
 
   return findAllModels(RepositoryModel, options, buildModelFields, whereClause);
