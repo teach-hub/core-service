@@ -11,6 +11,9 @@ import RepositoryModel from './model';
 import type { OrderingOptions } from '../../utils';
 import type { Optional } from '../../types';
 import { Op } from 'sequelize';
+import { findUserRoleInCourse } from '../userRole/userRoleService';
+import { findAllGroupParticipants } from '../groupParticipant/service';
+import logger from '../../logger';
 
 export type RepositoryFields = {
   id: number;
@@ -100,3 +103,45 @@ export async function findRepository({
 }): Promise<RepositoryFields | null> {
   return findModel(RepositoryModel, buildModelFields, { id: repositoryId });
 }
+
+export const getViewerRepositories = async ({
+  courseId,
+  viewerUserId,
+}: {
+  courseId: number;
+  viewerUserId: number;
+}) => {
+  const viewerUserRole = await findUserRoleInCourse({
+    courseId: courseId,
+    userId: viewerUserId,
+  });
+  const viewerGroupParticipants = await findAllGroupParticipants({
+    forUserRoleId: viewerUserRole.id,
+  });
+
+  const individualRepositoriesFilter = {
+    forUserId: viewerUserId,
+    forCourseId: courseId,
+  };
+
+  const viewerGroupIds = viewerGroupParticipants.map(
+    groupParticipant => groupParticipant.groupId
+  );
+  const viewerHasGroups = !!viewerGroupIds.length;
+
+  const groupRepositoriesFilter = {
+    forGroupIds: viewerGroupIds,
+    forCourseId: courseId,
+  };
+
+  logger.info('Searching repositories', {
+    filters: { ...individualRepositoriesFilter, ...groupRepositoriesFilter },
+  });
+
+  const [individualRepositories, groupRepositories] = await Promise.all([
+    findAllRepositories(individualRepositoriesFilter),
+    viewerHasGroups ? findAllRepositories(groupRepositoriesFilter) : [],
+  ]);
+
+  return individualRepositories.concat(groupRepositories);
+};

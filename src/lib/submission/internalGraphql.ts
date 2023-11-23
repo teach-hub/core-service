@@ -368,7 +368,12 @@ export const SubmissionType: GraphQLObjectType = new GraphQLObjectType<
           throw new Error('Repo name not found');
         }
 
-        return listCommits(githubClient, course.organization, repoName);
+        return listCommits(
+          githubClient,
+          course.organization,
+          repoName,
+          submission.pullRequestUrl
+        );
       },
     },
     comments: {

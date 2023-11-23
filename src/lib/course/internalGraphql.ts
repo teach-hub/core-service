@@ -17,7 +17,6 @@ import { getViewer, UserType } from '../user/internalGraphql';
 import { AssignmentType } from '../assignment/graphql';
 import { buildUserRoleType } from '../userRole/internalGraphql';
 import { RepositoryType } from '../repository/internalGraphql';
-import { findAllRepositories } from '../repository/service';
 
 import { findSubject } from '../subject/subjectService';
 import { findAllAssignments, findAssignment } from '../assignment/assignmentService';
@@ -51,6 +50,7 @@ import { InternalGroupParticipantType } from '../groupParticipant/internalGraphq
 import { InternalGroupType } from '../group/internalGraphql';
 import { SubmissionType } from '../submission/internalGraphql';
 import { findSubmission } from '../submission/submissionsService';
+import { getViewerRepositories } from '../repository/service';
 
 export const CoursePublicDataType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
   new GraphQLObjectType({
@@ -297,39 +297,10 @@ export const CourseType: GraphQLObjectType<CourseFields, AuthenticatedContext> =
             // al curso para que puedan re-utilizarse en distintos assignments.
 
             try {
-              const viewerUserRole = await findUserRoleInCourse({
+              return getViewerRepositories({
                 courseId: course.id,
-                userId: context.viewerUserId,
+                viewerUserId: context.viewerUserId,
               });
-              const viewerGroupParticipants = await findAllGroupParticipants({
-                forUserRoleId: viewerUserRole.id,
-              });
-
-              const individualRepositoriesFilter = {
-                forUserId: context.viewerUserId,
-                forCourseId: course.id,
-              };
-
-              const viewerGroupIds = viewerGroupParticipants.map(
-                groupParticipant => groupParticipant.groupId
-              );
-              const viewerHasGroups = !!viewerGroupIds.length;
-
-              const groupRepositoriesFilter = {
-                forGroupIds: viewerGroupIds,
-                forCourseId: course.id,
-              };
-
-              context.logger.info('Searching repositories', {
-                filters: { ...individualRepositoriesFilter, ...groupRepositoriesFilter },
-              });
-
-              const [individualRepositories, groupRepositories] = await Promise.all([
-                findAllRepositories(individualRepositoriesFilter),
-                viewerHasGroups ? findAllRepositories(groupRepositoriesFilter) : [],
-              ]);
-
-              return individualRepositories.concat(groupRepositories);
             } catch (e) {
               context.logger.error('Failed fetching repositories', { error: e });
               return [];

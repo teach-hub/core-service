@@ -213,20 +213,36 @@ export const createRepositories = async ({
 };
 
 export const listCommits = async (
-  { rest: { repos }, paginate }: Octokit,
+  { rest: { repos, pulls }, paginate }: Octokit,
   organization: string,
-  repository: string
+  repository: string,
+  pullRequestUrl: string
 ): Promise<CommitInfo[]> => {
+  const pullRequestNumber = pullRequestUrl.split('/').pop();
+
+  const relatedPullRequest = await pulls.get({
+    owner: organization,
+    repo: repository,
+    pull_number: Number(pullRequestNumber),
+  });
+
+  if (!relatedPullRequest.data) {
+    return [];
+  }
+
   return paginate(repos.listCommits, {
     owner: organization,
     repo: repository,
+    sha: relatedPullRequest.data.head.ref,
     per_page: 100,
   }).then(items =>
     items
-      .map(({ author, commit }) => ({
-        authorGithubId: author?.id,
-        date: commit.author?.date,
-      }))
+      .map(({ author, commit }) => {
+        return {
+          authorGithubId: author?.id,
+          date: commit.author?.date,
+        };
+      })
       .filter(
         (payload): payload is { authorGithubId: number; date: string } =>
           !!payload.authorGithubId && !!payload.date

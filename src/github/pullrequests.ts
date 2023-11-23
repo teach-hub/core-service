@@ -2,11 +2,11 @@ import { flatten, isNil } from 'lodash';
 import logger from '../logger';
 
 import { findCourse } from '../lib/course/courseService';
-import { findAllRepositories } from '../lib/repository/service';
 
 import type { Octokit } from '@octokit/rest';
 import type { UserFields } from '../lib/user/userService';
 import { Nullable, Optional } from '../types';
+import { getViewerRepositories } from '../lib/repository/service';
 
 type PullRequest = {
   id: string;
@@ -27,9 +27,9 @@ export const listOpenPRs = async (
     return Promise.resolve([]);
   }
 
-  const courseRepos = await findAllRepositories({
-    forUserId: viewer.id,
-    forCourseId: courseId,
+  const courseRepos = await getViewerRepositories({
+    viewerUserId: viewer.id,
+    courseId: courseId,
   });
 
   const findPullRequestsForRepository = async (repositoryName: string) => {
