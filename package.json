@@ -21,6 +21,7 @@
   "main": "build/index.js",
   "scripts": {
     "start": "npx tsc && node dist/src/index.js",
+    "husky": "husky install",
     "test": "echo \"Error: no test to run\"",
     "db": "cd src/db && sqitch deploy --verify development && cd -",
     "setup:db": "createdb teachhub && pnpm run db && cd src/db && psql teachhub < seeds.sql && cd -",
