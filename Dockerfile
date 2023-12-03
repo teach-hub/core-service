@@ -2,6 +2,7 @@ FROM node:16.20-slim
 
 ADD ./src /teachhub/src/
 ADD ./data /teachhub/data/
+ADD ./bin /teachhub/bin/
 ADD ./package.json /teachhub/
 ADD ./package-lock.json /teachhub/
 ADD ./tsconfig.json /teachhub/
