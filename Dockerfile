@@ -2,6 +2,7 @@ FROM node:16.20-slim
 
 ADD ./src /teachhub/src/
 ADD ./data /teachhub/data/
+ADD ./bin /teachhub/bin/
 ADD ./package.json /teachhub/
 ADD ./package-lock.json /teachhub/
 ADD ./tsconfig.json /teachhub/
@@ -10,7 +11,7 @@ ADD ./entrypoint.sh /teachhub/
 WORKDIR /teachhub/
 
 RUN apt-get update && \
-    apt-get -y install sqitch=0.9999-2
+    apt-get -y install sqitch=0.9999-2 openssl
 
 # TODO: Multistage builds (devDepdencies + prod deps en build stage)
 # y solo las de prod para correr la app.

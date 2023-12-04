@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -euo pipefail
+
+echo 'Creating backoffice admin...'
+
+if [[ -z "${PASSWORD_HASH_SECRET}" ]]; then
+  echo 'Missing PASSWORD_HASH_SECRET env var.'
+  exit 1
+fi
+
+if [[ -z "${DB_URL}" ]]; then
+  echo 'Missing DB_URL env var.'
+  exit 1
+fi
+
+ADMIN_EMAIL="admin@teachhub.com"
+NAME="TeachHub Admin"
+PASSWORD=$(echo $RANDOM | md5sum | head -c 20; echo)
+
+HASHED_PASSWORD=$(echo -n $PASSWORD | openssl dgst -sha256 -hmac $PASSWORD_HASH_SECRET | sed 's/^.* //')
+
+echo "Created admin user with email: $ADMIN_EMAIL"
+echo "Password: $PASSWORD"
+echo "Copy it and send it to the admin."
+
+psql -v ON_ERROR_STOP=1 postgres://$DB_URL/teachhub 1> /dev/null << EOSQL
+  INSERT INTO teachhub.admin_users (email, name, password)
+  VALUES ('$ADMIN_EMAIL', '$NAME', '$HASHED_PASSWORD');
+EOSQL
